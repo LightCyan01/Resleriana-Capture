@@ -1,0 +1,5 @@
+* binary
+*.md text diff merge eol=lf
+.gitignore text diff merge eol=lf
+.gitattributes text diff merge eol=lf
+Licenses/Localization-ReadMe.md binary
