@@ -3,3 +3,11 @@
 .gitignore text diff merge eol=lf
 .gitattributes text diff merge eol=lf
 Licenses/Localization-ReadMe.md binary
+Sources/**/*.cs text diff merge eol=lf
+Sources/**/*.csproj text diff merge eol=lf
+Sources/**/*.props text diff merge eol=lf
+Sources/**/*.targets text diff merge eol=lf
+Sources/**/*.sln text diff merge eol=lf
+scripts/*.py text diff merge eol=lf
+.github/workflows/*.yml text diff merge eol=lf
+VERSION text diff merge eol=lf

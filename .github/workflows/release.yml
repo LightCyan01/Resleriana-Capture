@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Package install files
+        id: package
+        run: python3 scripts/package.py --output "$RUNNER_TEMP/release"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.package.outputs.tag }}
+          ASSET: ${{ steps.package.outputs.asset }}
+        run: |
+          printf 'Download **%s** and extract its contents beside `AtelierResleriana.exe`. Includes the capture plugin, modified BepInEx runtime and English localization.\n' "$ASSET" > "$RUNNER_TEMP/release-notes.md"
+          if gh release view "$TAG" --json isDraft --jq '.isDraft' > "$RUNNER_TEMP/is-draft" 2>/dev/null; then
+            if [ "$(cat "$RUNNER_TEMP/is-draft")" = false ]; then
+              echo "$TAG is already published."
+              exit 0
+            fi
+            gh release edit "$TAG" --target "$GITHUB_SHA" --notes-file "$RUNNER_TEMP/release-notes.md"
+          else
+            gh release create "$TAG" --draft --target "$GITHUB_SHA" --title "Resleriana Capture $TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
+          gh release upload "$TAG" "$RUNNER_TEMP/release/$ASSET" "$RUNNER_TEMP/release/SHA256SUMS.txt" --clobber
+          gh release edit "$TAG" --draft=false --latest

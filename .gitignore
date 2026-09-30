@@ -19,3 +19,7 @@
 /Player.log
 /doorstop.log
 /CaptureTools/
+**/bin/
+**/obj/
+**/__pycache__/
+/dist/

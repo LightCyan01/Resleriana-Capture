@@ -5,8 +5,8 @@ localization dependencies. Each component keeps its own license.
 
 | Component | Source | Notice |
 | --- | --- | --- |
-| BepInEx 6.0.0-be.788, modified | [BepInEx](https://github.com/BepInEx/BepInEx) | `BepInEx-LGPL-2.1.txt`; modified source in `../Sources` |
-| Il2CppInterop 1.5.3, modified HarmonySupport | [Il2CppInterop](https://github.com/BepInEx/Il2CppInterop) | `Il2CppInterop-LGPL-3.0.txt`; modified source in `../Sources` |
+| BepInEx 6.0.0-be.788, modified | [BepInEx](https://github.com/BepInEx/BepInEx) | `BepInEx-LGPL-2.1.txt`; [modified source](https://github.com/LightCyan01/Resleriana-Capture/tree/main/Sources/BepInEx) |
+| Il2CppInterop 1.5.3, modified HarmonySupport | [Il2CppInterop](https://github.com/BepInEx/Il2CppInterop) | `Il2CppInterop-LGPL-3.0.txt`; [modified source](https://github.com/LightCyan01/Resleriana-Capture/tree/main/Sources/Il2CppInterop) |
 | HarmonyX 2.16.1 | [HarmonyX](https://github.com/BepInEx/HarmonyX) | `HarmonyX-LICENSE.txt`, `HarmonyX-LICENSE.Harmony.txt` |
 | .NET 6.0.7 runtime | [dotnet/runtime](https://github.com/dotnet/runtime/tree/v6.0.7) | `dotnet-LICENSE.txt`, `dotnet-THIRD-PARTY-NOTICES.txt` |
 | Unity Doorstop | [UnityDoorstop](https://github.com/NeighTools/UnityDoorstop) | `Doorstop-LICENSE.txt` |
