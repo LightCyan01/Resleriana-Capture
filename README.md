@@ -8,8 +8,8 @@ The plugin records requests and responses inside the game, plus inputs, results 
 
 ## Install
 
-1. Close the game. Open the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest) and download `Resleriana-Capture-vX.Y.Z-win-x64.zip` under Assets.
-2. Extract the ZIP and copy its contents into the game folder, beside `AtelierResleriana.exe`.
+1. Close the game. Open the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest) and download `Resleriana-Capture-vX.Y.Z-win-x64.zip` or Clone the Repository
+2. Extract the ZIP and copy its contents into the game folder, besides `AtelierResleriana.exe`.
 3. Launch the game through Steam. Recording starts automatically. The first launch may take a few minutes to set up.
 
 ## Captures
@@ -20,7 +20,7 @@ After closing the game, find your capture here:
 BepInEx/plugins/Captures/Official/capture-YYYY-MM-DD_HH-mm-ss.zip
 ```
 
-Each ZIP contains four JSON Lines text files. Extract it once to read them.
+Each ZIP contains four JSON Lines text files.
 
 | File | Information recorded |
 | --- | --- |
