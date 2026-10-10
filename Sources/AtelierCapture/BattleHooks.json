@@ -1,0 +1,402 @@
+[
+  {
+    "type": "BattleServerControl",
+    "method": "SetInfoOnBattleStart",
+    "arity": 0,
+    "role": "battle_start",
+    "rva": 64433408,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "SetStateOnWaveChange",
+    "arity": 0,
+    "role": "wave_state",
+    "rva": 64434368,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "SyncAfterAction",
+    "arity": 0,
+    "role": "action_merge",
+    "rva": 64433328,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "SyncState",
+    "arity": 1,
+    "role": "state_merge",
+    "rva": 64459280,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "SetDamageInfo",
+    "arity": 0,
+    "role": "damage_merge",
+    "rva": 64465072,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "SyncActionStart",
+    "arity": 0,
+    "role": "action_start",
+    "rva": 64435648,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "SyncActionEnd",
+    "arity": 0,
+    "role": "action_end",
+    "rva": 64436480,
+    "async_return": false
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "StartWave",
+    "arity": 1,
+    "role": "wave_start",
+    "rva": 68718992,
+    "async_return": true
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "SkillExec",
+    "arity": 2,
+    "role": "skill_exec",
+    "rva": 68799840,
+    "async_return": true
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "ItemSkillExec",
+    "arity": 7,
+    "role": "item_exec",
+    "rva": 68709024,
+    "async_return": true
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "EndSkill",
+    "arity": 5,
+    "role": "skill_end",
+    "rva": 68804560,
+    "async_return": false
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "SetEffectResult",
+    "arity": 4,
+    "role": "effect_result",
+    "rva": 68824064,
+    "async_return": false
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "PerformStateChangeResult",
+    "arity": 2,
+    "role": "state_change",
+    "rva": 68714048,
+    "async_return": true
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "GetClientBattleStatus",
+    "arity": 2,
+    "role": "client_status",
+    "rva": 68758832,
+    "async_return": false
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "UpdateBurstShort",
+    "arity": 1,
+    "role": "burst_short_update",
+    "rva": 68738640,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "SetActionInfo",
+    "arity": 7,
+    "role": "damage_action_info",
+    "rva": 58000864,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "DINBCPEALEM",
+    "arity": 2,
+    "role": "damage_step_gate",
+    "rva": 58003088,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "StepHitExec",
+    "arity": 2,
+    "role": "damage_step_exec",
+    "rva": 58011056,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "FAKAFPEKJDJ",
+    "arity": 2,
+    "role": "damage_step_result",
+    "rva": 58014560,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "HitExec",
+    "arity": 3,
+    "role": "damage_hit_exec",
+    "rva": 58028640,
+    "async_return": true
+  },
+  {
+    "type": "Api.BattleApi",
+    "method": "OnSuccessBattleFinish",
+    "arity": 1,
+    "role": "finish_consumer",
+    "rva": 45368720,
+    "async_return": false
+  },
+  {
+    "type": "BattleTimelineMoveControl",
+    "method": "StartTurnTimelineMove",
+    "arity": 1,
+    "role": "timeline_turn",
+    "rva": 87160368,
+    "async_return": true
+  },
+  {
+    "type": "BattleTimelineIcon",
+    "method": "SetPredict",
+    "arity": 4,
+    "role": "timeline_predict",
+    "rva": 87114720,
+    "async_return": false
+  },
+  {
+    "type": "BattleUnitConditionControl",
+    "method": "SyncConditions",
+    "arity": 2,
+    "role": "condition_sync",
+    "rva": 77683424,
+    "async_return": false
+  },
+  {
+    "type": "BattleUnitConditionControl",
+    "method": "UpdateResidentEffect",
+    "arity": 1,
+    "role": "resident_effect",
+    "rva": 77687072,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "AIMCFGLOFGB",
+    "arity": 2,
+    "role": "damage_distribution_primary",
+    "rva": 58001872,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "JKHBDFALAEF",
+    "arity": 2,
+    "role": "damage_distribution_secondary",
+    "rva": 58026496,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "JGNMMPGIBOK",
+    "arity": 4,
+    "role": "damage_distribution_flags",
+    "rva": 58002752,
+    "async_return": false
+  },
+  {
+    "type": "BattlePresenter",
+    "method": "RequestDamageText",
+    "arity": 3,
+    "role": "damage_text",
+    "rva": 64520672,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "OnFlagBurstGauge",
+    "arity": 2,
+    "role": "damage_flags_burst",
+    "rva": 58007200,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "OnFlag",
+    "arity": 2,
+    "role": "damage_flags_merge",
+    "rva": 58017296,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "IJGGGIPFBDC",
+    "arity": 2,
+    "role": "damage_flags_burst_merge",
+    "rva": 58017312,
+    "async_return": false
+  },
+  {
+    "type": "BattleEffectControl",
+    "method": "PlayDamageHitEffect",
+    "arity": 3,
+    "role": "effect_damage",
+    "rva": 58033632,
+    "async_return": false
+  },
+  {
+    "type": "BattleEffectControl",
+    "method": "IJIPBDNENFG",
+    "arity": 3,
+    "role": "effect_result_variant",
+    "rva": 58038528,
+    "async_return": false
+  },
+  {
+    "type": "BattleEffectControl",
+    "method": "AOLGCJPAKAB",
+    "arity": 3,
+    "role": "effect_result_variant_alt",
+    "rva": 58042240,
+    "async_return": false
+  },
+  {
+    "type": "BattleEffectControl",
+    "method": "PlayNoEffectEffect",
+    "arity": 2,
+    "role": "effect_no_result",
+    "rva": 58043168,
+    "async_return": false
+  },
+  {
+    "type": "BattleEffectControl",
+    "method": "PlayHitEffect",
+    "arity": 2,
+    "role": "effect_hit_result",
+    "rva": 58043264,
+    "async_return": false
+  },
+  {
+    "type": "BattleEffectControl",
+    "method": "PlayBreakEffect",
+    "arity": 2,
+    "role": "effect_break",
+    "rva": 58042080,
+    "async_return": false
+  },
+  {
+    "type": "BattleEffectControl",
+    "method": "PlayPanelBuffEffect",
+    "arity": 2,
+    "role": "effect_panel",
+    "rva": 58034544,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "EAPLPBPHPAI",
+    "arity": 3,
+    "role": "target_damage_primary",
+    "rva": 58002240,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "LNOHNOIENDH",
+    "arity": 3,
+    "role": "target_damage_secondary",
+    "rva": 58014048,
+    "async_return": false
+  },
+  {
+    "type": "BattleDamageControl",
+    "method": "KILOCMIEGHL",
+    "arity": 3,
+    "role": "target_damage_tertiary",
+    "rva": 58020768,
+    "async_return": false
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "GetMainTargetId",
+    "arity": 1,
+    "role": "target_main_id",
+    "rva": 68709760,
+    "async_return": false
+  },
+  {
+    "type": "BattleStateVariables",
+    "method": "GetDefaultTargetUnit",
+    "arity": 3,
+    "role": "target_default",
+    "rva": 68714512,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "SyncAfterItemAction",
+    "arity": 0,
+    "role": "item_merge",
+    "rva": 64447984,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "SetActionInfoList",
+    "arity": 0,
+    "role": "action_list",
+    "rva": 64450848,
+    "async_return": false
+  },
+  {
+    "type": "BattleServerControl",
+    "method": "JNKDBMBJMPA",
+    "arity": 4,
+    "role": "resume_state",
+    "rva": 64467328,
+    "async_return": false
+  },
+  {
+    "type": "BattleCommandItemControl",
+    "method": "SyncItems",
+    "arity": 1,
+    "role": "item_stock",
+    "rva": 56392560,
+    "async_return": false
+  },
+  {
+    "type": "NHEIMMIAMJO",
+    "method": "EPMPMDMFEDN",
+    "arity": 2,
+    "role": "unit_sync",
+    "rva": 77502080,
+    "async_return": false
+  },
+  {
+    "type": "NHEIMMIAMJO",
+    "method": "CJIHGGKHNOA",
+    "arity": 1,
+    "role": "unit_damage",
+    "rva": 77527760,
+    "async_return": false
+  }
+]

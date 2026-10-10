@@ -17,7 +17,7 @@
   <ItemGroup>
     <Reference Include="Il2Cppmscorlib">
       <Private>false</Private>
-      <HintPath>..\Il2CppInterop.Runtime\Libs\Il2Cppmscorlib.dll</HintPath>
+      <HintPath>$(Il2CppReferenceDirectory)/Il2Cppmscorlib.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -1,0 +1,730 @@
+{
+  "/advertising_id/update": [
+    "Blend.ApiSchema.Api.AdvertisingIdUpdateRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/atelier/research": [
+    "Blend.ApiSchema.Api.AtelierResearchRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/auth/sign_in": [
+    "Blend.ApiSchema.Api.AuthSignInRequest",
+    "Blend.ApiSchema.Api.AuthSignInResponse"
+  ],
+  "/auth/sign_up": [
+    "Blend.ApiSchema.Api.AuthSignUpRequest",
+    "Blend.ApiSchema.Api.AuthSignUpResponse"
+  ],
+  "/auth/sign_up_apple": [
+    "Blend.ApiSchema.Api.AuthSignUpAppleRequest",
+    "Blend.ApiSchema.Api.AuthSignUpAppleResponse"
+  ],
+  "/auth/sign_up_google": [
+    "Blend.ApiSchema.Api.AuthSignUpGoogleRequest",
+    "Blend.ApiSchema.Api.AuthSignUpGoogleResponse"
+  ],
+  "/auth/sign_up_passcode": [
+    "Blend.ApiSchema.Api.AuthSignUpPasscodeRequest",
+    "Blend.ApiSchema.Api.AuthSignUpPasscodeResponse"
+  ],
+  "/battle/attack": [
+    "Blend.ApiSchema.Api.BattleAttackRequest",
+    "Blend.ApiSchema.Api.BattleAttackResponse"
+  ],
+  "/battle/finish": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.BattleFinishResponse"
+  ],
+  "/battle/resume": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.BattleResumeResponse"
+  ],
+  "/battle/retire": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/chara_home/register": [
+    "Blend.ApiSchema.Api.CharaHomeRegisterRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/bulk_set": [
+    "Blend.ApiSchema.Api.CharacterBulkSetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/enhance": [
+    "Blend.ApiSchema.Api.CharacterEnhanceRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/enhancement_reset": [
+    "Blend.ApiSchema.Api.CharacterEnhancementResetRequest",
+    "Blend.ApiSchema.Api.CharacterEnhancementResetResponse"
+  ],
+  "/character/equip": [
+    "Blend.ApiSchema.Api.CharacterEquipRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/growboard_bulk_release": [
+    "Blend.ApiSchema.Api.CharacterGrowboardBulkReleaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/growboard_page_release": [
+    "Blend.ApiSchema.Api.CharacterGrowboardPageReleaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/level_limit_release": [
+    "Blend.ApiSchema.Api.CharacterLevelLimitReleaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/memoria_set": [
+    "Blend.ApiSchema.Api.CharacterMemoriaSetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/rarity_enhance": [
+    "Blend.ApiSchema.Api.CharacterRarityEnhanceRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/skill_evolve": [
+    "Blend.ApiSchema.Api.CharacterSkillEvolveRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/skill_lock_release": [
+    "Blend.ApiSchema.Api.CharacterSkillLockReleaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character/skin_set": [
+    "Blend.ApiSchema.Api.CharacterSkinSetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/character_story/clear": [
+    "Blend.ApiSchema.Api.CharacterStoryClearRequest",
+    "Blend.ApiSchema.Api.CharacterStoryClearResponse"
+  ],
+  "/communication/story_clear": [
+    "Blend.ApiSchema.Api.CommunicationStoryClearRequest",
+    "Blend.ApiSchema.Api.CommunicationStoryClearResponse"
+  ],
+  "/communication/story_release": [
+    "Blend.ApiSchema.Api.CommunicationStoryReleaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/daily_pass/bulk_receive": [
+    "Blend.ApiSchema.Api.DailyPassBulkReceiveRequest",
+    "Blend.ApiSchema.Api.DailyPassBulkReceiveResponse"
+  ],
+  "/daily_pass/receive": [
+    "Blend.ApiSchema.Api.DailyPassReceiveRequest",
+    "Blend.ApiSchema.Api.DailyPassReceiveResponse"
+  ],
+  "/debug/battle/finish": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/debug/character/enhance": [
+    "Blend.ApiSchema.Api.DebugCharacterEnhanceRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/debug/client_error": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/debug/exploration/finish": [
+    "Blend.ApiSchema.Api.DebugExplorationFinishRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/debug/ktid/link": [
+    "Blend.ApiSchema.Api.DebugKtidLinkRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/debug/login_bonus/list": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.DebugLoginBonusListResponse"
+  ],
+  "/debug/mail/send": [
+    "Blend.ApiSchema.Api.DebugMailSendRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/debug/server_error": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/debug/shop/purchase": [
+    "Blend.ApiSchema.Api.DebugShopPurchaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/debug/shop/store_product_list": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.DebugShopStoreProductListResponse"
+  ],
+  "/debug/title_list": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.DebugTitleListResponse"
+  ],
+  "/debug/tutorial/step_update": [
+    "Blend.ApiSchema.Api.DebugTutorialStepUpdateRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/debug/user/bulk_resource": [
+    "Blend.ApiSchema.Api.DebugUserBulkResourceRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/debug/user/last_main_story_quest": [
+    "Blend.ApiSchema.Api.DebugUserLastMainStoryQuestRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/debug/user/resource": [
+    "Blend.ApiSchema.Api.DebugUserResourceRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/debug/user_error": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/dish/order": [
+    "Blend.ApiSchema.Api.DishOrderRequest",
+    "Blend.ApiSchema.Api.DishOrderResponse"
+  ],
+  "/emblem/acquisition_drama": [
+    "Blend.ApiSchema.Api.EmblemAcquisitionDramaRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/equipment_preset/bulk_set": [
+    "Blend.ApiSchema.Api.EquipmentPresetBulkSetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/equipment_preset/equip": [
+    "Blend.ApiSchema.Api.EquipmentPresetEquipRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/equipment_preset/memoria_set": [
+    "Blend.ApiSchema.Api.EquipmentPresetMemoriaSetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/equipment_preset/update_name": [
+    "Blend.ApiSchema.Api.EquipmentPresetUpdateNameRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/event/damage_contest": [
+    "Blend.ApiSchema.Api.EventDamageContestRequest",
+    "Blend.ApiSchema.Api.EventDamageContestResponse"
+  ],
+  "/event/legend_challenge": [
+    "Blend.ApiSchema.Api.EventLegendChallengeRequest",
+    "Blend.ApiSchema.Api.EventLegendChallengeResponse"
+  ],
+  "/event/revive": [
+    "Blend.ApiSchema.Api.EventReviveRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/event/top": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.EventTopResponse"
+  ],
+  "/expedition/reward_receive": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ExpeditionRewardReceiveResponse"
+  ],
+  "/expedition/start": [
+    "Blend.ApiSchema.Api.ExpeditionStartRequest",
+    "Blend.ApiSchema.Api.ExpeditionStartResponse"
+  ],
+  "/exploration/battle_start": [
+    "Blend.ApiSchema.Api.ExplorationBattleStartRequest",
+    "Blend.ApiSchema.Api.BattleStartResponse"
+  ],
+  "/exploration/explore": [
+    "Blend.ApiSchema.Api.ExplorationExploreRequest",
+    "Blend.ApiSchema.Api.ExplorationExploreResponse"
+  ],
+  "/exploration/finish": [
+    "Blend.ApiSchema.Api.ExplorationFinishRequest",
+    "Blend.ApiSchema.Api.ExplorationFinishResponse"
+  ],
+  "/exploration/retire": [
+    "Blend.ApiSchema.Api.ExplorationRetireRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/exploration/skip": [
+    "Blend.ApiSchema.Api.ExplorationSkipRequest",
+    "Blend.ApiSchema.Api.ExplorationSkipResponse"
+  ],
+  "/exploration/start": [
+    "Blend.ApiSchema.Api.ExplorationStartRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/exploration/update_party": [
+    "Blend.ApiSchema.Api.ExplorationUpdatePartyRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/external_purchase/receive": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ExternalPurchaseReceiveResponse"
+  ],
+  "/gacha/battle_start": [
+    "Blend.ApiSchema.Api.GachaBattleStartRequest",
+    "Blend.ApiSchema.Api.BattleStartResponse"
+  ],
+  "/gacha/execute": [
+    "Blend.ApiSchema.Api.GachaExecuteRequest",
+    "Blend.ApiSchema.Api.GachaExecuteResponse"
+  ],
+  "/gacha/list": [
+    "Blend.ApiSchema.Api.GachaListRequest",
+    "Blend.ApiSchema.Api.GachaListResponse"
+  ],
+  "/gacha/step_up_execute": [
+    "Blend.ApiSchema.Api.GachaStepUpExecuteRequest",
+    "Blend.ApiSchema.Api.GachaStepUpExecuteResponse"
+  ],
+  "/gacha/wish_list_set": [
+    "Blend.ApiSchema.Api.GachaWishListSetRequest",
+    "Blend.ApiSchema.Api.GachaWishListSetResponse"
+  ],
+  "/growth_pack/bulk_receive": [
+    "Blend.ApiSchema.Api.GrowthPackBulkReceiveRequest",
+    "Blend.ApiSchema.Api.GrowthPackBulkReceiveResponse"
+  ],
+  "/growth_pack/point_purchase": [
+    "Blend.ApiSchema.Api.GrowthPackPointPurchaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/growth_pack/purchase": [
+    "Blend.ApiSchema.Api.GrowthPackPurchaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/growth_pack/receive": [
+    "Blend.ApiSchema.Api.GrowthPackReceiveRequest",
+    "Blend.ApiSchema.Api.GrowthPackReceiveResponse"
+  ],
+  "/house_building/count_reward_receive": [
+    "Blend.ApiSchema.Api.HouseBuildingCountRewardReceiveRequest",
+    "Blend.ApiSchema.Api.HouseBuildingCountRewardReceiveResponse"
+  ],
+  "/house_building/enhance": [
+    "Blend.ApiSchema.Api.HouseBuildingEnhanceRequest",
+    "Blend.ApiSchema.Api.HouseBuildingEnhanceResponse"
+  ],
+  "/house_building/rent": [
+    "Blend.ApiSchema.Api.HouseBuildingRentRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/house_building/rental_reward_receive": [
+    "Blend.ApiSchema.Api.HouseBuildingRentalRewardReceiveRequest",
+    "Blend.ApiSchema.Api.HouseBuildingRentalRewardReceiveResponse"
+  ],
+  "/house_building/reset": [
+    "Blend.ApiSchema.Api.HouseBuildingResetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/house_building/reward_receive": [
+    "Blend.ApiSchema.Api.HouseBuildingRewardReceiveRequest",
+    "Blend.ApiSchema.Api.HouseBuildingRewardReceiveResponse"
+  ],
+  "/house_building/start": [
+    "Blend.ApiSchema.Api.HouseBuildingStartRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/illustrated_book/start": [
+    "Blend.ApiSchema.Api.IllustratedBookStartRequest",
+    "Blend.ApiSchema.Api.IllustratedBookStartResponse"
+  ],
+  "/invitation/create": [
+    "Blend.ApiSchema.Api.InvitationCreateRequest",
+    "Blend.ApiSchema.Api.InvitationCreateResponse"
+  ],
+  "/invitation/receive": [
+    "Blend.ApiSchema.Api.InvitationReceiveRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/item/bundle_open": [
+    "Blend.ApiSchema.Api.ItemBundleOpenRequest",
+    "Blend.ApiSchema.Api.ItemBundleOpenResponse"
+  ],
+  "/item_challenge/execute": [
+    "Blend.ApiSchema.Api.ItemChallengeExecuteRequest",
+    "Blend.ApiSchema.Api.ItemChallengeExecuteResponse"
+  ],
+  "/item_challenge/reward_receive": [
+    "Blend.ApiSchema.Api.ItemChallengeRewardReceiveRequest",
+    "Blend.ApiSchema.Api.ItemChallengeRewardReceiveResponse"
+  ],
+  "/ktid/web_token": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.KtidWebTokenResponse"
+  ],
+  "/login_bonus/receive": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.LoginBonusReceiveResponse"
+  ],
+  "/mail/delete": [
+    "Blend.ApiSchema.Api.MailDeleteRequest",
+    "Blend.ApiSchema.Api.MailDeleteResponse"
+  ],
+  "/mail/list": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.MailListResponse"
+  ],
+  "/mail/open": [
+    "Blend.ApiSchema.Api.MailOpenRequest",
+    "Blend.ApiSchema.Api.MailOpenResponse"
+  ],
+  "/mana/purchase": [
+    "Blend.ApiSchema.Api.ManaPurchaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/mana/use_item": [
+    "Blend.ApiSchema.Api.ManaUseItemRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/memoria/enhance": [
+    "Blend.ApiSchema.Api.MemoriaEnhanceRequest",
+    "Blend.ApiSchema.Api.MemoriaEnhanceResponse"
+  ],
+  "/memoria/limit_break": [
+    "Blend.ApiSchema.Api.MemoriaLimitBreakRequest",
+    "Blend.ApiSchema.Api.MemoriaLimitBreakResponse"
+  ],
+  "/memoria/lock": [
+    "Blend.ApiSchema.Api.MemoriaLockRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/memoria/sell": [
+    "Blend.ApiSchema.Api.MemoriaSellRequest",
+    "Blend.ApiSchema.Api.MemoriaSellResponse"
+  ],
+  "/mission/count_reward_receive": [
+    "Blend.ApiSchema.Api.MissionCountRewardReceiveRequest",
+    "Blend.ApiSchema.Api.MissionCountRewardReceiveResponse"
+  ],
+  "/mission/event_tab_reward_receive": [
+    "Blend.ApiSchema.Api.MissionEventTabRewardReceiveRequest",
+    "Blend.ApiSchema.Api.MissionEventTabRewardReceiveResponse"
+  ],
+  "/mission/navigation_task_proceed": [
+    "Blend.ApiSchema.Api.MissionNavigationTaskProceedRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/mission/receive": [
+    "Blend.ApiSchema.Api.MissionReceiveRequest",
+    "Blend.ApiSchema.Api.MissionReceiveResponse"
+  ],
+  "/mod_timeline/release": [
+    "Blend.ApiSchema.Api.ModTimelineReleaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/multi_mission/receive": [
+    "Blend.ApiSchema.Api.MultiMissionReceiveRequest",
+    "Blend.ApiSchema.Api.MultiMissionReceiveResponse"
+  ],
+  "/multi_mission/status": [
+    "Blend.ApiSchema.Api.MultiMissionStatusRequest",
+    "Blend.ApiSchema.Api.MultiMissionStatusResponse"
+  ],
+  "/party/battle_tools_set": [
+    "Blend.ApiSchema.Api.PartyBattleToolsSetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/party/bulk_update": [
+    "Blend.ApiSchema.Api.PartyBulkUpdateRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/present/execute": [
+    "Blend.ApiSchema.Api.PresentExecuteRequest",
+    "Blend.ApiSchema.Api.PresentExecuteResponse"
+  ],
+  "/profile/update_chara_home_favorite_character_list": [
+    "Blend.ApiSchema.Api.ProfileUpdateCharaHomeFavoriteCharacterListRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/profile/update_favorite_battle_tools": [
+    "Blend.ApiSchema.Api.ProfileUpdateFavoriteBattleToolsRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/profile/update_favorite_character": [
+    "Blend.ApiSchema.Api.ProfileUpdateFavoriteCharacterRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/profile/update_favorite_party": [
+    "Blend.ApiSchema.Api.ProfileUpdateFavoritePartyRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/profile/update_memo": [
+    "Blend.ApiSchema.Api.ProfileUpdateMemoRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/profile/update_name": [
+    "Blend.ApiSchema.Api.ProfileUpdateNameRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/profile/update_selected_home_id": [
+    "Blend.ApiSchema.Api.ProfileUpdateSelectedHomeIdRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/purchase/session_publish": [
+    "Blend.ApiSchema.Api.PurchaseSessionPublishRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/purchase/session_start": [
+    "Blend.ApiSchema.Api.PurchaseSessionStartRequest",
+    "Blend.ApiSchema.Api.PurchaseSessionStartResponse"
+  ],
+  "/purchase/verify": [
+    "Blend.ApiSchema.Api.PurchaseVerifyRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/quest/battle/rental_party_start": [
+    "Blend.ApiSchema.Api.QuestBattleRentalPartyStartRequest",
+    "Blend.ApiSchema.Api.BattleStartResponse"
+  ],
+  "/quest/battle/skip": [
+    "Blend.ApiSchema.Api.QuestBattleSkipRequest",
+    "Blend.ApiSchema.Api.QuestBattleSkipResponse"
+  ],
+  "/quest/battle/solo_raid_battle_start": [
+    "Blend.ApiSchema.Api.QuestBattleSoloRaidBattleStartRequest",
+    "Blend.ApiSchema.Api.BattleStartResponse"
+  ],
+  "/quest/battle/start": [
+    "Blend.ApiSchema.Api.QuestBattleStartRequest",
+    "Blend.ApiSchema.Api.BattleStartResponse"
+  ],
+  "/quest/battle/total_battle_start": [
+    "Blend.ApiSchema.Api.QuestBattleTotalBattleStartRequest",
+    "Blend.ApiSchema.Api.BattleStartResponse"
+  ],
+  "/quest/cleared_party_list": [
+    "Blend.ApiSchema.Api.QuestClearedPartyListRequest",
+    "Blend.ApiSchema.Api.QuestClearedPartyListResponse"
+  ],
+  "/quest/daily_clear_add": [
+    "Blend.ApiSchema.Api.QuestDailyClearAddRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/quest/score_rank_first_reward_receive": [
+    "Blend.ApiSchema.Api.QuestScoreRankFirstRewardReceiveRequest",
+    "Blend.ApiSchema.Api.QuestScoreRankFirstRewardReceiveResponse"
+  ],
+  "/quest/street/move": [
+    "Blend.ApiSchema.Api.QuestStreetMoveRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/quest/street/start": [
+    "Blend.ApiSchema.Api.QuestStreetStartRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/quest/street/talk": [
+    "Blend.ApiSchema.Api.QuestStreetTalkRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/quest/talk_event/finish": [
+    "Blend.ApiSchema.Api.QuestTalkEventFinishRequest",
+    "Blend.ApiSchema.Api.QuestTalkEventFinishResponse"
+  ],
+  "/quest/talk_event/main_story_episode_skip": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/quest/talk_event/main_story_season_skip": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/quest/talk_event/prologue_skip": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/recipe/count_reward_receive": [
+    "Blend.ApiSchema.Api.RecipeCountRewardReceiveRequest",
+    "Blend.ApiSchema.Api.RecipeCountRewardReceiveResponse"
+  ],
+  "/recipe/favorite": [
+    "Blend.ApiSchema.Api.RecipeFavoriteRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/recipe/learn": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.RecipeLearnResponse"
+  ],
+  "/refund_info/get": [
+    "Blend.ApiSchema.Api.RefundInfoGetRequest",
+    "Blend.ApiSchema.Api.RefundInfoGetResponse"
+  ],
+  "/refund_info/get_country_code": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.RefundInfoGetCountryCodeResponse"
+  ],
+  "/rental_party/battle_tools_set": [
+    "Blend.ApiSchema.Api.RentalPartyBattleToolsSetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/rental_party/bulk_update": [
+    "Blend.ApiSchema.Api.RentalPartyBulkUpdateRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/rental_party/character_bulk_equip": [
+    "Blend.ApiSchema.Api.RentalPartyCharacterBulkEquipRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/rental_party/character_equip": [
+    "Blend.ApiSchema.Api.RentalPartyCharacterEquipRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/ship/bulk_update": [
+    "Blend.ApiSchema.Api.ShipBulkUpdateRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/ship/create": [
+    "Blend.ApiSchema.Api.ShipCreateRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/ship/ship_tools_set": [
+    "Blend.ApiSchema.Api.ShipShipToolsSetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/ship/synthesize": [
+    "Blend.ApiSchema.Api.ShipSynthesizeRequest",
+    "Blend.ApiSchema.Api.ShipSynthesizeResponse"
+  ],
+  "/shop/box_gacha/execute": [
+    "Blend.ApiSchema.Api.ShopBoxGachaExecuteRequest",
+    "Blend.ApiSchema.Api.ShopBoxGachaExecuteResponse"
+  ],
+  "/shop/gem_list": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ShopGemListResponse"
+  ],
+  "/shop/piece_exchange": [
+    "Blend.ApiSchema.Api.ShopPieceExchangeRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/shop/purchase": [
+    "Blend.ApiSchema.Api.ShopPurchaseRequest",
+    "Blend.ApiSchema.Api.ShopPurchaseResponse"
+  ],
+  "/shop/random_shop/list": [
+    "Blend.ApiSchema.Api.ShopRandomShopListRequest",
+    "Blend.ApiSchema.Api.ShopRandomShopListResponse"
+  ],
+  "/shop/random_shop/purchase": [
+    "Blend.ApiSchema.Api.ShopRandomShopPurchaseRequest",
+    "Blend.ApiSchema.Api.ShopRandomShopPurchaseResponse"
+  ],
+  "/shop/random_shop/refresh": [
+    "Blend.ApiSchema.Api.ShopRandomShopRefreshRequest",
+    "Blend.ApiSchema.Api.ShopRandomShopRefreshResponse"
+  ],
+  "/shop/receive_first_purchase_bonus": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ShopReceiveFirstPurchaseBonusResponse"
+  ],
+  "/shop/wheel": [
+    "Blend.ApiSchema.Api.ShopWheelRequest",
+    "Blend.ApiSchema.Api.ShopWheelResponse"
+  ],
+  "/solo_raid/reset": [
+    "Blend.ApiSchema.Api.SoloRaidResetRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/special_offer/purchase": [
+    "Blend.ApiSchema.Api.SpecialOfferPurchaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/stamina/purchase": [
+    "Blend.ApiSchema.Api.StaminaPurchaseRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/stamina/use_item": [
+    "Blend.ApiSchema.Api.StaminaUseItemRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/stamina/use_spare_stamina": [
+    "Blend.ApiSchema.Api.StaminaUseSpareStaminaRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/synthesis/bulk_execute": [
+    "Blend.ApiSchema.Api.SynthesisBulkExecuteRequest",
+    "Blend.ApiSchema.Api.SynthesisExecuteResponse"
+  ],
+  "/synthesis/combination_ranking": [
+    "Blend.ApiSchema.Api.SynthesisCombinationRankingRequest",
+    "Blend.ApiSchema.Api.SynthesisCombinationRankingResponse"
+  ],
+  "/synthesis/execute": [
+    "Blend.ApiSchema.Api.SynthesisExecuteRequest",
+    "Blend.ApiSchema.Api.SynthesisExecuteResponse"
+  ],
+  "/synthesis/execute_easy": [
+    "Blend.ApiSchema.Api.SynthesisExecuteEasyRequest",
+    "Blend.ApiSchema.Api.SynthesisExecuteEasyResponse"
+  ],
+  "/synthesis/execute_rental": [
+    "Blend.ApiSchema.Api.SynthesisExecuteRentalRequest",
+    "Blend.ApiSchema.Api.SynthesisExecuteResponse"
+  ],
+  "/tool/convert": [
+    "Blend.ApiSchema.Api.ToolConvertRequest",
+    "Blend.ApiSchema.Api.ToolConvertResponse"
+  ],
+  "/tool/lock": [
+    "Blend.ApiSchema.Api.ToolLockRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/tool/trait_rank_up": [
+    "Blend.ApiSchema.Api.ToolTraitRankUpRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/total_battle/achieve_line_drama": [
+    "Blend.ApiSchema.Api.TotalBattleAchieveLineDramaRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/total_battle/reset_panel": [
+    "Blend.ApiSchema.Api.TotalBattleResetPanelRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/tutorial/progress": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/user/delete": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/user/link_apple": [
+    "Blend.ApiSchema.Api.UserLinkAppleRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/user/link_google": [
+    "Blend.ApiSchema.Api.UserLinkGoogleRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/user/links_list": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.UserLinksListResponse"
+  ],
+  "/user/log_in": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.UserLogInResponse"
+  ],
+  "/user/unlink_apple": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/user/unlink_google": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/user/unlink_steam": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/user/update_birthdate": [
+    "Blend.ApiSchema.Api.UserUpdateBirthdateRequest",
+    "Blend.ApiSchema.Api.ChangedResourcesResponse"
+  ],
+  "/user/update_language": [
+    "Blend.ApiSchema.Api.UserUpdateLanguageRequest",
+    "Google.Protobuf.WellKnownTypes.Empty"
+  ],
+  "/web_session/token": [
+    "Google.Protobuf.WellKnownTypes.Empty",
+    "Blend.ApiSchema.Api.WebSessionTokenResponse"
+  ]
+}
