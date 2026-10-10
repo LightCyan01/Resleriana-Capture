@@ -5,6 +5,7 @@
 - Add `manifest.json` to capture ZIPs with stream SHA-256 hashes, byte and record counts, schema/plugin identity, hook coverage and recording gaps.
 - Checkpoint completed compressed blocks so crash recovery verifies saved data and reports unfinished tails. Preserve uncertain legacy recordings.
 - Recover older recordings separately from the active writer and handle recordings started in the same second without overwriting them.
+- Finish admitted events before closing the writer, verify completed ZIPs before retrying temporary-file cleanup, and count scalar values against the snapshot limit.
 - Record skipped combat hooks, reader and observer failures, transport exception types and retry counts in capture diagnostics.
 - Capture summon-result records and battle fields previously omitted by the 96-field limit. Keep the existing queue, depth, collection and body limits.
 - Publish AtelierCapture source and remove installer/runtime binaries from the Git tree. Build releases from public source and checksum-pinned dependencies, without game-generated assemblies.

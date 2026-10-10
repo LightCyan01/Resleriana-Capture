@@ -100,6 +100,7 @@ internal sealed class Snapshot
     internal object? Read(object? value, int depth = 0, bool shallow = false)
     {
         RetainedBytes += 256;
+        if (--remaining < 0) return new { omitted = "snapshot_limit" };
         if (value is null) return null;
         var type = value.GetType();
         if (value is IntPtr or UIntPtr) return new { omitted = "native_pointer" };
@@ -118,7 +119,7 @@ internal sealed class Snapshot
                 ? Read(nullableFields.Single(f => f.Name == "value").Get!(value), depth) : null;
         }
         if (seen.TryGetValue(native.Pointer, out var previous)) return new { reference = previous };
-        if (--remaining < 0 || (depth > 10 && !IsScalarRecord(type))) return new { type = name, omitted = "snapshot_limit" };
+        if (depth > 10 && !IsScalarRecord(type)) return new { type = name, omitted = "snapshot_limit" };
         var id = seen.Count + 1;
         seen[native.Pointer] = id;
         if (name.StartsWith("Blend.ApiSchema.Model.", StringComparison.Ordinal)

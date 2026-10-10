@@ -13,8 +13,10 @@ internal static class CaptureArchive
     internal static bool Pack(string folder, bool recovered)
     {
         var destination = Path.ChangeExtension(folder, ".zip");
-        if (File.Exists(destination) || !Names.All(name => File.Exists(Path.Combine(folder, name)))) return false;
+        if (File.Exists(destination)) return VerifyCompleted(folder, destination);
+        if (!Names.All(name => File.Exists(Path.Combine(folder, name)))) return false;
         var checkpoints = ReadCheckpoints(folder);
+        var checkpointHash = checkpoints is null ? null : Convert.ToHexString(SHA256.HashData(ReadCheckpointBytes(folder)));
         var summary = ReadDiagnostics(Path.Combine(folder, Names[3]), checkpoints?.GetValueOrDefault(Names[3]));
         var start = summary.Start;
         var schema = start.GetProperty("schema").GetInt32();
@@ -77,7 +79,7 @@ internal static class CaptureArchive
                 contains_sensitive_raw_data = start.TryGetProperty("contains_sensitive_raw_data", out var sensitive) ? (bool?)sensitive.GetBoolean() : null,
                 metadata = start.GetProperty("metadata"),
                 recovered, shutdown_complete = !recovered && summary.End is not null,
-                checkpoint_verified = checkpoints is not null, recovery_uncertain = uncertain,
+                checkpoint_verified = checkpoints is not null, checkpoint_sha256 = checkpointHash, recovery_uncertain = uncertain,
                 discarded_compressed_bytes = discarded, dropped_events = summary.Dropped,
                 observer_errors = summary.End is not null && summary.FinalErrors is not null ? summary.FinalErrors : summary.Errors,
                 observer_error_samples = summary.ErrorSamples,
@@ -91,12 +93,83 @@ internal static class CaptureArchive
         return true;
     }
 
+    private static bool VerifyCompleted(string folder, string destination)
+    {
+        if (!File.Exists(Path.Combine(folder, "session-state.json"))) return false;
+        var checkpointBytes = ReadCheckpointBytes(folder);
+        using var checkpoint = JsonDocument.Parse(checkpointBytes, new JsonDocumentOptions { MaxDepth = 8 });
+        var state = checkpoint.RootElement;
+        if (state.GetProperty("schema").GetInt32() != 1
+            || !state.TryGetProperty("run_id", out var run) || !state.TryGetProperty("environment", out var environment)) return false;
+        using var zip = ZipFile.OpenRead(destination);
+        var expected = Names.Select(Path.GetFileNameWithoutExtension).Append("manifest.json").ToArray();
+        if (zip.Entries.Count != expected.Length || expected.Any(name => zip.Entries.Count(entry => entry.FullName == name) != 1))
+            throw new InvalidDataException("Capture ZIP contains unexpected or duplicate entries.");
+        var manifestEntry = zip.GetEntry("manifest.json")!;
+        using var manifestStream = manifestEntry.Open();
+        using var manifest = JsonDocument.Parse(ReadMetadata(manifestStream, manifestEntry.Length, 1024 * 1024), new JsonDocumentOptions { MaxDepth = 32 });
+        var data = manifest.RootElement;
+        if (!data.TryGetProperty("checkpoint_sha256", out var checkpointHash)) return false;
+        if (data.GetProperty("format").GetString() != "resleriana-capture"
+            || data.GetProperty("manifest_version").GetInt32() != 1 || data.GetProperty("schema").GetInt32() != 4
+            || data.GetProperty("run_id").GetString() != run.GetString() || data.GetProperty("environment").GetString() != environment.GetString()
+            || checkpointHash.GetString() != Convert.ToHexString(SHA256.HashData(checkpointBytes))
+            || !data.GetProperty("checkpoint_verified").GetBoolean() || data.GetProperty("recovery_uncertain").GetBoolean()
+            || !(data.GetProperty("shutdown_complete").GetBoolean() || data.GetProperty("recovered").GetBoolean()))
+            throw new InvalidDataException("Capture ZIP does not match the retained session.");
+        var entries = data.GetProperty("entries").EnumerateArray().ToArray();
+        if (entries.Length != Names.Length || expected.Take(Names.Length).Any(name => entries.Count(entry => entry.GetProperty("name").GetString() == name) != 1))
+            throw new InvalidDataException("Capture manifest omits or duplicates a stream.");
+        var buffer = new byte[65536];
+        foreach (var entry in entries)
+        {
+            var stored = zip.GetEntry(entry.GetProperty("name").GetString()!)!;
+            if (stored.Length != entry.GetProperty("bytes").GetInt64()) throw new InvalidDataException("Capture ZIP stream length differs.");
+            using var input = stored.Open();
+            using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            long records = 0, bytes = 0;
+            int count;
+            while ((count = input.Read(buffer, 0, buffer.Length)) != 0)
+            {
+                hash.AppendData(buffer, 0, count);
+                bytes = checked(bytes + count);
+                var remaining = buffer.AsSpan(0, count);
+                int newline;
+                while ((newline = remaining.IndexOf((byte)'\n')) >= 0) { records++; remaining = remaining[(newline + 1)..]; }
+            }
+            if (bytes != stored.Length || records != entry.GetProperty("records").GetInt64()
+                || entry.GetProperty("sha256").GetString() != Convert.ToHexString(hash.GetHashAndReset()))
+                throw new InvalidDataException("Capture ZIP stream integrity differs.");
+        }
+        return true;
+    }
+
+    private static byte[] ReadCheckpointBytes(string folder)
+    {
+        using var input = File.OpenRead(Path.Combine(folder, "session-state.json"));
+        return ReadMetadata(input, input.Length, 65536);
+    }
+
+    private static byte[] ReadMetadata(Stream input, long length, int limit)
+    {
+        if (length < 0 || length > limit) throw new InvalidDataException("Capture metadata is too large.");
+        var bytes = new byte[(int)length];
+        var offset = 0;
+        while (offset < bytes.Length)
+        {
+            var count = input.Read(bytes, offset, bytes.Length - offset);
+            if (count == 0) throw new InvalidDataException("Capture metadata is truncated.");
+            offset += count;
+        }
+        if (input.ReadByte() != -1) throw new InvalidDataException("Capture metadata length differs.");
+        return bytes;
+    }
+
     private static Dictionary<string, Checkpoint>? ReadCheckpoints(string folder)
     {
         var path = Path.Combine(folder, "session-state.json");
         if (!File.Exists(path)) return null;
-        if (new FileInfo(path).Length > 65536) throw new InvalidDataException("Capture checkpoint is too large.");
-        using var document = JsonDocument.Parse(File.ReadAllBytes(path), new JsonDocumentOptions { MaxDepth = 8 });
+        using var document = JsonDocument.Parse(ReadCheckpointBytes(folder), new JsonDocumentOptions { MaxDepth = 8 });
         if (document.RootElement.GetProperty("schema").GetInt32() != 1) throw new InvalidDataException("Unknown capture checkpoint.");
         var result = new Dictionary<string, Checkpoint>(StringComparer.Ordinal);
         foreach (var value in document.RootElement.GetProperty("files").EnumerateArray())

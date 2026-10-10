@@ -8,7 +8,9 @@ The manifest copies `schema`, `run_id`, `environment`, timestamps, stopwatch fre
 
 `shutdown_complete` means the writer recorded a normal session end. It does not mean every gameplay action was captured. `recovered`, `checkpoint_verified`, `recovery_uncertain` and `discarded_compressed_bytes` distinguish recovery from normal shutdown. Older partial recordings without checkpoints are uncertain; their original temporary files are kept. Missing or corrupt schema 4 checkpoints prevent packaging, and the originals remain available.
 
-During recording, `session-state.json` commits lengths and SHA-256 digests of completed compressed prefixes. It stays in the temporary directory and is not an upload entry. Archive creation uses those lengths and checksums, then writes hashes of the extracted streams. Hashing and copying use fixed-size buffers.
+During recording, `session-state.json` commits the run ID, environment, lengths and SHA-256 digests of completed compressed prefixes. It stays in the temporary directory and is not an upload entry. `checkpoint_sha256` hashes the exact checkpoint bytes; it is null when no checkpoint exists. Archive creation uses those lengths and checksums, then writes hashes of the extracted streams. Hashing and copying use fixed-size buffers.
+
+If a completed ZIP remains beside a temporary directory, recovery retries cleanup only after matching the run, environment and checkpoint hash and verifying all four extracted stream hashes, sizes and record counts. Older ZIPs without this checkpoint binding retain their temporary files. Shutdown waits for requests already admitted to the capture writer to finish their enqueue or drop accounting before writing final status and gap records.
 
 ## Validation contract
 

@@ -23,7 +23,7 @@ internal sealed class SessionWriter : IDisposable
     private readonly string runId = Guid.NewGuid().ToString("N");
     private readonly string date = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss", System.Globalization.CultureInfo.InvariantCulture);
     private long sequence, queuedBytes;
-    private int stopping, failed;
+    private int stopping, failed, emitting;
 
     internal SessionWriter(string root, object metadata, Func<bool, object> status, Action<string> report)
     {
@@ -43,36 +43,52 @@ internal sealed class SessionWriter : IDisposable
     internal void Emit(bool isPrivate, bool combat, string kind, object? data, long retainedBytes = 0)
     {
         if (Volatile.Read(ref stopping) != 0 || Volatile.Read(ref failed) != 0) return;
-        var source = sources[isPrivate ? 1 : 0];
-        var stream = combat ? 1 : kind == "raw_body" ? 2 : kind is "request" or "response" ? 0 : 3;
-        object record = new
-        {
-            schema = 4, run_id = runId, sequence = Interlocked.Increment(ref sequence),
-            utc = DateTimeOffset.UtcNow, elapsed_ticks = Stopwatch.GetTimestamp() - started,
-            thread = Environment.CurrentManagedThreadId, environment = source.Name,
-            stream = StreamNames[stream], kind, data
-        };
-        // Network events are small and supply no graph estimate. Combat is already detached and measured.
-        if (retainedBytes == 0)
-        {
-            var line = JsonSerializer.Serialize(record);
-            record = line;
-            retainedBytes = line.Length * 2L + 256;
-        }
-        var size = Math.Max(4096, retainedBytes);
-        if (Interlocked.Add(ref queuedBytes, size) > QueueBudget)
-        {
-            Interlocked.Add(ref queuedBytes, -size);
-            Interlocked.Increment(ref source.Dropped);
-            return;
-        }
+        Interlocked.Increment(ref emitting);
         try
         {
-            if (queue.TryAdd(new Entry(source, stream, record, size))) return;
+            if (Volatile.Read(ref stopping) != 0 || Volatile.Read(ref failed) != 0) return;
+            var source = sources[isPrivate ? 1 : 0];
+            var stream = combat ? 1 : kind == "raw_body" ? 2 : kind is "request" or "response" ? 0 : 3;
+            object record = new
+            {
+                schema = 4, run_id = runId, sequence = Interlocked.Increment(ref sequence),
+                utc = DateTimeOffset.UtcNow, elapsed_ticks = Stopwatch.GetTimestamp() - started,
+                thread = Environment.CurrentManagedThreadId, environment = source.Name,
+                stream = StreamNames[stream], kind, data
+            };
+            // Network events are small and supply no graph estimate. Combat is already detached and measured.
+            if (retainedBytes == 0)
+            {
+                var line = JsonSerializer.Serialize(record);
+                record = line;
+                retainedBytes = line.Length * 2L + 256;
+            }
+            var size = Math.Max(4096, retainedBytes);
+            if (Interlocked.Add(ref queuedBytes, size) > QueueBudget)
+            {
+                Interlocked.Add(ref queuedBytes, -size);
+                Interlocked.Increment(ref source.Dropped);
+                return;
+            }
+            try
+            {
+                if (queue.TryAdd(new Entry(source, stream, record, size))) return;
+            }
+            catch (InvalidOperationException) { }
+            Interlocked.Add(ref queuedBytes, -size);
+            Interlocked.Increment(ref source.Dropped);
         }
-        catch (InvalidOperationException) { }
-        Interlocked.Add(ref queuedBytes, -size);
-        Interlocked.Increment(ref source.Dropped);
+        finally
+        {
+            if (Interlocked.Decrement(ref emitting) == 0 && Volatile.Read(ref stopping) != 0)
+                CompleteQueue();
+        }
+    }
+
+    private void CompleteQueue()
+    {
+        if (Volatile.Read(ref emitting) == 0 && Interlocked.CompareExchange(ref stopping, 2, 1) == 1)
+            queue.CompleteAdding();
     }
 
     private void WriteLoop()
@@ -185,12 +201,12 @@ internal sealed class SessionWriter : IDisposable
         }
     }
 
-    private static void SaveCheckpoint(Source source)
+    private void SaveCheckpoint(Source source)
     {
         var path = Path.Combine(source.Folder!, "session-state.json");
         File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(new
         {
-            schema = 1,
+            schema = 1, run_id = runId, environment = source.Name,
             files = source.Logs!.Select((log, i) => new { name = FileNames[i], bytes = log.Bytes, sha256 = log.Sha256 })
         }), new UTF8Encoding(false));
         File.Move(path + ".tmp", path, overwrite: true);
@@ -207,7 +223,9 @@ internal sealed class SessionWriter : IDisposable
                 try
                 {
                     bool packed;
-                    using (new FileStream(Path.Combine(folder, "session.lock"), FileMode.Open, FileAccess.Write, FileShare.None))
+                    using (new FileStream(Path.Combine(folder, "session.lock"),
+                        File.Exists(Path.Combine(folder, "session-state.json")) ? FileMode.OpenOrCreate : FileMode.Open,
+                        FileAccess.Write, FileShare.None))
                         packed = CaptureArchive.Pack(folder, true);
                     if (packed) CleanPackedFolder(folder);
                 }
@@ -223,7 +241,7 @@ internal sealed class SessionWriter : IDisposable
         if (!File.Exists(Path.Combine(folder, "session-state.json"))) return;
         try
         {
-            foreach (var name in FileNames.Concat(new[] { "session.lock", "session-state.json", "session-state.json.tmp" })) File.Delete(Path.Combine(folder, name));
+            foreach (var name in FileNames.Concat(new[] { "session-state.json.tmp", "session.lock", "session-state.json" })) File.Delete(Path.Combine(folder, name));
             if (!Directory.EnumerateFileSystemEntries(folder).Any()) Directory.Delete(folder);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
@@ -232,8 +250,8 @@ internal sealed class SessionWriter : IDisposable
 
     public void Dispose()
     {
-        if (Interlocked.Exchange(ref stopping, 1) != 0) return;
-        queue.CompleteAdding();
+        if (Interlocked.CompareExchange(ref stopping, 1, 0) != 0) return;
+        CompleteQueue();
         if (!worker.Join(TimeSpan.FromSeconds(30)))
             report("Capture writer did not finish within 30 seconds; partial files will be recovered on the next run.");
     }
