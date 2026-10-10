@@ -40,7 +40,7 @@ The plugin observes the game's HTTP send, response decoder and completion paths.
 
 Completed gzip blocks are checkpointed during play. On exit, the writer streams them into a ZIP and calculates the manifest hashes. Recovery uses those checkpoints to exclude an unfinished crash tail. Older recordings without checkpoints are marked uncertain and their temporary files are retained.
 
-The manifest checks file integrity. A modified plugin can fabricate data and recompute its hashes, so the manifest does not prove official gameplay. Release checksums and GitHub build attestations identify the published installer; they do not authenticate recordings. See [the archive format](Sources/AtelierCapture/FORMAT.md) for the validation contract and limits.
+The manifest checks file integrity. A modified plugin can fabricate data and recompute its hashes, so the manifest does not prove official gameplay. Release checksums and GitHub build attestations identify the published installer; they do not authenticate recordings. See [the archive format](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/AtelierCapture/FORMAT.md) for the validation contract and limits.
 
 ## Build from source
 
@@ -62,4 +62,4 @@ dotnet build Sources/AtelierCapture/AtelierCapture.csproj -c Release `
   "-p:ReferenceDirectory=$captureBuild/dependencies" -p:Version=1.3.0
 ```
 
-For individual custom-runtime commands, see [Sources/README.md](Sources/README.md). Git contains source and build files; installers are published under Releases. Update `VERSION` and `CHANGELOG.md` for a release. Pull requests build the package; pushes to `main` publish it.
+For individual custom-runtime commands, see [Sources/README.md](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/README.md). Git contains source and build files; installers are published under Releases. Update `VERSION` and `CHANGELOG.md` for a release. Pull requests build the package; pushes to `main` publish it.
