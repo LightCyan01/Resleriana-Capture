@@ -4,6 +4,9 @@
     <Authors>BepInEx</Authors>
     <PackageOutputPath>../bin/NuGet</PackageOutputPath>
     <OutputPath Condition="'$(Configuration)' == 'Release'">../bin/$(MSBuildProjectName)</OutputPath>
+    <BaseIntermediateOutputPath Condition="'$(BuildArtifactsDirectory)' != ''">$(BuildArtifactsDirectory)obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+    <OutputPath Condition="'$(BuildArtifactsDirectory)' != ''">$(BuildArtifactsDirectory)bin/$(MSBuildProjectName)/</OutputPath>
+    <Il2CppReferenceDirectory Condition="'$(Il2CppReferenceDirectory)' == ''">$(MSBuildThisFileDirectory)Il2CppInterop.Runtime/Libs</Il2CppReferenceDirectory>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

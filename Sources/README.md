@@ -1,11 +1,11 @@
-# Modified runtime source
+# Source and builds
 
-These folders contain the source used for the modified runtime libraries in
-this package, including their upstream build reference assemblies. They exclude
-local build outputs, caches and game-generated interop files.
+These folders contain the capture and modified runtime source. Build dependencies
+are downloaded separately; no runtime or game-generated assemblies are stored here.
 
 | Folder | Upstream base | Changes |
 | --- | --- | --- |
+| `AtelierCapture/` | This repository | API/combat capture, archive writer, manifest and recovery |
 | `BepInEx/` | [BepInEx `5b766a3`](https://github.com/BepInEx/BepInEx/commit/5b766a3b7f6c164d4798924a93f3acf4db769d06) | HarmonyX/MonoMod/Il2CppInterop dependency updates and adaptations for the newer detour and console APIs |
 | `Il2CppInterop/` | [Il2CppInterop `dbda1cb`](https://github.com/BepInEx/Il2CppInterop/commit/dbda1cb353b0f4253345dc45136d170b9e50a5a0) | HarmonyX 2.16.1 dependency and Windows x64 value-type/nullable argument handling in `DetourMethodPatcher` |
 
@@ -14,45 +14,59 @@ Licenses are included here and in `../Licenses`.
 
 ## Build the modified libraries
 
-Use a .NET SDK that supports the projects' .NET 6 targets. From `Sources/BepInEx`,
-run in PowerShell:
+Install Python 3.11+ and the .NET 8 SDK. The projects target .NET 6 to match the
+supported runtime. Run from the repository root in PowerShell:
 
 ```powershell
-dotnet build Runtimes/Unity/BepInEx.Unity.IL2CPP/BepInEx.Unity.IL2CPP.csproj -c Release `
-  "-p:SolutionDir=$PWD\" -p:GeneratePackageOnBuild=false `
-  -p:VersionSuffix=be.788-capture.1 `
-  -p:SourceRevisionId=5b766a3b7f6c164d4798924a93f3acf4db769d06
+py scripts/build.py --workdir ../capture-build --version 1.3.0 --source-commit (git rev-parse HEAD)
+py scripts/package.py --stage ../capture-build/stage --output ../capture-release
 ```
 
-From `Sources/Il2CppInterop`:
+Use a new work directory for each full build. The script verifies downloaded
+dependencies and builds the custom runtime, HarmonySupport and capture. Outputs
+and references stay outside the checkout. Packaging requires a matching changelog.
+
+## Individual projects
+
+After the full build has downloaded the public reference files, run these from
+the repository root to rebuild each project separately:
 
 ```powershell
-dotnet build Il2CppInterop.HarmonySupport/Il2CppInterop.HarmonySupport.csproj -c Release `
-  -p:GeneratePackageOnBuild=false -p:VersionSuffix=capture.2 `
-  -p:SourceRevisionId=dbda1cb353b0f4253345dc45136d170b9e50a5a0
+$captureBuild = (Resolve-Path ../capture-build).Path
+$runtimeSource = (Resolve-Path Sources/BepInEx).Path
+
+dotnet build Sources/BepInEx/Runtimes/Unity/BepInEx.Unity.IL2CPP/BepInEx.Unity.IL2CPP.csproj -c Release `
+  "-p:SolutionDir=$runtimeSource/" "-p:BuildDir=$captureBuild/manual/BepInEx" `
+  "-p:BuildArtifactsDirectory=$captureBuild/manual/BepInEx/" `
+  "-p:UnityReferenceDirectory=$captureBuild/dependencies" `
+  -p:GeneratePackageOnBuild=false -p:VersionSuffix=be.788-capture.1
+
+dotnet build Sources/Il2CppInterop/Il2CppInterop.HarmonySupport/Il2CppInterop.HarmonySupport.csproj -c Release `
+  "-p:BuildArtifactsDirectory=$captureBuild/manual/Il2CppInterop/" `
+  "-p:Il2CppReferenceDirectory=$captureBuild/dependencies" `
+  -p:GeneratePackageOnBuild=false -p:VersionSuffix=capture.2
+
+dotnet build Sources/AtelierCapture/AtelierCapture.csproj -c Release `
+  "-p:RuntimeDirectory=$captureBuild/stage/BepInEx/core" `
+  "-p:ReferenceDirectory=$captureBuild/dependencies" -p:Version=1.3.0
 ```
 
-With the game closed, copy BepInEx's `bin/Unity.IL2CPP` runtime DLLs into
-`BepInEx/core`. Then replace `Il2CppInterop.HarmonySupport.dll` with the one from
-`bin/Il2CppInterop.HarmonySupport/net6.0`. Keep the other packaged Il2CppInterop
-1.5.3 libraries. Build reference assemblies do not belong in `BepInEx/core`.
+Keep references out of `BepInEx/core`; they are compilation inputs. Use the full
+build for an installer so matching runtime and plugin files are packaged together.
 
 ## Publish an update
 
-Rebuild and check changed plugins or runtime libraries locally, then commit the
-updated DLLs along with their source changes. Capture compilation needs the
-supported game's generated interop assemblies, which are not shipped here.
-The workflow packages the committed binaries; it does not compile the game or
-the runtime sources.
+Commit the source and build-file changes. Pull requests compile and package
+without publishing. Main builds publish the installer, checksums, release
+manifest and GitHub provenance. The capture needs no game or private-server files.
 
 Every push to `main` runs the Release workflow. It creates an install ZIP and
 SHA-256 checksum, then publishes a release. The first version comes from
 `VERSION`; later releases increment the highest release tag's patch number.
-Raise `VERSION` when a new major or minor version is needed. Package versions
-are separate from the versions embedded in individual DLLs. Rerunning an
+Raise `VERSION` when a new major or minor version is needed and add that version's
+entry to `CHANGELOG.md`. The capture embeds the package version. Rerunning an
 already published commit keeps its release instead of creating another.
 
 The install ZIP excludes `Sources`, scripts, GitHub files and build outputs.
 Sources remain available in this repository and each release's source downloads.
-For a local package check, run `py scripts/package.py --output dist` from the
-repository root.
+Use the two build/package commands above for a local installer check.

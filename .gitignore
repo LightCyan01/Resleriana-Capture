@@ -23,3 +23,8 @@
 **/obj/
 **/__pycache__/
 /dist/
+*.dll
+*.exe
+*.zip
+*.nupkg
+/.work/
