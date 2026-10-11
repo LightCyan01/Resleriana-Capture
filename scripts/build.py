@@ -5,10 +5,11 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import urllib.request
 import zipfile
 
-from package import ROOT, install_file, parse_version, sha256
+from package import ROOT, git, install_file, parse_version, sha256
 
 BEPINEX_COMMIT = "5b766a3b7f6c164d4798924a93f3acf4db769d06"
 INTEROP_COMMIT = "dbda1cb353b0f4253345dc45136d170b9e50a5a0"
@@ -73,18 +74,20 @@ def build(project, **properties):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--workdir", required=True, type=Path)
-    parser.add_argument("--version", required=True)
-    parser.add_argument("--source-commit", required=True)
+    parser.add_argument("--workdir", type=Path, default=ROOT / ".work")
+    parser.add_argument("--output", type=Path, default=ROOT / "dist")
+    parser.add_argument("--version")
+    parser.add_argument("--source-commit")
     args = parser.parse_args()
-    args.version = ".".join(map(str, parse_version(args.version)))
+    args.version = ".".join(map(str, parse_version(args.version or (ROOT / "VERSION").read_text().strip())))
+    args.source_commit = args.source_commit or git("rev-parse", "HEAD")
     if not re.fullmatch(r"[a-f0-9]{40}", args.source_commit):
         parser.error("--source-commit must be a full Git commit hash")
     workdir = args.workdir.resolve()
-    if workdir.is_relative_to(ROOT):
-        parser.error("--workdir must be outside the source checkout")
+    if workdir.is_relative_to(ROOT) and workdir != ROOT / ".work":
+        parser.error("--workdir must be .work or outside the source checkout")
     stage = workdir / "stage"
-    stage.mkdir(parents=True, exist_ok=False)
+    stage.mkdir(parents=True, exist_ok=True)
     dependencies = workdir / "dependencies"
     dependencies.mkdir(exist_ok=True)
     for name in DEPENDENCIES:
@@ -116,11 +119,13 @@ def main():
           OutputPath=str(capture_output) + "/", AppendTargetFrameworkToOutputPath="false")
     shutil.copyfile(capture_output / "AtelierCapture.dll", stage / "BepInEx/plugins/AtelierCapture.dll")
     shutil.copyfile(ROOT / "README.md", stage / "README.md")
-    shutil.copytree(ROOT / "Licenses", stage / "Licenses")
+    shutil.copytree(ROOT / "Licenses", stage / "Licenses", dirs_exist_ok=True)
     (workdir / "dependencies.json").write_text(json.dumps({"source_commit": args.source_commit,
         "dependencies": [{"name": name, "url": url, "sha256": checksum}
                          for name, (url, checksum) in DEPENDENCIES.items()]}, indent=2) + "\n", encoding="utf-8")
-    print(f"Install files built at {stage}")
+    subprocess.run([sys.executable, str(ROOT / "scripts/package.py"), "--stage", str(stage),
+                    "--output", str(args.output.resolve()), "--version", args.version], cwd=ROOT, check=True)
+    print(f"Install ZIP: {args.output.resolve() / f'Resleriana-Capture-v{args.version}-win-x64.zip'}")
 
 
 if __name__ == "__main__":

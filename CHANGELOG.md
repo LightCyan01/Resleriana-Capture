@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1
+
+- Build the runtime, capture plugin and install ZIP with `py scripts/build.py`; version and source commit are read automatically.
+- Reuse the build directory on subsequent builds instead of failing when it already exists.
+- Shorten the Windows build instructions and use the same command in Command Prompt and PowerShell.
+
 ## 1.3.0
 
 - Add `manifest.json` to capture ZIPs with stream SHA-256 hashes, byte and record counts, schema/plugin identity, hook coverage and recording gaps.

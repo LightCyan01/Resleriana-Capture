@@ -63,8 +63,9 @@ def main():
     parser.add_argument("--version-only", action="store_true")
     parser.add_argument("--stage", type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--version")
     args = parser.parse_args()
-    version = ".".join(map(str, release_version()))
+    version = ".".join(map(str, parse_version(args.version) if args.version else release_version()))
     outputs = {"version": version, "tag": f"v{version}"}
     if not args.version_only:
         if not args.stage or not args.output:

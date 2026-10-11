@@ -14,9 +14,9 @@ Licenses are included here and in `../Licenses`.
 
 ## Build the complete package
 
-Follow the [Windows build guide](../README.md#build-from-source) for prerequisites,
-source checkout, building and packaging. That build compiles the modified BepInEx
-and HarmonySupport libraries along with AtelierCapture, then assembles the installer.
+Install the tools listed in the [Windows build guide](../README.md#build-from-source),
+then run `py scripts/build.py` from the repository root. It compiles BepInEx,
+HarmonySupport and AtelierCapture, and puts the install ZIP in `dist`.
 
 The projects target .NET 6 for the supported runtime; the repository uses the
 .NET 8 SDK to compile them.
@@ -26,12 +26,10 @@ The projects target .NET 6 for the supported runtime; the repository uses the
 Use these commands when working on one project. First finish the full build in
 the guide above so the runtime and public reference files are available.
 
-Open PowerShell in the `Resleriana-Capture` folder, where `scripts` and `Sources`
-are located. Set these paths once; if you chose a different build folder, replace
-`../capture-build` with that folder:
+Open PowerShell in the repository root and set these paths:
 
 ```powershell
-$captureBuild = (Resolve-Path ../capture-build).Path
+$captureBuild = (Resolve-Path .work).Path
 $runtimeSource = (Resolve-Path Sources/BepInEx).Path
 $captureVersion = (Get-Content VERSION -Raw).Trim()
 ```
@@ -46,7 +44,7 @@ dotnet build Sources/BepInEx/Runtimes/Unity/BepInEx.Unity.IL2CPP/BepInEx.Unity.I
   -p:GeneratePackageOnBuild=false -p:VersionSuffix=be.788-capture.1
 ```
 
-The runtime DLLs are written to `../capture-build/manual/BepInEx/Unity.IL2CPP/`.
+The runtime DLLs are written to `.work/manual/BepInEx/Unity.IL2CPP/`.
 
 ### HarmonySupport
 
@@ -57,7 +55,7 @@ dotnet build Sources/Il2CppInterop/Il2CppInterop.HarmonySupport/Il2CppInterop.Ha
   -p:GeneratePackageOnBuild=false -p:VersionSuffix=capture.2
 ```
 
-The DLL is written to `../capture-build/manual/Il2CppInterop/bin/Il2CppInterop.HarmonySupport/net6.0/Il2CppInterop.HarmonySupport.dll`.
+The DLL is written to `.work/manual/Il2CppInterop/bin/Il2CppInterop.HarmonySupport/net6.0/Il2CppInterop.HarmonySupport.dll`.
 
 ### AtelierCapture
 
@@ -70,7 +68,7 @@ dotnet build Sources/AtelierCapture/AtelierCapture.csproj -c Release `
   -p:AppendTargetFrameworkToOutputPath=false "-p:Version=$captureVersion"
 ```
 
-The DLL is written to `../capture-build/manual/AtelierCapture/AtelierCapture.dll`.
+The DLL is written to `.work/manual/AtelierCapture/AtelierCapture.dll`.
 
 For a local installation, close the game before copying your rebuilt DLLs:
 
@@ -80,9 +78,8 @@ For a local installation, close the game before copying your rebuilt DLLs:
 | `Il2CppInterop.HarmonySupport.dll` | `BepInEx/core/` |
 | `AtelierCapture.dll` | `BepInEx/plugins/` |
 
-Keep files from `capture-build/dependencies` as build inputs; copy only the
-rebuilt DLLs listed above. For a complete installer, run the full build with a
-fresh work directory to assemble matching runtime and plugin files.
+Keep files from `.work/dependencies` as build inputs; copy only the rebuilt DLLs
+listed above. Run `py scripts/build.py` again to assemble a complete installer.
 
 ## Publish an update
 

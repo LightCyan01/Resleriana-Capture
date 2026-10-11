@@ -44,78 +44,22 @@ The manifest checks file integrity. A modified plugin can fabricate data and rec
 
 ## Build from source
 
-These steps build the published v1.3.0 release on Windows. The build includes the modified BepInEx runtime, HarmonySupport, AtelierCapture and English translation. It downloads the required public dependencies and checks their hashes. You can build it without installing the game.
-
-### 1. Install the build tools
+Install these tools:
 
 - [Git for Windows](https://git-scm.com/install/windows).
-- [Python for Windows](https://www.python.org/downloads/windows/), version 3.11 or later.
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0), the Windows x64 installer under **SDK**.
+- [Python for Windows](https://www.python.org/downloads/windows/).
+- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0), Windows x64.
 
-After installing them, open PowerShell and check:
-
-```powershell
-git --version
-py --version
-dotnet --list-sdks
-```
-
-Git and Python should print their versions. The SDK list must include `8.0.x`. The repository selects .NET 8 through `global.json`, even if a newer SDK is also installed.
-
-### 2. Get the source
-
-Create a folder for your build, outside the game folder. Open it in File Explorer, click the address bar, type `powershell` and press Enter. Run:
-
-```powershell
-git clone --branch v1.3.0 --depth 1 https://github.com/LightCyan01/Resleriana-Capture.git
-cd Resleriana-Capture
-```
-
-This checks out the release source. Git may call it a detached HEAD; that is expected when checking out a release tag. Keep this PowerShell window open for the remaining steps.
-
-### 3. Build the runtime and capture plugin
-
-Run this command from the `Resleriana-Capture` folder:
-
-```powershell
-py scripts/build.py --workdir ../capture-build --version 1.3.0 --source-commit (git rev-parse HEAD)
-```
-
-The first build downloads dependencies and restores NuGet packages, so it needs an internet connection. Wait until it prints `Install files built at ...` before continuing. If it reports an error, use the troubleshooting section below.
-
-The script creates `capture-build` beside the source folder. It keeps downloaded dependencies, compiled libraries and the assembled install files there.
-
-### 4. Create the install ZIP
-
-In the same PowerShell window, run:
-
-```powershell
-py scripts/package.py --stage ../capture-build/stage --output ../capture-release
-```
-
-When it succeeds, it prints the version, file count and ZIP size. Open the `capture-release` folder beside `Resleriana-Capture` to find:
+Open a new Command Prompt or PowerShell window in the folder where you want the source, then run:
 
 ```text
-Resleriana-Capture-v1.3.0-win-x64.zip
+git clone https://github.com/LightCyan01/Resleriana-Capture.git
+cd Resleriana-Capture
+py scripts/build.py
 ```
 
-Install that ZIP using the [Install](#install) steps above. The three folders have different purposes:
+The command builds the modified BepInEx runtime, HarmonySupport and capture plugin, then creates `dist/Resleriana-Capture-vX.Y.Z-win-x64.zip`. The first build needs an internet connection to download dependencies. No game installation is needed.
 
-| Folder | Contents |
-| --- | --- |
-| `Resleriana-Capture` | Source code and build scripts. |
-| `capture-build` | Downloaded dependencies, compiled files and the install staging folder. |
-| `capture-release` | The finished installer ZIP, checksums and release metadata. |
+Extract the ZIP into the game folder as described under [Install](#install). To rebuild after editing the source, run `py scripts/build.py` again.
 
-### Troubleshooting
-
-| Problem | What to do |
-| --- | --- |
-| `git`, `py` or `dotnet` is not recognized | Install the matching tool from step 1, then close and reopen PowerShell. Return to the `Resleriana-Capture` folder. |
-| .NET cannot find a compatible SDK | Check `dotnet --list-sdks` for an `8.0.x` entry. Install the .NET 8 SDK if it is missing. |
-| `FileExistsError` names `capture-build/stage` | Use a fresh build folder, such as `../capture-build-2`, in step 3. Use `../capture-build-2/stage` in step 4 too. |
-| Packaging reports missing changelog notes | Check that you followed step 2 and used version `1.3.0` in step 3. The release tag keeps the plugin version and package notes together. |
-
-For another full build, choose a fresh build folder as described above. To rebuild only AtelierCapture, BepInEx or HarmonySupport, use the [individual-project instructions](Sources/README.md#individual-projects).
-
-Installers are published under Releases; this repository contains the source and build files. Contributors can find the [release steps](Sources/README.md#publish-an-update) in the source guide.
+See [Sources](Sources/README.md) for individual project builds and release instructions.
