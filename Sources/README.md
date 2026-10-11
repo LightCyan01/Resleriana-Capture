@@ -41,7 +41,7 @@ dotnet build Sources/BepInEx/Runtimes/Unity/BepInEx.Unity.IL2CPP/BepInEx.Unity.I
   "-p:SolutionDir=$runtimeSource/" "-p:BuildDir=$captureBuild/manual/BepInEx" `
   "-p:BuildArtifactsDirectory=$captureBuild/manual/BepInEx/" `
   "-p:UnityReferenceDirectory=$captureBuild/dependencies" `
-  -p:GeneratePackageOnBuild=false -p:VersionSuffix=be.788-capture.1
+  -p:GeneratePackageOnBuild=false -p:Version=6.0.0-be.788-capture.1
 ```
 
 The runtime DLLs are written to `.work/manual/BepInEx/Unity.IL2CPP/`.
@@ -52,7 +52,7 @@ The runtime DLLs are written to `.work/manual/BepInEx/Unity.IL2CPP/`.
 dotnet build Sources/Il2CppInterop/Il2CppInterop.HarmonySupport/Il2CppInterop.HarmonySupport.csproj -c Release `
   "-p:BuildArtifactsDirectory=$captureBuild/manual/Il2CppInterop/" `
   "-p:Il2CppReferenceDirectory=$captureBuild/dependencies" `
-  -p:GeneratePackageOnBuild=false -p:VersionSuffix=capture.2
+  -p:GeneratePackageOnBuild=false -p:Version=1.5.3-capture.2
 ```
 
 The DLL is written to `.work/manual/Il2CppInterop/bin/Il2CppInterop.HarmonySupport/net6.0/Il2CppInterop.HarmonySupport.dll`.
