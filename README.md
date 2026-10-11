@@ -36,7 +36,7 @@ Raw bodies keep the original bytes, including any account or session fields in t
 
 ## How recording works
 
-The plugin observes the game's HTTP send, response decoder and completion paths. It preserves the original API bodies before decoding, so unknown fields remain available. Combat hooks copy selected native state while it is valid, then queue detached records for background writing and compression. It avoids per-frame polling and keeps its queue bounded; any dropped events are reported.
+The plugin observes the game's HTTP send, response decoder and completion paths. It preserves the original API bodies before decoding, so unknown fields remain available. Combat hooks copy selected native state while it is valid, then queue detached records for background writing and compression. It avoids per-frame polling. A full queue waits for the writer instead of discarding events; faster compression during play helps keep it draining. Sustained slow storage can still cause waits.
 
 Completed gzip blocks are checkpointed during play. On exit, the writer streams them into a ZIP and calculates the manifest hashes. Recovery uses those checkpoints to exclude an unfinished crash tail. Older recordings without checkpoints are marked uncertain and their temporary files are retained.
 

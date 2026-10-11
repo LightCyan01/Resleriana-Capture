@@ -11,6 +11,8 @@ internal sealed class SessionWriter : IDisposable
 {
     internal const long QueueBudget = 64 * 1024 * 1024;
     private readonly BlockingCollection<Entry> queue = new(2048);
+    private readonly object admission = new();
+    private readonly CancellationTokenSource writerStopped = new();
     private readonly Source[] sources = { new("Official"), new("Private") };
     private static readonly string[] FileNames = { "api.jsonl.gz", "combat.jsonl.gz", "raw-bodies.jsonl.gz", "diagnostics.jsonl.gz" };
     private static readonly string[] StreamNames = { "api", "combat", "raw", "diagnostics" };
@@ -64,24 +66,34 @@ internal sealed class SessionWriter : IDisposable
                 retainedBytes = line.Length * 2L + 256;
             }
             var size = Math.Max(4096, retainedBytes);
-            if (Interlocked.Add(ref queuedBytes, size) > QueueBudget)
+            lock (admission)
             {
-                Interlocked.Add(ref queuedBytes, -size);
-                Interlocked.Increment(ref source.Dropped);
-                return;
+                // One oversized body may enter an empty queue; it must not be discarded.
+                while (queuedBytes != 0 && size > QueueBudget - queuedBytes && Volatile.Read(ref failed) == 0)
+                    Monitor.Wait(admission);
+                if (Volatile.Read(ref failed) != 0) return;
+                queuedBytes += size;
             }
             try
             {
-                if (queue.TryAdd(new Entry(source, stream, record, size))) return;
+                queue.Add(new Entry(source, stream, record, size), writerStopped.Token);
             }
-            catch (InvalidOperationException) { }
-            Interlocked.Add(ref queuedBytes, -size);
-            Interlocked.Increment(ref source.Dropped);
+            catch (OperationCanceledException) { Release(size); }
+            catch (InvalidOperationException) { Release(size); }
         }
         finally
         {
             if (Interlocked.Decrement(ref emitting) == 0 && Volatile.Read(ref stopping) != 0)
                 CompleteQueue();
+        }
+    }
+
+    private void Release(long size)
+    {
+        lock (admission)
+        {
+            queuedBytes -= size;
+            Monitor.PulseAll(admission);
         }
     }
 
@@ -101,10 +113,9 @@ internal sealed class SessionWriter : IDisposable
                 if (queue.TryTake(out var entry, 250))
                 {
                     EnsureFiles(entry.Source);
-                    ReportDrops(entry.Source);
                     entry.Source.Logs![entry.Stream].WriteLine(
                         entry.Record as string ?? JsonSerializer.Serialize(entry.Record));
-                    Interlocked.Add(ref queuedBytes, -entry.Bytes);
+                    Release(entry.Bytes);
                     entry.Source.Events++;
                 }
                 if ((Stopwatch.GetTimestamp() - lastFlush) * 1000.0 / Stopwatch.Frequency >= 1000)
@@ -113,10 +124,8 @@ internal sealed class SessionWriter : IDisposable
                     lastFlush = Stopwatch.GetTimestamp();
                 }
             }
-            foreach (var source in sources.Where(s => s.Logs is not null || s.Dropped != 0))
+            foreach (var source in sources.Where(s => s.Logs is not null))
             {
-                EnsureFiles(source);
-                ReportDrops(source);
                 WriteMetadata(source, new { kind = "capture_status", utc = DateTimeOffset.UtcNow, data = status(source.Name == "Private") });
                 WriteMetadata(source, new { kind = "session_end", run_id = runId, utc = DateTimeOffset.UtcNow, events = source.Events });
             }
@@ -128,6 +137,8 @@ internal sealed class SessionWriter : IDisposable
         }
         finally
         {
+            writerStopped.Cancel();
+            lock (admission) Monitor.PulseAll(admission);
             foreach (var source in sources)
             {
                 var packed = false;
@@ -185,17 +196,10 @@ internal sealed class SessionWriter : IDisposable
 
     private static void WriteMetadata(Source source, object data) => source.Logs![3].WriteLine(JsonSerializer.Serialize(data));
 
-    private static void ReportDrops(Source source)
-    {
-        var count = Interlocked.Exchange(ref source.Dropped, 0);
-        if (count != 0) WriteMetadata(source, new { kind = "capture_gap", utc = DateTimeOffset.UtcNow, dropped_events = count, reason = "writer_queue_full" });
-    }
-
     private void Flush()
     {
         foreach (var source in sources.Where(s => s.Logs is not null))
         {
-            ReportDrops(source);
             foreach (var log in source.Logs!) log.Flush();
             SaveCheckpoint(source);
         }
@@ -262,7 +266,7 @@ internal sealed class SessionWriter : IDisposable
         internal CompressedLog[]? Logs;
         internal FileStream? Lease;
         internal string? Folder;
-        internal long Dropped, Events;
+        internal long Events;
     }
 
     private sealed record Entry(Source Source, int Stream, object Record, long Bytes);
@@ -279,7 +283,7 @@ internal sealed class SessionWriter : IDisposable
 
         internal void WriteLine(string line)
         {
-            writer ??= new StreamWriter(new GZipStream(block, CompressionLevel.Optimal, leaveOpen: true), new UTF8Encoding(false), 65536);
+            writer ??= new StreamWriter(new GZipStream(block, CompressionLevel.Fastest, leaveOpen: true), new UTF8Encoding(false), 65536);
             writer.WriteLine(line);
             characters += line.Length;
             if (characters >= 4 * 1024 * 1024) Flush();
