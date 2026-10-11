@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.2
+
+- Preserve events when the writer queue fills by waiting for space instead of discarding them.
+- Use faster gzip compression during play; the finished ZIP keeps its existing compression.
+- Allow one record larger than the retained-data budget to drain on its own, and release waiting callers if output fails.
+- Serialize capture construction before copying bodies or snapshots so concurrent waiting callbacks do not accumulate capture data outside the queue budget.
+
 ## 1.3.1
 
 - Build the runtime, capture plugin and install ZIP with `py scripts/build.py`; version and source commit are read automatically.

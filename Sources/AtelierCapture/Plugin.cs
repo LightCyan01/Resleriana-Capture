@@ -16,6 +16,7 @@ public sealed class Plugin : BasePlugin
     internal static new ManualLogSource Log = null!;
     internal static SessionWriter Writer = null!;
     internal static Privacy Privacy = null!;
+    private static readonly object ObservationGate = new();
     private static readonly HashSet<string> ObserverWarnings = new();
     private static readonly ConcurrentDictionary<string, long> ObserverErrors = new();
     private static readonly ConcurrentDictionary<string, string> HookStatus = new();
@@ -111,8 +112,11 @@ public sealed class Plugin : BasePlugin
 
     internal static void Observe(string kind, Action action)
     {
-        try { action(); }
-        catch (Exception ex) { ReportFailure(kind, ex); }
+        lock (ObservationGate)
+        {
+            try { action(); }
+            catch (Exception ex) { ReportFailure(kind, ex); }
+        }
     }
 
     internal static void ReportFailure(string kind, Exception ex)
