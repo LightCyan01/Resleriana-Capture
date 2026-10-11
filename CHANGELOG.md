@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.3
+
+- Read native generic enumerable battle targets through their iterator interfaces, preserving values previously lost to collection-reader errors.
+- Check populated and empty native enumerables during startup before enabling combat capture.
+- Include native exception details when startup reader checks fail.
+- Keep BepInEx and Il2CppInterop build versions separate from the capture release version, including in CI environments.
+
 ## 1.3.2
 
 - Preserve events when the writer queue fills by waiting for space instead of discarding them.

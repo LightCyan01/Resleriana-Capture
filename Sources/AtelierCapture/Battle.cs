@@ -35,7 +35,7 @@ internal static class Battle
             foreach (var hook in configured.Where(h => !string.IsNullOrEmpty(h.Role)))
                 Skipped[hook.Role] = disabledReason;
             Plugin.ReportFailure("combat_readers", ex);
-            Plugin.Log.LogError($"Combat capture disabled: native reader check failed ({disabledReason}). API capture remains enabled. Use the matching plugin and HarmonySupport DLLs from the package.");
+            Plugin.Log.LogError($"Combat capture disabled: native reader check failed ({disabledReason}). API capture remains enabled. Use the matching plugin and HarmonySupport DLLs from the package.\n{cause}");
             return;
         }
         Plugin.Log.LogInfo("Native collection, nullable allocation, scalar, and tuple capture checks passed.");

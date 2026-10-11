@@ -101,14 +101,14 @@ def main():
     build(bepinex / "Runtimes/Unity/BepInEx.Unity.IL2CPP/BepInEx.Unity.IL2CPP.csproj",
           SolutionDir=str(bepinex) + "/", BuildDir=str(compiled / "BepInEx"),
           BuildArtifactsDirectory=str(compiled / "BepInEx") + "/",
-          UnityReferenceDirectory=dependencies, VersionSuffix="be.788-capture.1", SourceRevisionId=BEPINEX_COMMIT)
+          UnityReferenceDirectory=dependencies, Version="6.0.0-be.788-capture.1", SourceRevisionId=BEPINEX_COMMIT)
     runtime = stage / "BepInEx/core"
     for path in (compiled / "BepInEx/Unity.IL2CPP").glob("*.dll"):
         shutil.copyfile(path, runtime / path.name)
 
     build(interop / "Il2CppInterop.HarmonySupport/Il2CppInterop.HarmonySupport.csproj",
           BuildArtifactsDirectory=str(compiled / "Il2CppInterop") + "/",
-          Il2CppReferenceDirectory=dependencies, VersionSuffix="capture.2", SourceRevisionId=INTEROP_COMMIT)
+          Il2CppReferenceDirectory=dependencies, Version="1.5.3-capture.2", SourceRevisionId=INTEROP_COMMIT)
     shutil.copyfile(compiled / "Il2CppInterop/bin/Il2CppInterop.HarmonySupport/net6.0/Il2CppInterop.HarmonySupport.dll",
                     runtime / "Il2CppInterop.HarmonySupport.dll")
 

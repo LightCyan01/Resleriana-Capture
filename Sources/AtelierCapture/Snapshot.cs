@@ -30,11 +30,15 @@ internal sealed class Snapshot
         list.Add(17);
         list.Add(29);
         var view = new Il2CppSystem.Collections.Generic.IList<int>(list.Pointer);
-        foreach (var source in new Il2CppObjectBase[] { list, view })
+        var enumerable = new Il2CppSystem.Collections.Generic.IEnumerable<int>(list.Pointer);
+        foreach (var source in new Il2CppObjectBase[] { list, view, enumerable })
         {
             var values = Collections.GetOrAdd(source.GetType(), CollectionReader)(source).Take(3).Cast<int>();
             if (!values.SequenceEqual(new[] { 17, 29 })) throw new InvalidDataException("Native list reader failed");
         }
+        list.Clear();
+        if (Collections.GetOrAdd(enumerable.GetType(), CollectionReader)(enumerable).Any())
+            throw new InvalidDataException("Empty native enumerable reader failed");
         var map = new Il2CppSystem.Collections.Generic.Dictionary<int, int>();
         map.Add(7, 11);
         map.Add(13, 19);
@@ -66,6 +70,13 @@ internal sealed class Snapshot
         if (!Equals(tupleFields.Single(f => f.Name == "m_Item1").Get!(tuple), 23)
             || !Equals(tupleFields.Single(f => f.Name == "m_Item2").Get!(tuple), true))
             throw new InvalidDataException("Native tuple reader failed");
+        var references = new Il2CppSystem.Collections.Generic.List<Il2CppSystem.Tuple<int, bool>>();
+        references.Add(tuple);
+        var referenceView = new Il2CppSystem.Collections.Generic.IEnumerable<Il2CppSystem.Tuple<int, bool>>(references.Pointer);
+        var referenceItems = Collections.GetOrAdd(referenceView.GetType(), CollectionReader)(referenceView).Take(2)
+            .Cast<Il2CppSystem.Tuple<int, bool>>().ToArray();
+        if (referenceItems.Length != 1 || referenceItems[0].Pointer != tuple.Pointer)
+            throw new InvalidDataException("Native enumerable reference changed");
         if (System.Text.Json.JsonSerializer.Serialize(new Snapshot().Read(tuple, 11))
             != System.Text.Json.JsonSerializer.Serialize(new Snapshot().Read(tuple)))
             throw new InvalidDataException("Scalar record was depth limited");
@@ -199,6 +210,14 @@ internal sealed class Snapshot
         var get = type.GetMethod("GetEnumerator", Type.EmptyTypes)
             ?? throw new NotSupportedException("Collection has no concrete enumerator");
         var iterator = get.ReturnType;
+        if (iterator.IsGenericType && iterator.GetGenericTypeDefinition() == typeof(Il2CppSystem.Collections.Generic.IEnumerator<>))
+        {
+            var openInterface = NativeGetter<object>(get);
+            var moveInterface = NativeGetter<bool>(typeof(Il2CppSystem.Collections.IEnumerator).GetMethod("MoveNext")!);
+            var readInterface = NativeGetter<object?>(iterator.GetProperty("Current")!.GetMethod!);
+            var closeInterface = NativeGetter<object?>(typeof(Il2CppSystem.IDisposable).GetMethod("Dispose")!);
+            return value => Enumerate(openInterface(value), moveInterface, readInterface, closeInterface);
+        }
         var next = iterator.GetMethod("MoveNext", Type.EmptyTypes)
             ?? throw new NotSupportedException("Enumerator has no concrete MoveNext");
         var current = iterator.GetProperty("Current")!.GetMethod!;
@@ -223,6 +242,27 @@ internal sealed class Snapshot
         var call = Expression.Call(Expression.Convert(value, method.DeclaringType!), method);
         Expression body = method.ReturnType == typeof(void) ? Expression.Block(call, Expression.Default(typeof(T))) : Expression.Convert(call, typeof(T));
         return Expression.Lambda<Func<object, T>>(body, value).Compile();
+    }
+
+    private static unsafe Func<object, T> NativeGetter<T>(MethodInfo method)
+    {
+        var field = Il2CppInteropUtils.GetIl2CppMethodInfoPointerFieldForGeneratedMethod(method)
+            ?? throw new MissingMethodException($"Native method pointer unavailable: {method.Name}");
+        var read = method.ReturnType == typeof(void) ? null : BoxedReader(method.ReturnType);
+        return value =>
+        {
+            var native = (Il2CppObjectBase)value;
+            var pointer = native.Pointer;
+            var target = IL2CPP.il2cpp_object_get_virtual_method(pointer, (IntPtr)field.GetValue(null)!);
+            if (target == IntPtr.Zero) throw new MissingMethodException(method.Name);
+            // Generated interface calls do not unbox value-type implementations.
+            var receiver = IL2CPP.il2cpp_class_is_valuetype(native.ObjectClass) ? IL2CPP.il2cpp_object_unbox(pointer) : pointer;
+            var exception = IntPtr.Zero;
+            var result = IL2CPP.il2cpp_runtime_invoke(target, receiver, null, ref exception);
+            GC.KeepAlive(native);
+            Il2CppException.RaiseExceptionIfNecessary(exception);
+            return read is null ? default! : (T)read(result)!;
+        };
     }
 
     private static Field[] NativeFields(Type type) => type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
