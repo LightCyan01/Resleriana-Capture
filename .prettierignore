@@ -1,0 +1,7 @@
+Sources/BepInEx/**
+Sources/Il2CppInterop/**
+work/**
+.work/**
+**/bin/**
+**/obj/**
+**/node_modules/**

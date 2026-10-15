@@ -14,10 +14,11 @@ namespace BepInEx.Unity.IL2CPP.Hook;
 public interface INativeDetour : IDetour
 {
     private static readonly ConfigEntry<DetourProvider> DetourProviderType = ConfigFile.CoreConfig.Bind(
-         "Detours", "DetourProviderType",
-         DetourProvider.Default,
-         "The native provider to use for managed detours"
-        );
+        "Detours",
+        "DetourProviderType",
+        DetourProvider.Default,
+        "The native provider to use for managed detours"
+    );
 
     private static readonly ManualLogSource ThunkLog = Logger.CreateLogSource("NativeDetour");
 
@@ -31,13 +32,16 @@ public interface INativeDetour : IDetour
 
     public MethodBase GenerateTrampoline(MethodBase signature = null);
 
-    public TDelegate GenerateTrampoline<TDelegate>() where TDelegate : Delegate;
+    public TDelegate GenerateTrampoline<TDelegate>()
+        where TDelegate : Delegate;
 
-    private static INativeDetour CreateDefault<T>(nint original, T target) where T : Delegate =>
+    private static INativeDetour CreateDefault<T>(nint original, T target)
+        where T : Delegate =>
         // TODO: check and provide an OS accurate provider
         new DobbyDetour(original, target);
 
-    public static INativeDetour Create<T>(nint original, T target) where T : Delegate
+    public static INativeDetour Create<T>(nint original, T target)
+        where T : Delegate
     {
         var resolved = FollowExportThunks(original);
         if (resolved != original)
@@ -46,9 +50,9 @@ public interface INativeDetour : IDetour
 
         var detour = DetourProviderType.Value switch
         {
-            DetourProvider.Dobby    => new DobbyDetour(original, target),
+            DetourProvider.Dobby => new DobbyDetour(original, target),
             DetourProvider.Funchook => new FunchookDetour(original, target),
-            _                       => CreateDefault(original, target)
+            _ => CreateDefault(original, target),
         };
         if (PlatformDetection.Runtime != RuntimeKind.Mono)
         {
@@ -65,13 +69,20 @@ public interface INativeDetour : IDetour
     /// </summary>
     private static nint FollowExportThunks(nint func)
     {
-        if (func == 0) return func;
+        if (func == 0)
+            return func;
         var fn = func;
         for (var hops = 0; hops < 8; hops++)
         {
             byte op;
-            try { op = Marshal.ReadByte(fn); }
-            catch { return fn; }
+            try
+            {
+                op = Marshal.ReadByte(fn);
+            }
+            catch
+            {
+                return fn;
+            }
 
             if (op == 0xE9)
             {
@@ -98,10 +109,17 @@ public interface INativeDetour : IDetour
         where T : Delegate
     {
         var detour = Create(from, to);
-        original = detour.GenerateTrampoline<T>();
-        detour.Apply();
-
-        return detour;
+        try
+        {
+            original = detour.GenerateTrampoline<T>();
+            detour.Apply();
+            return detour;
+        }
+        catch
+        {
+            detour.Dispose();
+            throw;
+        }
     }
 
     // Workaround for CoreCLR collecting all delegates
@@ -129,11 +147,12 @@ public interface INativeDetour : IDetour
 
         public void Undo() => _wrapped.Undo();
 
-        public void Free() => _wrapped.Free();
+        public void Free() => Dispose();
 
         public MethodBase GenerateTrampoline(MethodBase signature = null) => _wrapped.GenerateTrampoline(signature);
 
-        public T GenerateTrampoline<T>() where T : Delegate
+        public T GenerateTrampoline<T>()
+            where T : Delegate
         {
             var trampoline = _wrapped.GenerateTrampoline<T>();
             _cache.Add(trampoline);
@@ -155,6 +174,6 @@ public interface INativeDetour : IDetour
     {
         Default,
         Dobby,
-        Funchook
+        Funchook,
     }
 }

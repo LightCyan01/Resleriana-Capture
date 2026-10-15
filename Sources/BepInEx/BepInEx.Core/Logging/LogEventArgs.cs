@@ -35,6 +35,11 @@ public class LogEventArgs : EventArgs
     /// </summary>
     public ILogSource Source { get; }
 
+    /// <summary>
+    ///     Suppresses this warning's console output after a priority listener has preserved it.
+    /// </summary>
+    public bool SuppressConsole { get; set; }
+
     /// <inheritdoc />
     public override string ToString() => $"[{Level,-7}:{Source.SourceName,10}] {Data}";
 

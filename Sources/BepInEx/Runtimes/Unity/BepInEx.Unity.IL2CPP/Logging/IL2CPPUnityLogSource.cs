@@ -6,13 +6,16 @@ namespace BepInEx.Unity.IL2CPP.Logging;
 
 public class IL2CPPUnityLogSource : ILogSource
 {
+    private readonly Action<string, string, LogType> callback;
+
     public IL2CPPUnityLogSource()
     {
-        Application.s_LogCallbackHandler = new Action<string, string, LogType>(UnityLogCallback);
+        callback = UnityLogCallback;
+        Application.s_LogCallbackHandler = callback;
 
-        Il2CppInterop.Runtime.IL2CPP
-                     .ResolveICall<
-                         SetLogCallbackDefinedDelegate>("UnityEngine.Application::SetLogCallbackDefined")(true);
+        Il2CppInterop.Runtime.IL2CPP.ResolveICall<SetLogCallbackDefinedDelegate>(
+            "UnityEngine.Application::SetLogCallbackDefined"
+        )(true);
     }
 
     public string SourceName { get; } = "Unity";
@@ -25,14 +28,16 @@ public class IL2CPPUnityLogSource : ILogSource
     {
         var level = type switch
         {
-            LogType.Error     => LogLevel.Error,
-            LogType.Assert    => LogLevel.Debug,
-            LogType.Warning   => LogLevel.Warning,
-            LogType.Log       => LogLevel.Message,
+            LogType.Error => LogLevel.Error,
+            LogType.Assert => LogLevel.Error,
+            LogType.Warning => LogLevel.Warning,
+            LogType.Log => LogLevel.Message,
             LogType.Exception => LogLevel.Error,
-            _                 => LogLevel.Message
+            _ => LogLevel.Message,
         };
-        LogEvent?.Invoke(this, new LogEventArgs(logLine, level, this));
+        var message = string.IsNullOrEmpty(exception) ? logLine : logLine + Environment.NewLine + exception;
+        LogEvent?.Invoke(this, new LogEventArgs(message, level, this));
+        GC.KeepAlive(callback);
     }
 
     private delegate IntPtr SetLogCallbackDefinedDelegate(bool defined);

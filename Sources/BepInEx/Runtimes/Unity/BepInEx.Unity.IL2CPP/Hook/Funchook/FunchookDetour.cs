@@ -7,9 +7,12 @@ internal class FunchookDetour : BaseNativeDetour<FunchookDetour>
 {
     private readonly nint funchookInstance;
 
-    public FunchookDetour(nint originalMethodPtr, Delegate detourMethod) : base(originalMethodPtr, detourMethod)
+    public FunchookDetour(nint originalMethodPtr, Delegate detourMethod)
+        : base(originalMethodPtr, detourMethod)
     {
         funchookInstance = FunchookLib.Create();
+        if (funchookInstance == 0)
+            throw new OutOfMemoryException("Funchook allocation failed");
     }
 
     protected override void ApplyImpl() => EnsureSuccess(FunchookLib.Install(funchookInstance, 0));
@@ -25,14 +28,15 @@ internal class FunchookDetour : BaseNativeDetour<FunchookDetour>
 
     protected override void FreeImpl() => EnsureSuccess(FunchookLib.Destroy(funchookInstance));
 
-    private string GetErrorMessage()
-        => FunchookLib.ErrorMessage(funchookInstance);
+    private string GetErrorMessage() => FunchookLib.ErrorMessage(funchookInstance);
 
     private void EnsureSuccess(FunchookResult result, [CallerArgumentExpression("result")] string methodName = null)
     {
-        if (result == FunchookResult.Success) return;
+        if (result == FunchookResult.Success)
+            return;
         var errorMsg = GetErrorMessage();
-        if (result == FunchookResult.OutOfMemory) throw new OutOfMemoryException($"{methodName} failed: {errorMsg}");
+        if (result == FunchookResult.OutOfMemory)
+            throw new OutOfMemoryException($"{methodName} failed: {errorMsg}");
         throw new Exception($"{methodName} failed with result {result}: {errorMsg}");
     }
 }

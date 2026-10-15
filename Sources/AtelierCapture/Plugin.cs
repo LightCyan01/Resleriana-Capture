@@ -2,11 +2,9 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using BepInEx;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
-using HarmonyLib;
 
 namespace AtelierCapture;
 
@@ -15,133 +13,585 @@ public sealed class Plugin : BasePlugin
 {
     internal static new ManualLogSource Log = null!;
     internal static SessionWriter Writer = null!;
-    internal static Privacy Privacy = null!;
-    private static readonly object ObservationGate = new();
-    private static readonly HashSet<string> ObserverWarnings = new();
-    private static readonly ConcurrentDictionary<string, long> ObserverErrors = new();
+    internal static RuntimeCompatibility Compatibility = null!;
+    private static readonly ObservationLifetime Lifetime = new();
     private static readonly ConcurrentDictionary<string, string> HookStatus = new();
-    private Harmony? harmony;
+    private static readonly ConcurrentDictionary<string, long>[] ObserverErrors =
+    [
+        new(),
+        new(),
+        new(),
+    ];
+
+    [ThreadStatic]
+    private static int observationDepth;
+
+    [ThreadStatic]
+    private static List<Action>? afterCommit;
+    private static OperationalStatus operational = new();
+    private static DiagnosticBridge? diagnostics;
+    private static CaptureControl? control;
+    private static readonly List<IDisposable> NativeHooks = [];
+    private static UnityQuitSubscription? quitSubscription;
+    private static int closeRequested;
+    private static int unityDiagnosticsAvailable;
 
     public override void Load()
     {
         Log = base.Log;
-        Privacy = new Privacy();
-        var root = Path.Combine(Path.GetDirectoryName(typeof(Plugin).Assembly.Location)!, "Captures");
-        using var assembly = File.OpenRead(typeof(Plugin).Assembly.Location);
-        using var hash = SHA256.Create();
-        Writer = new SessionWriter(root, new
+        operational = new OperationalStatus(message => Log.LogWarning(message));
+        var pluginPath = typeof(Plugin).Assembly.Location;
+        using var assembly = File.OpenRead(pluginPath);
+        var metadata = new
         {
-            plugin = "atelier.capture", version = BuildInfo.Version, supported_client = "2.16.0",
-            informational_version = typeof(Plugin).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion,
-            assembly_sha256 = Convert.ToHexString(hash.ComputeHash(assembly)), identity_self_reported = true,
-            limits = new { raw_body_bytes = Network.BodyLimit, queued_bytes = SessionWriter.QueueBudget,
-                queued_events = 2048, snapshot_nodes = 12000, snapshot_depth = 10, collection_items = 4096 }
-        }, CaptureStatus,
-            message => Log.LogWarning(message));
+            plugin = "atelier.capture",
+            version = BuildInfo.Version,
+            supported_client = "2.16.0",
+            informational_version = typeof(Plugin)
+                .Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion,
+            assembly_sha256 = Convert.ToHexString(SHA256.HashData(assembly)),
+            identity_self_reported = true,
+            observation_contract = "complete_supported_gameplay_with_explicit_read_failures",
+            durability = "before_callback_continuation",
+            plugin_lifecycle = "one_capture_run_per_process_restart_required_after_unload",
+            queued_batches = SessionWriter.QueueCapacity,
+            retained_memory_budget_bytes = SessionWriter.QueueBudget,
+            retained_memory_accounting = "owned_utf8_and_compression_capacity_estimate_with_one_oversized_observation_and_one_active_copier",
+        };
+        Writer = new SessionWriter(
+            Path.Combine(Path.GetDirectoryName(pluginPath)!, "Captures"),
+            metadata,
+            CaptureStatus,
+            operational.Report
+        );
+        control = new CaptureControl(Writer.RunId, CurrentStatus, Writer.Abort, operational);
+        diagnostics = new DiagnosticBridge(
+            record =>
+                Observe(
+                    "diagnostic",
+                    () => EmitDiagnostic("runtime_log", record),
+                    diagnostic: true
+                ),
+            operational,
+            (record, suppressConsole) =>
+            {
+                Action? committed = null;
+                Observe(
+                    "warning",
+                    () =>
+                    {
+                        var origin = DiagnosticOrigin();
+                        committed = diagnostics!.StageWarning(
+                            record,
+                            origin,
+                            (kind, data) => EmitDiagnostic(kind, data, origin),
+                            suppressConsole
+                        );
+                    },
+                    committed: () => committed?.Invoke(),
+                    partialCommitted: () => committed?.Invoke(),
+                    diagnostic: true
+                );
+            },
+            record =>
+            {
+                Action? committed = null;
+                Observe(
+                    "known_material_error",
+                    () =>
+                    {
+                        var origin = DiagnosticOrigin();
+                        committed = diagnostics!.StageError(
+                            record,
+                            origin,
+                            (kind, data) => EmitDiagnostic(kind, data, origin)
+                        );
+                    },
+                    committed: () => committed?.Invoke(),
+                    partialCommitted: () => committed?.Invoke(),
+                    diagnostic: true
+                );
+            }
+        );
+        BepInEx.Logging.Logger.Listeners.Add(diagnostics);
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
-        harmony = new Harmony("atelier.capture");
-        Patch(harmony, AccessTools.Method(ResolveType("UnityEngine.Application"), "Internal_ApplicationQuit"),
-            typeof(Plugin), null, nameof(OnApplicationQuit));
-        try { Network.Install(harmony); }
-        catch (Exception ex) { ReportFailure("network_install", ex); }
-        Battle.Install(harmony);
-        Log.LogInfo($"Capture output: {root}; one ZIP per environment/run with separate API, combat, raw-body, and diagnostics files.");
+        Writer.EmitBootstrap(
+            "process_start",
+            new
+            {
+                process_id = Environment.ProcessId,
+                control_pipe = control.PipeName,
+                runtime = Environment.Version.ToString(),
+                metadata,
+            }
+        );
+        Compatibility = RuntimeCompatibility.Inspect(
+            Paths.GameRootPath,
+            Path.Combine(Path.GetDirectoryName(pluginPath)!, "capture-runtime.json")
+        );
+        Writer.EmitBootstrap("runtime_compatibility", Compatibility.Status);
+        OriginalLogSnapshot.Capture(
+            Path.Combine(Paths.BepInExRootPath, "LogOutput.log"),
+            "BepInEx.LogOutput",
+            Writer.EmitBootstrap
+        );
+        OriginalLogSnapshot.Capture(
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "AppData",
+                "LocalLow",
+                "KOEI TECMO GAMES CO., LTD_",
+                "レスレリアーナのアトリエ",
+                "Player.log"
+            ),
+            "Unity.Player",
+            Writer.EmitBootstrap
+        );
+        Volatile.Write(
+            ref unityDiagnosticsAvailable,
+            BepInEx.Logging.Logger.Sources.Any(source =>
+                source.GetType().FullName == "BepInEx.Unity.IL2CPP.Logging.IL2CPPUnityLogSource"
+            )
+                ? 1
+                : 0
+        );
+        Writer.EmitBootstrap(
+            "diagnostic_listener_coverage",
+            new
+            {
+                bep_source_severity_filter = "all",
+                unity_source_available = Volatile.Read(ref unityDiagnosticsAvailable) != 0,
+                gap = Volatile.Read(ref unityDiagnosticsAvailable) == 0
+                    ? "unity_source_unavailable_user_logging_configuration_preserved"
+                    : null,
+                startup_originals = "exact_available_file_prefixes_unflushed_or_earlier_console_records_unproven",
+            }
+        );
+        if (!Compatibility.ApiVerified)
+        {
+            operational.Report(
+                "Capture startup blocked by runtime/client compatibility; inspect local status."
+            );
+            return;
+        }
+        var startupComplete = true;
+        void Install(string owner, Action install)
+        {
+            try
+            {
+                install();
+            }
+            catch (Exception error)
+            {
+                startupComplete = false;
+                ReportFailure("startup_" + owner, error);
+                operational.Report(
+                    $"Capture {owner} activation is incomplete; inspect local status."
+                );
+            }
+        }
+        Install(
+            "shutdown",
+            () =>
+            {
+                quitSubscription = UnityQuitSubscription.Attach(Compatibility, OnApplicationQuit);
+                Writer.EmitBootstrap(
+                    "quit_callback_attached",
+                    new { source = "UnityEngine.Application.quitting" }
+                );
+            }
+        );
+        Install("network", Network.Install);
+        Install("gameplay", Battle.Install);
+        diagnostics.Phase = startupComplete ? "recording" : "recording_activation_incomplete";
+        Writer.EmitBootstrap(
+            "capture_startup_status",
+            new
+            {
+                activation_stages_returned = startupComplete,
+                runtime = Compatibility.Status,
+                official = CaptureStatus(false),
+                @private = CaptureStatus(true),
+            }
+        );
     }
 
     public override bool Unload()
     {
-        harmony?.UnpatchSelf();
-        AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
-        Writer?.Dispose();
+        Close("plugin_unload");
         return true;
     }
 
-    private static void OnProcessExit(object? sender, EventArgs args) => Writer.Dispose();
-    private static void OnApplicationQuit() => Writer.Dispose();
+    private static void OnProcessExit(object? sender, EventArgs args) =>
+        Close("managed_process_exit");
 
-    internal static Type ResolveType(string name)
+    private static void OnApplicationQuit() => Close("unity_application_quitting");
+
+    private static void Close(string trigger)
     {
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            if (assembly.GetType(name, false) is { } direct) return direct;
-        var shortName = name[(name.LastIndexOf('.') + 1)..];
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        if (Interlocked.CompareExchange(ref closeRequested, 1, 0) == 0)
         {
             try
             {
-                if (assembly.GetTypes().FirstOrDefault(t => t.Name == shortName || t.FullName == name) is { } found) return found;
+                Writer.EmitBootstrap(
+                    "closure_start",
+                    new
+                    {
+                        trigger,
+                        utc = DateTimeOffset.UtcNow,
+                        phase = "before_admission_drain",
+                    }
+                );
             }
-            catch (ReflectionTypeLoadException ex)
+            catch (Exception error)
             {
-                if (ex.Types.FirstOrDefault(t => t is not null && (t.Name == shortName || t.FullName == name)) is { } found) return found;
+                operational.Report($"Capture closure start is unsaved: {error.GetType().Name}.");
             }
         }
-        throw new TypeLoadException(name);
+        if (observationDepth != 0)
+        {
+            _ = Task.Run(() => Close(trigger));
+            return;
+        }
+        Lifetime.Close(() =>
+        {
+            try
+            {
+                try
+                {
+                    StopDiagnosticCapture(diagnostics);
+                }
+                catch (Exception error)
+                {
+                    ClosingFailure("log_capture_stop", error);
+                }
+                try
+                {
+                    quitSubscription?.Dispose();
+                }
+                catch (Exception error)
+                {
+                    ClosingFailure("quit_callback_detach", error);
+                }
+                for (var index = NativeHooks.Count - 1; index >= 0; index--)
+                    try
+                    {
+                        NativeHooks[index].Dispose();
+                    }
+                    catch (Exception error)
+                    {
+                        ClosingFailure("native_observer_detach", error);
+                    }
+                AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
+                try
+                {
+                    Writer?.Dispose();
+                }
+                finally
+                {
+                    Network.ReleaseObjects();
+                }
+            }
+            catch (Exception error)
+            {
+                operational.Report($"Capture closure incomplete: {error.GetType().Name}.");
+            }
+            finally
+            {
+                control?.Dispose();
+            }
+        });
+    }
+
+    internal static void StopDiagnosticCapture(DiagnosticBridge? bridge)
+    {
+        try
+        {
+            var boundary = bridge?.Stop() ?? DateTimeOffset.UtcNow;
+            if (bridge is not null)
+                using (Writer.BeginObservation())
+                {
+                    foreach (var summary in bridge.WarningSummaries())
+                        EmitDiagnostic("runtime_warning_summary", summary, summary.origin);
+                    foreach (var summary in bridge.ErrorSummaries())
+                        EmitDiagnostic("runtime_error_summary", summary, summary.origin);
+                }
+            Writer.EmitBootstrap(
+                "log_capture_stop",
+                new
+                {
+                    phase = "after_admitted_callbacks_drained_before_unpatch",
+                    utc = DateTimeOffset.UtcNow,
+                    admission_closed_utc = boundary,
+                    coverage = "ordinary_shutdown_logs_after_this_frontier_are_outside_capture",
+                    listener = bridge?.Status,
+                }
+            );
+        }
+        finally
+        {
+            if (bridge is not null)
+            {
+                BepInEx.Logging.Logger.Listeners.Remove(bridge);
+                bridge.Dispose();
+            }
+        }
+    }
+
+    internal static Type ResolveType(string name)
+    {
+        var matches = AppDomain
+            .CurrentDomain.GetAssemblies()
+            .Select(assembly => assembly.GetType(name, false))
+            .Where(type => type is not null)
+            .Cast<Type>()
+            .Distinct()
+            .ToArray();
+        return matches.Length switch
+        {
+            1 => matches[0],
+            0 => throw new TypeLoadException(name),
+            _ => throw new AmbiguousMatchException(name),
+        };
+    }
+
+    private static void ClosingFailure(string stage, Exception error)
+    {
+        ObserverErrors[2].AddOrUpdate("closure_" + stage, 1, (_, count) => checked(count + 1));
+        try
+        {
+            Writer.EmitBootstrap(
+                "closure_error",
+                new
+                {
+                    stage,
+                    error = error.GetType().FullName,
+                    stack = error.ToString(),
+                    completeness = "closure_failed",
+                }
+            );
+        }
+        catch (Exception persistenceError)
+        {
+            operational.Report(
+                $"Capture closure diagnostic is unsaved: {persistenceError.GetType().Name}."
+            );
+        }
     }
 
     internal static T ReadResource<T>(string name)
     {
-        using var stream = typeof(Plugin).Assembly.GetManifestResourceStream($"AtelierCapture.{name}")
+        using var stream =
+            typeof(Plugin).Assembly.GetManifestResourceStream($"AtelierCapture.{name}")
             ?? throw new FileNotFoundException(name);
-        return JsonSerializer.Deserialize<T>(stream, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })
-            ?? throw new InvalidDataException(name);
+        return JsonSerializer.Deserialize<T>(
+                stream,
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+            ) ?? throw new InvalidDataException(name);
     }
 
-    internal static void Patch(Harmony harmony, MethodBase? target, Type owner, string? prefix, string? postfix,
-        string? finalizer = null, int priority = Priority.Normal)
+    internal static void ObserveNative(
+        MethodBase? target,
+        Type owner,
+        string? prefix,
+        string? postfix,
+        string? finalizer = null
+    )
     {
-        if (target is null) throw new MissingMethodException("Patch target");
-        HarmonyMethod? method(string? hook)
-        {
-            if (hook is null) return null;
-            var result = new HarmonyMethod(owner.GetMethod(hook, BindingFlags.Static | BindingFlags.NonPublic)!);
-            result.priority = priority;
-            return result;
-        }
-        var name = target.DeclaringType?.FullName + "." + target.Name;
+        if (target is null)
+            throw new MissingMethodException("Native observation target");
+        Compatibility.RequireValidated(target);
+        var identity =
+            target.DeclaringType?.FullName
+            + "."
+            + target.Name
+            + "("
+            + string.Join(
+                ",",
+                target
+                    .GetParameters()
+                    .Select(p => RuntimeCompatibility.SignatureType(p.ParameterType))
+            )
+            + ")";
         try
         {
-            harmony.Patch(target, prefix: method(prefix), postfix: method(postfix), finalizer: method(finalizer));
-            HookStatus[name] = "installed";
+            var handlers = new NativeObserverHandlers(target, owner, prefix, postfix, finalizer);
+            NativeHooks.Add(
+                PassiveNativeHook.Install(
+                    target,
+                    handlers.Enter,
+                    handlers.Returned,
+                    handlers.Faulted,
+                    handlers.Leave,
+                    ReportNativeObserverFailure
+                )
+            );
+            HookStatus[identity] = "installed";
         }
-        catch (Exception ex)
+        catch (Exception error)
         {
-            HookStatus[name] = (ex.InnerException ?? ex).GetType().Name;
+            if (PassiveNativeHook.IsClosed)
+                foreach (var hook in HookStatus)
+                    if (hook.Value == "installed")
+                        HookStatus[hook.Key] = "inactive_native_activation_rollback";
+            HookStatus[identity] = (error.InnerException ?? error).GetType().Name;
             throw;
         }
     }
 
-    internal static void Observe(string kind, Action action)
+    internal static void ReportNativeObserverFailure(Exception error)
     {
-        lock (ObservationGate)
+        try
         {
-            try { action(); }
-            catch (Exception ex) { ReportFailure(kind, ex); }
+            ReportFailure("native_observer", error);
+        }
+        catch (Exception persistenceError)
+        {
+            operational.Report(
+                $"Native observer failure is unsaved: {error.GetType().Name}; persistence: {persistenceError.GetType().Name}."
+            );
         }
     }
 
-    internal static void ReportFailure(string kind, Exception ex)
+    internal static void Observe(
+        string kind,
+        Action copy,
+        Action? committed = null,
+        Action? partialCommitted = null,
+        bool diagnostic = false
+    )
     {
-        var error = (ex.InnerException ?? ex).GetType().Name;
-        ObserverErrors.AddOrUpdate(kind, 1, (_, count) => count + 1);
-        lock (ObserverWarnings)
-            if (ObserverWarnings.Add(kind))
+        var outer = observationDepth == 0;
+        if (outer)
+            Lifetime.Enter(diagnostic);
+        observationDepth++;
+        try
+        {
+            if (outer)
+                afterCommit = [];
+            var copied = true;
+            using (var batch = Writer.BeginObservation())
             {
-                Log.LogWarning($"{kind} observer failed: {error}; further warnings for this observer are suppressed.");
-                if (Network.IsPrivate is { } isPrivate)
-                    Writer.Emit(isPrivate, false, "observer_error", new { observer = kind, error });
+                try
+                {
+                    copy();
+                }
+                catch (Exception error)
+                {
+                    copied = false;
+                    ReportFailure(kind, error);
+                }
             }
+            var completed = copied ? committed : partialCommitted;
+            if (completed is not null)
+                afterCommit!.Add(completed);
+            if (outer)
+                for (var index = 0; index < afterCommit!.Count; index++)
+                {
+                    try
+                    {
+                        afterCommit[index]();
+                    }
+                    catch (Exception error)
+                    {
+                        ReportFailure("commit_state_" + kind, error);
+                    }
+                }
+        }
+        finally
+        {
+            observationDepth--;
+            if (outer)
+            {
+                afterCommit = null;
+                Lifetime.Exit();
+            }
+        }
     }
 
-    private static object CaptureStatus(bool isPrivate) => new
-    {
-        hooks = HookStatus.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value),
-        observer_errors = ObserverErrors.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value),
-        combat = Battle.CaptureStatus(isPrivate)
-    };
+    internal static IDisposable? BeginNativeCallback() => Lifetime.BeginNativeCallback();
 
-    internal static JsonNode? ParseJson(string value)
+    private static string DiagnosticOrigin() =>
+        Network.CurrentContext?.IsPrivate is { } isPrivate
+            ? isPrivate
+                ? "Private"
+                : "Official"
+            : "Unknown";
+
+    private static void EmitDiagnostic(string kind, object record, string? origin = null)
     {
-        try { return JsonNode.Parse(value); }
-        catch { return new JsonObject { ["omitted"] = "not_json" }; }
+        origin ??= DiagnosticOrigin();
+        if (origin == "Unknown")
+            Writer.EmitBootstrap(kind, record);
+        else
+            Writer.Emit(origin == "Private", false, kind, record, systemId: "Recorder");
     }
+
+    internal static void ReportFailure(string kind, Exception error)
+    {
+        var cause = error.InnerException ?? error;
+        var current = Network.CurrentContext?.IsPrivate;
+        ObserverErrors[
+            current is null ? 2
+            : current.Value ? 1
+            : 0
+        ]
+            .AddOrUpdate(kind, 1, (_, count) => checked(count + 1));
+        var record = new
+        {
+            observer = kind,
+            error = cause.GetType().FullName,
+            stack = cause.ToString(),
+            phase = diagnostics?.Phase ?? "startup",
+            utc = DateTimeOffset.UtcNow,
+            thread = Environment.CurrentManagedThreadId,
+            completeness = "read_failed",
+        };
+        if (observationDepth != 0)
+            EmitDiagnostic("observer_error", record);
+        else
+            Observe("observer_error", () => EmitDiagnostic("observer_error", record));
+    }
+
+    private static object CaptureStatus(bool isPrivate) =>
+        new
+        {
+            hooks = HookStatus.OrderBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value),
+            native_observers_closed = PassiveNativeHook.IsClosed,
+            observer_errors = ObserverErrors[isPrivate ? 1 : 0]
+                .OrderBy(p => p.Key)
+                .ToDictionary(p => p.Key, p => p.Value),
+            bootstrap_observer_errors = ObserverErrors[2]
+                .OrderBy(p => p.Key)
+                .ToDictionary(p => p.Key, p => p.Value),
+            combat = Battle.CaptureStatus(isPrivate),
+            network = Network.CaptureStatus(),
+            runtime = Compatibility?.Status,
+            storage = Writer.GetStatus(),
+            operational = operational.Snapshot,
+            diagnostics = new
+            {
+                unity_source_available = Volatile.Read(ref unityDiagnosticsAvailable) != 0,
+                prior_console_coverage = "available_original_file_prefix_only",
+                listener = diagnostics?.Status,
+            },
+        };
+
+    internal static object CurrentStatus() =>
+        new
+        {
+            run_id = Writer.RunId,
+            phase = Lifetime.IsClosed ? "closed"
+            : Lifetime.IsClosing ? "closing"
+            : diagnostics?.Phase ?? "startup",
+            compatibility = Compatibility?.Status,
+            writer = Writer.GetStatus(),
+            operational = operational.Snapshot,
+            bootstrap_observer_errors = ObserverErrors[2]
+                .OrderBy(p => p.Key)
+                .ToDictionary(p => p.Key, p => p.Value),
+            official = CaptureStatus(false),
+            @private = CaptureStatus(true),
+        };
 }

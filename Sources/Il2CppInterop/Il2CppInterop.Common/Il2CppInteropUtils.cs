@@ -8,19 +8,35 @@ public static class Il2CppInteropUtils
     private static FieldInfo? GetFieldInfoFromMethod(MethodBase method, string prefix)
     {
         var body = method.GetMethodBody();
-        if (body == null) throw new ArgumentException("Target method may not be abstract");
+        if (body == null)
+            throw new ArgumentException("Target method may not be abstract");
         var methodModule = method.DeclaringType.Assembly.Modules.Single();
         foreach (var (opCode, opArg) in MiniIlParser.Decode(body.GetILAsByteArray()))
         {
-            if (opCode != OpCodes.Ldsfld) continue;
+            if (opCode != OpCodes.Ldsfld)
+                continue;
 
-            var fieldInfo = methodModule.ResolveField((int)opArg, method.DeclaringType.GenericTypeArguments, method.GetGenericArguments());
-            if (fieldInfo?.FieldType != typeof(IntPtr)) continue;
+            var methodArguments = method is MethodInfo methodInfo
+                ? methodInfo.GetGenericArguments()
+                : Type.EmptyTypes;
+            var fieldInfo = methodModule.ResolveField(
+                (int)opArg,
+                method.DeclaringType.GenericTypeArguments,
+                methodArguments
+            );
+            if (fieldInfo?.FieldType != typeof(IntPtr))
+                continue;
 
-            if (fieldInfo.Name.StartsWith(prefix)) return fieldInfo;
+            if (fieldInfo.Name.StartsWith(prefix))
+                return fieldInfo;
 
             // Resolve generic method info pointer fields
-            if (method.IsGenericMethod && fieldInfo.DeclaringType.Name.StartsWith("MethodInfoStoreGeneric_") && fieldInfo.Name == "Pointer") return fieldInfo;
+            if (
+                method.IsGenericMethod
+                && fieldInfo.DeclaringType.Name.StartsWith("MethodInfoStoreGeneric_")
+                && fieldInfo.Name == "Pointer"
+            )
+                return fieldInfo;
         }
 
         return null;
@@ -31,7 +47,9 @@ public static class Il2CppInteropUtils
         return GetFieldInfoFromMethod(method, "NativeMethodInfoPtr_");
     }
 
-    public static FieldInfo GetIl2CppFieldInfoPointerFieldForGeneratedFieldAccessor(MethodBase method)
+    public static FieldInfo GetIl2CppFieldInfoPointerFieldForGeneratedFieldAccessor(
+        MethodBase method
+    )
     {
         return GetFieldInfoFromMethod(method, "NativeFieldInfoPtr_");
     }

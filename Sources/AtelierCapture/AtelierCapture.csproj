@@ -1,34 +1,71 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Version>1.3.3</Version>
+    <TargetFramework>net10.0</TargetFramework>
+    <Version>1.4.0</Version>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>latest</LangVersion>
-    <RuntimeDirectory Condition="'$(RuntimeDirectory)' == ''">$(MSBuildThisFileDirectory)..\BepInEx-master\bin\Unity.IL2CPP</RuntimeDirectory>
-    <ReferenceDirectory Condition="'$(ReferenceDirectory)' == ''">$(GameDirectory)\BepInEx\interop</ReferenceDirectory>
+    <LangVersion>14</LangVersion>
+    <RuntimeDirectory Condition="'$(RuntimeDirectory)' == ''"
+      >$(MSBuildThisFileDirectory)..\..\work\build\stage\BepInEx\core</RuntimeDirectory>
+    <ReferenceDirectory Condition="'$(ReferenceDirectory)' == ''"
+      >$(MSBuildThisFileDirectory)..\..\work\build\dependencies</ReferenceDirectory>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <PathMap Condition="'$(Configuration)' == 'Release'">$(MSBuildProjectDirectory)=/_/AtelierCapture</PathMap>
+    <PathMap Condition="'$(Configuration)' == 'Release'"
+      >$(MSBuildProjectDirectory)=/_/AtelierCapture</PathMap>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BepInEx.Core" HintPath="$(RuntimeDirectory)\BepInEx.Core.dll" Private="false" />
-    <Reference Include="BepInEx.Unity.IL2CPP" HintPath="$(RuntimeDirectory)\BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference
+      Include="BepInEx.Core"
+      HintPath="$(RuntimeDirectory)\BepInEx.Core.dll"
+      Private="false"
+    />
+    <Reference
+      Include="BepInEx.Unity.IL2CPP"
+      HintPath="$(RuntimeDirectory)\BepInEx.Unity.IL2CPP.dll"
+      Private="false"
+    />
     <Reference Include="0Harmony" HintPath="$(RuntimeDirectory)\0Harmony.dll" Private="false" />
-    <Reference Include="Il2CppInterop.Runtime" HintPath="$(RuntimeDirectory)\Il2CppInterop.Runtime.dll" Private="false" />
-    <Reference Include="Il2CppInterop.Common" HintPath="$(RuntimeDirectory)\Il2CppInterop.Common.dll" Private="false" />
-    <Reference Include="Il2Cppmscorlib" HintPath="$(ReferenceDirectory)\Il2Cppmscorlib.dll" Private="false" />
+    <Reference
+      Include="Il2CppInterop.Runtime"
+      HintPath="$(RuntimeDirectory)\Il2CppInterop.Runtime.dll"
+      Private="false"
+    />
+    <Reference
+      Include="Il2CppInterop.Common"
+      HintPath="$(RuntimeDirectory)\Il2CppInterop.Common.dll"
+      Private="false"
+    />
+    <Reference
+      Include="Il2Cppmscorlib"
+      HintPath="$(ReferenceDirectory)\Il2Cppmscorlib.dll"
+      Private="false"
+    />
     <EmbeddedResource Include="Routes.json" />
     <EmbeddedResource Include="WireSchemas.json" />
     <EmbeddedResource Include="BattleHooks.json" />
     <EmbeddedResource Include="SnapshotTypes.json" />
+    <EmbeddedResource Include="NativeHookBodies.json" />
+    <EmbeddedResource Include="Gameplay/AtelierHooks.json" />
     <Compile Include="$(IntermediateOutputPath)CaptureVersion.g.cs" />
   </ItemGroup>
   <Target Name="CaptureVersion" BeforeTargets="CoreCompile">
-    <WriteLinesToFile File="$(IntermediateOutputPath)CaptureVersion.g.cs" Overwrite="true" WriteOnlyWhenDifferent="true"
-      Lines="namespace AtelierCapture%3B internal static class BuildInfo { internal const string Version = &quot;$(Version)&quot;%3B }" />
+    <WriteLinesToFile
+      File="$(IntermediateOutputPath)CaptureVersion.g.cs"
+      Overwrite="true"
+      WriteOnlyWhenDifferent="true"
+      Lines="namespace AtelierCapture%3B internal static class BuildInfo { internal const string Version = &quot;$(Version)&quot;%3B }"
+    />
   </Target>
   <Target Name="RequireReferences" BeforeTargets="ResolveReferences">
-    <Error Condition="!Exists('$(ReferenceDirectory)\Il2Cppmscorlib.dll')" Text="Set ReferenceDirectory to public Il2CppInterop reference assemblies, or GameDirectory to a supported installation with generated interop assemblies." />
+    <Error
+      Condition="!Exists('$(ReferenceDirectory)\Il2Cppmscorlib.dll')"
+      Text="Prepare the checksum-pinned public references with scripts/build.py --runtime-only. ReferenceDirectory must contain public Il2CppInterop reference assemblies."
+    />
+    <Error
+      Condition="!Exists('$(RuntimeDirectory)\BepInEx.Unity.IL2CPP.dll')"
+      Text="Prepare the workspace runtime with scripts/build.py --runtime-only."
+    />
   </Target>
 </Project>

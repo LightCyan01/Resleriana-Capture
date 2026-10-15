@@ -13,3 +13,13 @@ global.json text diff merge eol=lf
 scripts/*.py text diff merge eol=lf
 .github/workflows/*.yml text diff merge eol=lf
 VERSION text diff merge eol=lf
+# Preserve exact build-input bytes while exposing new source files in reviews.
+Checks/** -text diff merge
+Sources/AtelierCapture.Native/** -text diff merge
+Sources/AtelierCapture/Gameplay/*.json -text diff merge
+Sources/AtelierCapture/Control/*.ps1 -text diff merge
+Sources/**/packages.lock.json -text diff merge
+.config/** -text diff merge
+.csharpierignore -text diff merge
+.prettierignore -text diff merge
+Licenses/TerraFX-LICENSE.txt -text diff merge

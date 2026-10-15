@@ -1,16 +1,19 @@
 # Resleriana Capture
 
-Record API traffic and combat data from Atelier Resleriana (JP) on Steam. Includes English translation from [Localization 2.0.0](https://github.com/ongandrew/AtelierResleriana/releases/tag/2.0.0). For Windows x64, game version 2.16.0.
+Record API traffic, Battle and Atelier observations from Atelier Resleriana (JP) on Steam. Includes English translation from [Localization 2.0.0](https://github.com/ongandrew/AtelierResleriana/releases/tag/2.0.0). For Windows x64, the verified JP 2.16.0 client with Unity 2022.3.62f2.
 
-Built on a modified BepInEx 6.0.0-be.788 with HarmonyX 2.16.1. The custom hook fixes are in Il2CppInterop's HarmonySupport, where they handle the game's Windows x64 value-type and nullable arguments.
+Version 1.4.0 rewrites the recorder using the previous capture codebase and evidence. It retains the five-entry ZIP format and adds durable storage, focused Battle/Atelier observations, readable counts and stricter recovery checks. Automated checks and an installed user gameplay session passed; complete native coverage and physical HDD/SSD performance qualification remain open.
 
-The plugin records requests and responses inside the game, plus inputs, results and state before and after hooked combat methods. Request IDs connect battle events to API traffic. Keeping both decoded data and original bodies lets researchers inspect gameplay now and decode more fields later. Log writing and compression run on a background thread.
+Built on a modified BepInEx 6.0.0-be.788 with HarmonyX 2.16.1. Recorder observations use a finite Windows x64 native forwarding layer: the original game method runs on its original receiver and preserves its native exception handling. Managed callbacks copy data before and after that call.
+
+The plugin records requests and responses inside the game, plus inputs, results and state at qualified native boundaries. Original native identities connect observations where they are available; missing or ambiguous identities remain explicit. The package embeds .NET 10.0.13, with pinned source and dependency identities. Each admitted callback waits for a durable data/checkpoint flush before continuing.
 
 ## Install
 
 1. Close the game. Open the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest) and download `Resleriana-Capture-vX.Y.Z-win-x64.zip` under Assets.
-2. Extract the ZIP and copy its contents into the game folder, beside `AtelierResleriana.exe`.
-3. Launch the game through Steam. Recording starts automatically. The first launch may take a few minutes to set up.
+2. Preserve the existing `dotnet` and `BepInEx/core` folders outside the game folder, then replace them with the complete folders in the ZIP. Copy the remaining package files beside `AtelierResleriana.exe`. Preserve captures, configuration, custom localization files and unrelated plugins. Install only one `AtelierCapture.dll`.
+3. For an existing configuration, retain your settings and set `[IL2CPP] UnityBaseLibrariesSource = 2022.3.62.zip`. The default `GlobalMetadataPath = {GameDataPath}/il2cpp_data/Metadata/global-metadata.dat` and `IL2CPPInteropAssembliesPath = {BepInEx}` are required. In `AtelierResleriana.Plugin.Localization.cfg`, set `[Data] AutoUpdate = false` so its data stays consistent with the verified package; preserve language and other options. The package contains offline Unity references and English localization data.
+4. Launch the game through Steam. Recording starts automatically. The first launch may take a few minutes to set up. A mismatching runtime/client or failed hook produces explicit incomplete evidence.
 
 ## Captures
 
@@ -22,33 +25,40 @@ BepInEx/plugins/Captures/Official/capture-YYYY-MM-DD_HH-mm-ss.zip
 
 Each ZIP contains four JSON Lines text files and a manifest.
 
-| File | Information recorded |
-| --- | --- |
-| `api.jsonl` | Decoded requests and responses, routes, response codes and selected headers. Depending on what you play, this includes characters, parties, inventory, currencies, quest progress, gacha results, mail and rewards. |
-| `combat.jsonl` | Hooked battle methods and their inputs/results, unit stats, HP, damage, break, buffs/debuffs, gauges, targets and turn order. |
-| `raw-bodies.jsonl` | Original API request and response bodies stored as Base64, with byte lengths and SHA-256 hashes. These preserve data that the decoded logs may omit. |
-| `diagnostics.jsonl` | Session identifiers, timestamps, request completion states, timings, errors and capture gaps. |
-| `manifest.json` | Stream hashes, sizes and record counts, plugin/schema versions, installed and used combat hooks, recording gaps and recovery status. |
+| File                | Information recorded                                                                                                                                                                                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api.jsonl`         | Decoded requests and responses, routes, response codes and complete observed headers. Depending on what you play, this includes characters, parties, inventory, currencies, quest progress, gacha results, mail and rewards.                                                             |
+| `combat.jsonl`      | Battle and Atelier arguments, results and focused gameplay state. Typed lifetime references identify owner links; mutable state is copied again at each observation. Required read, origin and completion gaps remain explicit. UI/render internals are excluded.                        |
+| `raw-bodies.jsonl`  | Original API request and response bodies stored as Base64, with byte lengths and SHA-256 hashes. These preserve data that the decoded logs may omit.                                                                                                                                     |
+| `diagnostics.jsonl` | Session identifiers, timestamps, request completion states, timings, errors and capture gaps. Identical warnings and two exact Unity material null-reference patterns retain their first full details plus durable repeat records and summaries. Other errors retain their full details. |
+| `manifest.json`     | Readable per-ZIP, per-stream, per-system and per-route record/request counts, hashes, runtime/client identity and recording gaps. Entry/exit records, observed sends and gameplay operations have separate units. No count encryption or automatic giveaway score is produced.           |
 
-Let the game finish closing so it can save the ZIP. If it crashes, launch it again to recover the saved part of the recording. Leave any `.partial` folders in place until then. A capture covers the actions you played; limits or failures can leave gaps.
+Let the game finish closing so it can save the ZIP. Completed current working folders clear after their exact data is independently verified in the ZIP. Failed, provisional and older folders remain for recovery; leave them in place. If it crashes, launch it again to recover a saved recording. A capture covers the actions you played; limits or failures can leave gaps. Names use the timestamp above, with a numeric suffix such as `-2` when that name is already occupied.
 
-Raw bodies keep the original bytes, including any account or session fields in them. The decoded logs redact common sensitive fields. The plugin saves locally and does not upload recordings.
+Original bodies, decoded fields and observed headers retain their captured values, including account and session data. The recorder performs no redaction or identifier hashing. It saves locally and does not upload recordings.
 
 ## How recording works
 
-The plugin observes the game's HTTP send, response decoder and completion paths. It preserves the original API bodies before decoding, so unknown fields remain available. Combat hooks copy selected native state while it is valid, then queue detached records for background writing and compression. It avoids per-frame polling. A full queue waits for the writer instead of discarding events; faster compression during play helps keep it draining. Sustained slow storage can still cause waits.
+The plugin observes the game's HTTP send, response decoder and completion paths. It preserves observed original API bodies before decoding, so unknown fields remain available; streaming and transport gaps are explicit. Combat hooks copy selected native state while it is valid, then queue detached records for background writing and compression. It avoids per-frame polling. A full queue waits for the writer instead of discarding events; faster compression during play helps keep it draining. Sustained slow storage can still cause waits.
 
-Completed gzip blocks are checkpointed during play. On exit, the writer streams them into a ZIP and calculates the manifest hashes. Recovery uses those checkpoints to exclude an unfinished crash tail. Older recordings without checkpoints are marked uncertain and their temporary files are retained.
+Native snapshots carry a local type-description table, so field-availability descriptions are stored once per contract in that observation. Every mutable gameplay value is still read afresh. Historical captures with inline node descriptions remain readable; [FORMAT.md](Sources/AtelierCapture/FORMAT.md) describes both forms.
 
-The manifest checks file integrity. A modified plugin can fabricate data and recompute its hashes, so the manifest does not prove official gameplay. Release checksums and GitHub build attestations identify the published installer; they do not authenticate recordings. See [the archive format](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/AtelierCapture/FORMAT.md) for the validation contract and limits.
+All touched complete gzip members and the alternating checkpoint pass durable flush before the callback is acknowledged. Each detached record is encoded once. The `Process` working folder preserves startup observations before server attribution; its frozen contents join the first resolved environment once. It does not mirror ongoing battle writes. Unresolved native origins remain explicit diagnostic observations. On exit, the writer verifies every stream and independently recounts the ZIP; proven current working copies clear afterward. Recovery selects a verified committed prefix and retains provisional tails and unresolved sources. Older already-packaged folders are preserved without repeating their full verification at quit. No record is deliberately clipped, sampled or dropped to meet an upload limit. One ZIP covers one run and environment.
+
+If storage is full or failing, capture holds until storage recovers or you explicitly abort it. While the game is running, use `capture-control.ps1 -ProcessId <game PID> -Command status`. An abort requires the exact current run ID and a reason: `capture-control.ps1 -ProcessId <game PID> -Command abort -RunId <run ID> -Reason <reason>`. Aborting marks the run incomplete and retains completed data; it cannot persist data to a broken drive.
+
+The manifest checks file integrity. A modified plugin can fabricate data and recompute its hashes, so the manifest does not prove official gameplay. Package checksums and source/dependency manifests identify installer contents; they do not authenticate recordings. See [the archive format](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/AtelierCapture/FORMAT.md) for the validation contract and limits.
+
+Known gaps include four blocked native hooks, unsupported native field reads and ambiguous object origins. An external Atelier async null-reference error remains unresolved. These gaps are recorded separately from successful API outcomes; saved-record integrity does not establish complete native gameplay evidence. See [FORMAT.md](Sources/AtelierCapture/FORMAT.md) before using observations to implement a mechanic.
 
 ## Build from source
 
 Install these tools:
 
 - [Git for Windows](https://git-scm.com/install/windows).
-- [Python for Windows](https://www.python.org/downloads/windows/).
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0), Windows x64.
+- [Python 3.11 or newer for Windows](https://www.python.org/downloads/windows/).
+- Visual Studio 2022 C++ build tools with the Windows SDK for the native forwarding layer. Exact compiler identity and native build inputs are recorded with the package.
+- The build downloads and verifies the pinned .NET 10.0.402 SDK and .NET 10.0.13 runtime into `work/toolchain`; a separate global SDK is unnecessary.
 
 Open a new Command Prompt or PowerShell window in the folder where you want the source, then run:
 
@@ -58,7 +68,7 @@ cd Resleriana-Capture
 py scripts/build.py
 ```
 
-The command builds the modified BepInEx runtime, HarmonySupport and capture plugin, then creates `dist/Resleriana-Capture-vX.Y.Z-win-x64.zip`. The first build needs an internet connection to download dependencies. No game installation is needed.
+The command builds the modified BepInEx runtime, HarmonySupport, native forwarding layer and capture plugin, then creates `work/release/Resleriana-Capture-vX.Y.Z-win-x64.zip`. The first build needs an internet connection for checksum-pinned public dependencies. A cached build can use `--offline`. No game installation or assemblies from another workspace are needed.
 
 Extract the ZIP into the game folder as described under [Install](#install). To rebuild after editing the source, run `py scripts/build.py` again.
 

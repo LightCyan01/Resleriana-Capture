@@ -55,10 +55,10 @@ public static class Logger
     /// </summary>
     /// <param name="level">The level of the entry.</param>
     /// <param name="logHandler">Log handler to resolve log from.</param>
-    internal static void Log(LogLevel level,
-                             [InterpolatedStringHandlerArgument("level")]
-                             BepInExLogInterpolatedStringHandler logHandler) =>
-        InternalLogSource.Log(level, logHandler);
+    internal static void Log(
+        LogLevel level,
+        [InterpolatedStringHandlerArgument("level")] BepInExLogInterpolatedStringHandler logHandler
+    ) => InternalLogSource.Log(level, logHandler);
 
     /// <summary>
     ///     Creates a new log source with a name and attaches it to <see cref="Sources" />.
@@ -80,11 +80,34 @@ public static class Logger
         {
             // Do this instead of foreach to avoid boxing, also very slightly faster
             var aListInTime = BaseList;
+            var hasPriority = false;
+            for (var i = 0; i < aListInTime.Count; i++)
+            {
+                if (aListInTime[i] is not IPriorityLogListener priority)
+                    continue;
+                hasPriority = true;
+                if ((eventArgs.Level & priority.LogLevelFilter) != LogLevel.None)
+                    priority.LogEvent(sender, eventArgs);
+            }
             // ReSharper disable once ForCanBeConvertedToForeach
             for (int i = 0; i < aListInTime.Count; i++)
             {
-                if ((eventArgs.Level & aListInTime[i].LogLevelFilter) != LogLevel.None)
-                    aListInTime[i].LogEvent(sender, eventArgs);
+                var listener = aListInTime[i];
+                if (listener is IPriorityLogListener)
+                    continue;
+                try
+                {
+                    if ((eventArgs.Level & listener.LogLevelFilter) != LogLevel.None)
+                        listener.LogEvent(sender, eventArgs);
+                }
+                catch (Exception error)
+                {
+                    if (!hasPriority)
+                        throw;
+                    for (var j = 0; j < aListInTime.Count; j++)
+                        if (aListInTime[j] is IPriorityLogListener priority)
+                            priority.LogListenerFailure(listener, error, eventArgs);
+                }
             }
         }
 
@@ -126,23 +149,20 @@ public static class Logger
         }
     }
 
-
     private class LogSourceCollection : ThreadSafeCollection<ILogSource>
     {
         public override void Add(ILogSource item)
         {
             if (item == null)
-                throw new ArgumentNullException(nameof(item),
-                                                "Log sources cannot be null when added to the source list.");
+                throw new ArgumentNullException(
+                    nameof(item),
+                    "Log sources cannot be null when added to the source list."
+                );
 
             lock (SpinLock)
             {
                 item.LogEvent += InternalLogEvent;
                 base.Add(item);
-                var copy = new List<ILogSource>(BaseList.Count + 1);
-                copy.AddRange(BaseList);
-                copy.Add(item);
-                BaseList = copy;
             }
         }
 
@@ -174,14 +194,15 @@ public static class Logger
             }
         }
     }
-    
+
     /// <summary>
     /// Simple thread safe list that prioritizes read speed over write speed.
     /// Read is the same as a normal list, while write locks and allocates a copy of the list.
     /// Logger lists are rarely updated so this tradeoff should be fine.
     /// </summary>
     /// <inheritdoc />
-    private class ThreadSafeCollection<T> : ICollection<T> where T : class
+    private class ThreadSafeCollection<T> : ICollection<T>
+        where T : class
     {
         protected readonly object SpinLock = new();
         protected List<T> BaseList = [];
