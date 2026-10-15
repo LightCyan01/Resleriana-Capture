@@ -2,17 +2,15 @@
 
 ## 1.4.0
 
-- Rewrite the recorder around focused API, Battle/Atelier, storage, archive, diagnostics and runtime modules, reusing the previous capture code and evidence.
-- Preserve original API body bytes, observed headers, decoded fields and unknown fields without redaction. Add explicit request, response, operation and native-object lineage with honest missing or ambiguous origins.
-- Add qualified Battle and Atelier native observations through a finite Windows x64 forwarding layer that preserves the original receiver, arguments, return values and native exceptions. Verify client/runtime identities before enabling native hooks; retain explicit blocked hooks and read failures.
-- Replace repeated object graphs with gameplay projections, stored values, lifetime references and local contract tables. Remove repeated UI/render/controller history while retaining observed command inputs and outcomes for every skill, effect and recipe ID.
-- Save admitted records and alternating checkpoints durably before acknowledgement. Hold on failed storage until recovery or explicit abort, retain provisional tails, and verify committed prefixes during recovery.
-- Keep one five-entry ZIP per run/environment, the existing JSON Lines and compression model, and timestamp filenames with numeric collision suffixes. Remove ongoing Process-folder mirroring, encode each detached record once and clear current working data only after exact ZIP verification.
-- Add readable per-capture, per-stream, per-system and per-route request/record counts, independent recounting, hashes and explicit completeness gaps. No encryption, automatic eligibility decisions or upload is added.
-- Aggregate repeated warnings and two exact Unity material null-reference patterns using first full details, durable repeat records and summaries. Preserve other errors and the original console behavior outside the verified warning aggregation path.
-- Move the package to embedded .NET 10.0.13 with a pinned 10.0.402 SDK, modified BepInEx/Il2CppInterop, HarmonyX 2.16.1, locked dependencies and runtime compatibility certificates. Keep English localization and patch its confirmed untouched-CAB preservation failure.
-- Add focused storage, archive, network, native ABI, diagnostics, JSON and package checks, CSharpier/Prettier formatting, and one manually dispatched Windows verification job. Local builds record the current Git commit alongside exact source bytes.
-- Record remaining native read/origin gaps, the external Atelier async null-reference error and pending HDD/SSD performance qualification; passing saved-data checks does not certify every native completion or owner lifetime.
+- Rewrite the recorder with improved API, Battle and Atelier capture.
+- Preserve original API bodies, headers and unknown fields, with clearer links between requests, responses and gameplay observations.
+- Reduce repeated snapshots, redundant writes and diagnostic duplication.
+- Add durable saving, stronger crash recovery and verified archive cleanup.
+- Add readable request and record counts for each capture, stream, system and route.
+- Aggregate repeated warnings and known Unity material null-reference patterns while retaining their details and occurrence counts.
+- Check client and runtime compatibility before enabling native capture.
+- Upgrade the embedded runtime to .NET 10.0.13 and adapt BepInEx/Il2CppInterop for the new runtime and native capture.
+- Fix asset-bundle preservation in the English localization companion.
 
 ## 1.3.3
 

@@ -2,7 +2,7 @@
 
 Record API traffic, Battle and Atelier observations from Atelier Resleriana (JP) on Steam. Includes English translation from [Localization 2.0.0](https://github.com/ongandrew/AtelierResleriana/releases/tag/2.0.0). For Windows x64, the verified JP 2.16.0 client with Unity 2022.3.62f2.
 
-Version 1.4.0 rewrites the recorder using the previous capture codebase and evidence. It retains the five-entry ZIP format and adds durable storage, focused Battle/Atelier observations, readable counts and stricter recovery checks. Automated checks and an installed user gameplay session passed; complete native coverage and physical HDD/SSD performance qualification remain open.
+Version 1.4.0 rewrites the recorder with durable storage, focused Battle/Atelier observations, readable counts and stricter recovery checks. Captures retain the five-entry ZIP format and timestamp filenames.
 
 Built on a modified BepInEx 6.0.0-be.788 with HarmonyX 2.16.1. Recorder observations use a finite Windows x64 native forwarding layer: the original game method runs on its original receiver and preserves its native exception handling. Managed callbacks copy data before and after that call.
 
@@ -49,7 +49,7 @@ If storage is full or failing, capture holds until storage recovers or you expli
 
 The manifest checks file integrity. A modified plugin can fabricate data and recompute its hashes, so the manifest does not prove official gameplay. Package checksums and source/dependency manifests identify installer contents; they do not authenticate recordings. See [the archive format](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/AtelierCapture/FORMAT.md) for the validation contract and limits.
 
-Known gaps include four blocked native hooks, unsupported native field reads and ambiguous object origins. An external Atelier async null-reference error remains unresolved. These gaps are recorded separately from successful API outcomes; saved-record integrity does not establish complete native gameplay evidence. See [FORMAT.md](Sources/AtelierCapture/FORMAT.md) before using observations to implement a mechanic.
+Native coverage varies by hook and field. Blocked hooks, failed reads and ambiguous object origins are reported as capture gaps. See [FORMAT.md](Sources/AtelierCapture/FORMAT.md) for the supported data and its limits.
 
 ## Build from source
 
