@@ -1,0 +1,318 @@
+{
+  "schema": 1,
+  "gameassembly_sha256": "35868ee52cb199b018e2ced962dd233a9f4d200a7e5d8e9903e7f4607f21f5ea",
+  "metadata_sha256": "af138395b956bc835f99b2fd140a4c5015781e56c9cab3052bdb7e69065cc9b0",
+  "types": {
+    "Cysharp.Threading.Tasks.UniTask": {
+      "kind": "unitask",
+      "size": 16,
+      "align": 8,
+      "fields": [
+        {
+          "offset": 0,
+          "name": "source",
+          "size": 8
+        },
+        {
+          "offset": 8,
+          "name": "token",
+          "size": 2
+        }
+      ],
+      "return_contract": "native_aggregate_indirect_return_compile_exact_msvc_shape"
+    },
+    "Il2CppSystem.Threading.CancellationToken": {
+      "kind": "cancellation_token",
+      "size": 8,
+      "align": 8,
+      "fields": [
+        {
+          "offset": 0,
+          "name": "_source",
+          "size": 8
+        }
+      ]
+    },
+    "BJCGPLBACKM": {
+      "kind": "enum_i32",
+      "size": 4,
+      "align": 4
+    },
+    "System.Int64": {
+      "kind": "i64",
+      "size": 8,
+      "align": 8
+    },
+    "System.Boolean": {
+      "kind": "bool",
+      "size": 1,
+      "align": 1
+    },
+    "System.Int32": {
+      "kind": "i32",
+      "size": 4,
+      "align": 4
+    },
+    "Blend.ApiSchema.Enum.BattleStatus": {
+      "kind": "enum_i32",
+      "size": 4,
+      "align": 4
+    },
+    "Il2CppSystem.Nullable`1<System.Int32>": {
+      "kind": "nullable_i32",
+      "size": 8,
+      "align": 4,
+      "fields": [
+        {
+          "offset": 0,
+          "name": "hasValue",
+          "size": 1
+        },
+        {
+          "offset": 4,
+          "name": "value",
+          "size": 4
+        }
+      ]
+    },
+    "Il2CppSystem.Nullable`1<System.Int64>": {
+      "kind": "nullable_i64",
+      "size": 16,
+      "align": 8,
+      "fields": [
+        {
+          "offset": 0,
+          "name": "hasValue",
+          "size": 1
+        },
+        {
+          "offset": 8,
+          "name": "value",
+          "size": 8
+        }
+      ]
+    },
+    "BattleDamageControl+HJFPICAALFD": {
+      "kind": "enum_i32",
+      "size": 4,
+      "align": 4
+    },
+    "BGAGJKONELB": {
+      "kind": "enum_i64",
+      "size": 8,
+      "align": 8
+    },
+    "DMPCHKOKCLP": {
+      "kind": "enum_i32",
+      "size": 4,
+      "align": 4
+    },
+    "PICAIFPFKHG": {
+      "kind": "enum_i32",
+      "size": 4,
+      "align": 4
+    },
+    "BestHTTP.HTTPRequestStates": {
+      "kind": "enum_i32",
+      "size": 4,
+      "align": 4
+    }
+  },
+  "additional_contracts": [
+    {
+      "type": "BestHTTP.HTTPRequest",
+      "method": "Send",
+      "parameters": [],
+      "returns": "BestHTTP.HTTPRequest",
+      "is_static": false
+    },
+    {
+      "type": "BestHTTP.HTTPRequest",
+      "method": "Dispose",
+      "parameters": [],
+      "returns": "System.Void",
+      "is_static": false
+    },
+    {
+      "type": "BestHTTP.HTTPRequest",
+      "method": "set_State",
+      "parameters": ["BestHTTP.HTTPRequestStates"],
+      "returns": "System.Void",
+      "is_static": false
+    },
+    {
+      "type": "BestHTTP.HTTPRequest",
+      "method": "GetEntityBody",
+      "parameters": [],
+      "returns": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<System.Byte>",
+      "is_static": false
+    },
+    {
+      "type": "BestHTTP.HTTPRequest",
+      "method": "SendHeaders",
+      "parameters": ["Il2CppSystem.IO.Stream"],
+      "returns": "System.Void",
+      "is_static": false
+    },
+    {
+      "type": "BestHTTP.HTTPRequest+__c__DisplayClass243_0",
+      "method": "_SendHeaders_b__0",
+      "parameters": [
+        "System.String",
+        "Il2CppSystem.Collections.Generic.List`1<System.String>"
+      ],
+      "returns": "System.Void",
+      "is_static": false
+    },
+    {
+      "type": "PMLKMPHGENK",
+      "method": "AMIKMFABIFK",
+      "parameters": ["BestHTTP.HTTPResponse", "MJEDHIOLBGP"],
+      "returns": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<System.Byte>",
+      "is_static": true
+    },
+    {
+      "type": "Google.Protobuf.MessageExtensions",
+      "method": "MergeFrom",
+      "parameters": [
+        "Google.Protobuf.IMessage",
+        "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<System.Byte>",
+        "System.Boolean",
+        "Google.Protobuf.ExtensionRegistry"
+      ],
+      "returns": "System.Void",
+      "is_static": true
+    },
+    {
+      "type": "PMLKMPHGENK+INPLGDJFDNN",
+      "method": "LCPDHIHNGEP",
+      "parameters": ["BestHTTP.HTTPRequest", "BestHTTP.HTTPResponse"],
+      "returns": "System.Void",
+      "is_static": false
+    },
+    {
+      "type": "IAIMAAJBIOO",
+      "method": ".ctor",
+      "parameters": [
+        "System.String",
+        "System.Boolean",
+        "Google.Protobuf.IMessage"
+      ],
+      "returns": "System.Void",
+      "is_static": false
+    },
+    {
+      "type": "PMLKMPHGENK",
+      "method": ".ctor",
+      "parameters": ["IAIMAAJBIOO", "System.String", "MJEDHIOLBGP"],
+      "returns": "System.Void",
+      "is_static": false
+    }
+  ],
+  "value_receivers": [
+    "Api.BattleApi+_RequestBattleAttackWithError_d__17",
+    "Api.BattleApi+_RequestBattleFinishWithError_d__29",
+    "Api.BattleApi+_RequestBattleResumeWithError_d__21",
+    "Api.BattleApi+_RequestBattleRetireWithError_d__25",
+    "Api.QuestApi+_RequestQuestBattleStartWithError_d__1",
+    "Api.QuestApi+_RequestQuestBattleRentalPartyStartWithError_d__13",
+    "Api.QuestApi+_RequestQuestBattleSoloRaidBattleStartWithError_d__9",
+    "Api.QuestApi+_RequestQuestBattleTotalBattleStartWithError_d__5",
+    "Api.ExplorationApi+_RequestExplorationBattleStartWithError_d__20",
+    "Api.GachaApi+_RequestGachaBattleStartWithError_d__24",
+    "Api.AtelierApi+_RequestAtelierResearch_d__0",
+    "Api.RecipeApi+_RequestRecipeLearn_d__12",
+    "Api.RecipeApi+_RequestRecipeFavorite_d__14",
+    "Api.RecipeApi+_RequestRecipeCountRewardsReceive_d__13",
+    "Api.SynthesisApi+_RequestSynthesisExecute_d__20",
+    "Api.SynthesisApi+_RequestSynthesisBulkExecute_d__22",
+    "Api.SynthesisApi+_RequestSynthesisExecuteEasy_d__23",
+    "Api.SynthesisApi+_RequestSynthesisExecuteRental_d__25",
+    "Api.SynthesisApi+_RequestSynthesisCombinationRanking_d__24",
+    "Api.ToolApi+_RequestToolConvert_d__14",
+    "Api.ToolApi+_RequestToolLock_d__15",
+    "Api.ToolApi+_RequestToolTraitRankUp_d__17",
+    "Api.CommunicationApi+_RequestCommunicationStoryRelease_d__0",
+    "Api.CommunicationApi+_RequestCommunicationStoryClear_d__1",
+    "Api.IllustratedBookApi+_RequestIllustratedBookStart_d__4",
+    "Api.ShipApi+_RequestShipCreate_d__17",
+    "Api.ShipApi+_RequestShipBulkUpdate_d__16",
+    "Api.ShipApi+_RequestShipToolSet_d__18",
+    "Api.ShipApi+_RequestShipSynthesize_d__19",
+    "Api.ManaApi+_RequestManaPurchase_d__8",
+    "Api.ManaApi+_RequestManaUseItem_d__9",
+    "Api.CharacterApi+_RequestCharacterEnhance_d__0",
+    "Api.CharacterApi+_RequestCharacterLevelLimitRelease_d__8",
+    "Api.CharacterApi+_RequestCharacterReset_d__7",
+    "Api.CharacterApi+_RequestCharacterRarityEnhance_d__1",
+    "Api.ItemChallengeApi+_RequestItemChallengeExecute_d__9",
+    "Api.ItemChallengeApi+_RequestItemChallengeRewardReceive_d__10",
+    "Api.AtelierApi+_RequestAtelierResearchWithError_d__2",
+    "Api.AtelierApi+_RequestAtelierResearchInternal_d__3",
+    "Api.RecipeApi+_RequestRecipeLearnWithError_d__5",
+    "Api.RecipeApi+_RequestRecipeLearnInternal_d__6",
+    "Api.RecipeApi+_RequestRecipeFavoriteWithError_d__9",
+    "Api.RecipeApi+_RequestRecipeFavoriteInternal_d__10",
+    "Api.RecipeApi+_RequestRecipeCountRewardReceiveWithError_d__1",
+    "Api.RecipeApi+_RequestRecipeCountRewardReceiveInternal_d__2",
+    "Api.SynthesisApi+_RequestSynthesisExecuteWithError_d__1",
+    "Api.SynthesisApi+_RequestSynthesisExecuteInternal_d__2",
+    "Api.SynthesisApi+_RequestSynthesisBulkExecuteWithError_d__5",
+    "Api.SynthesisApi+_RequestSynthesisBulkExecuteInternal_d__6",
+    "Api.SynthesisApi+_RequestSynthesisExecuteEasyWithError_d__9",
+    "Api.SynthesisApi+_RequestSynthesisExecuteEasyInternal_d__10",
+    "Api.SynthesisApi+_RequestSynthesisExecuteRentalWithError_d__17",
+    "Api.SynthesisApi+_RequestSynthesisExecuteRentalInternal_d__18",
+    "Api.SynthesisApi+_RequestSynthesisCombinationRankingWithError_d__13",
+    "Api.SynthesisApi+_RequestSynthesisCombinationRankingInternal_d__14",
+    "Api.ToolApi+_RequestToolConvertWithError_d__1",
+    "Api.ToolApi+_RequestToolConvertInternal_d__2",
+    "Api.ToolApi+_RequestToolLockWithError_d__5",
+    "Api.ToolApi+_RequestToolLockInternal_d__6",
+    "Api.ToolApi+_RequestToolTraitRankUpWithError_d__9",
+    "Api.ToolApi+_RequestToolTraitRankUpInternal_d__10",
+    "Api.CommunicationApi+_RequestCommunicationStoryReleaseWithError_d__3",
+    "Api.CommunicationApi+_RequestCommunicationStoryReleaseInternal_d__4",
+    "Api.CommunicationApi+_RequestCommunicationStoryClearWithError_d__7",
+    "Api.CommunicationApi+_RequestCommunicationStoryClearInternal_d__8",
+    "Api.IllustratedBookApi+_RequestIllustratedBookStartWithError_d__1",
+    "Api.IllustratedBookApi+_RequestIllustratedBookStartInternal_d__2",
+    "Api.ShipApi+_RequestShipCreateWithError_d__1",
+    "Api.ShipApi+_RequestShipCreateInternal_d__2",
+    "Api.ShipApi+_RequestShipBulkUpdateWithError_d__5",
+    "Api.ShipApi+_RequestShipBulkUpdateInternal_d__6",
+    "Api.ShipApi+_RequestShipShipToolsSetWithError_d__9",
+    "Api.ShipApi+_RequestShipShipToolsSetInternal_d__10",
+    "Api.ShipApi+_RequestShipSynthesizeWithError_d__13",
+    "Api.ShipApi+_RequestShipSynthesizeInternal_d__14",
+    "Api.ManaApi+_RequestManaPurchaseWithError_d__1",
+    "Api.ManaApi+_RequestManaPurchaseInternal_d__2",
+    "Api.ManaApi+_RequestManaUseItemWithError_d__5",
+    "Api.ManaApi+_RequestManaUseItemInternal_d__6",
+    "Api.CharacterApi+_RequestCharacterEnhanceWithError_d__13",
+    "Api.CharacterApi+_RequestCharacterEnhanceInternal_d__14",
+    "Api.CharacterApi+_RequestCharacterLevelLimitReleaseWithError_d__45",
+    "Api.CharacterApi+_RequestCharacterLevelLimitReleaseInternal_d__46",
+    "Api.CharacterApi+_RequestCharacterEnhancementResetWithError_d__41",
+    "Api.CharacterApi+_RequestCharacterEnhancementResetInternal_d__42",
+    "Api.CharacterApi+_RequestCharacterRarityEnhanceWithError_d__17",
+    "Api.CharacterApi+_RequestCharacterRarityEnhanceInternal_d__18",
+    "Api.ItemChallengeApi+_RequestItemChallengeExecuteWithError_d__1",
+    "Api.ItemChallengeApi+_RequestItemChallengeExecuteInternal_d__2",
+    "Api.ItemChallengeApi+_RequestItemChallengeRewardReceiveWithError_d__5",
+    "Api.ItemChallengeApi+_RequestItemChallengeRewardReceiveInternal_d__6",
+    "ResearchMenuWindow+ACFKNHHLBON",
+    "ContainerToolWindow+BGCFMGPGCCC",
+    "ShipEnhanceRecipeSelectWindow+BNKKLLKGCMI",
+    "ShipEnhanceRecipeSelectWindow+DCNDGOJLEBN",
+    "BattleToolSelectWindow+JAMCEBHLIJC",
+    "OFCMCAEPJPG+AFHIAKBEGIB",
+    "CharaLevelUpWindow+NLMMHLKOLEI",
+    "CharaRarityUpWindow+KBPOIKMLLNG",
+    "CharaGrowResetWindow+NALIPFIKIAO",
+    "CharaDetailMenuWindow+GMDDADKNAFO",
+    "SynthesisResultWindow+IOGPMCNFMKP",
+    "SynthesisResultWindow+BJMBBFODAJE",
+    "PMLKMPHGENK+DDAAENBCPDC"
+  ]
+}

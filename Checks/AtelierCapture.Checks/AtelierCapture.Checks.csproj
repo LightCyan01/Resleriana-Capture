@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>14</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RuntimeDirectory Condition="'$(RuntimeDirectory)' == ''"
+      >$(MSBuildThisFileDirectory)..\..\work\build\stage\BepInEx\core</RuntimeDirectory>
+    <ReferenceDirectory Condition="'$(ReferenceDirectory)' == ''"
+      >$(MSBuildThisFileDirectory)..\..\work\build\dependencies</ReferenceDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sources\AtelierCapture\AtelierCapture.csproj" />
+    <Reference Include="BepInEx.Core" HintPath="$(RuntimeDirectory)\BepInEx.Core.dll" />
+    <Reference
+      Include="BepInEx.Unity.IL2CPP"
+      HintPath="$(RuntimeDirectory)\BepInEx.Unity.IL2CPP.dll"
+    />
+    <Reference Include="0Harmony" HintPath="$(RuntimeDirectory)\0Harmony.dll" />
+    <Reference
+      Include="MonoMod.RuntimeDetour"
+      HintPath="$(RuntimeDirectory)\MonoMod.RuntimeDetour.dll"
+    />
+    <Reference Include="MonoMod.Core" HintPath="$(RuntimeDirectory)\MonoMod.Core.dll" />
+    <Reference Include="MonoMod.Utils" HintPath="$(RuntimeDirectory)\MonoMod.Utils.dll" />
+    <Reference
+      Include="TerraFX.Interop.Windows"
+      HintPath="$(RuntimeDirectory)\TerraFX.Interop.Windows.dll"
+    />
+    <Reference
+      Include="Il2CppInterop.Runtime"
+      HintPath="$(RuntimeDirectory)\Il2CppInterop.Runtime.dll"
+    />
+    <Reference
+      Include="Il2CppInterop.Common"
+      HintPath="$(RuntimeDirectory)\Il2CppInterop.Common.dll"
+    />
+    <Reference Include="Il2Cppmscorlib" HintPath="$(ReferenceDirectory)\Il2Cppmscorlib.dll" />
+    <Reference Include="Mono.Cecil" HintPath="$(RuntimeDirectory)\Mono.Cecil.dll" />
+    <Reference
+      Include="AtelierResleriana.Unity"
+      HintPath="$(RuntimeDirectory)\..\plugins\AtelierResleriana.Unity.dll"
+    />
+    <Reference
+      Include="AtelierResleriana.Compression"
+      HintPath="$(RuntimeDirectory)\..\plugins\AtelierResleriana.Compression.dll"
+    />
+    <Reference
+      Include="K4os.Compression.LZ4"
+      HintPath="$(RuntimeDirectory)\..\plugins\K4os.Compression.LZ4.dll"
+    />
+    <Reference
+      Include="Universal.Common"
+      HintPath="$(RuntimeDirectory)\..\plugins\Universal.Common.dll"
+    />
+  </ItemGroup>
+</Project>

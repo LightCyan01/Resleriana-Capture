@@ -9,7 +9,8 @@ using MonoMod.Utils;
 
 namespace BepInEx.Unity.IL2CPP.Hook;
 
-internal abstract class BaseNativeDetour<T> : INativeDetour where T : BaseNativeDetour<T>
+internal abstract class BaseNativeDetour<T> : INativeDetour
+    where T : BaseNativeDetour<T>
 {
     private static readonly ConstructorInfo InvalidOperationExceptionCtor =
         typeof(InvalidOperationException).GetConstructor(new[] { typeof(string) });
@@ -18,6 +19,10 @@ internal abstract class BaseNativeDetour<T> : INativeDetour where T : BaseNative
 
     protected BaseNativeDetour(nint originalMethodPtr, Delegate detourMethod)
     {
+        if (originalMethodPtr == 0)
+            throw new ArgumentException("Native target is required", nameof(originalMethodPtr));
+        if (detourMethod == null)
+            throw new ArgumentNullException(nameof(detourMethod));
         OriginalMethodPtr = originalMethodPtr;
         DetourMethod = detourMethod;
         DetourMethodPtr = Marshal.GetFunctionPointerForDelegate(detourMethod);
@@ -31,6 +36,7 @@ internal abstract class BaseNativeDetour<T> : INativeDetour where T : BaseNative
 
     private PlatformTriple.NativeDetour _trampolineDetour;
     private IDisposable _trampolinePin;
+    private readonly object lifecycle = new();
 
     public nint OriginalMethodPtr { get; }
     public nint DetourMethodPtr { get; }
@@ -40,63 +46,107 @@ internal abstract class BaseNativeDetour<T> : INativeDetour where T : BaseNative
 
     public void Dispose()
     {
-        if (!IsValid) return;
-        Undo();
         Free();
     }
 
     public void Apply()
     {
-        if (IsApplied) return;
-
-        Prepare();
-        ApplyImpl();
-
-        Logger.Log(LogLevel.Debug,
-                   $"Original: {OriginalMethodPtr:X}, Trampoline: {TrampolinePtr:X}, diff: {Math.Abs(OriginalMethodPtr - TrampolinePtr):X}");
-
-        IsApplied = true;
+        lock (lifecycle)
+        {
+            if (!IsValid)
+                throw new ObjectDisposedException(GetType().Name);
+            if (IsApplied)
+                return;
+            try
+            {
+                Prepare();
+                ApplyImpl();
+                IsApplied = true;
+                Logger.LogDebug($"Original: {OriginalMethodPtr:X}, Trampoline: {TrampolinePtr:X}");
+            }
+            catch
+            {
+                Free();
+                throw;
+            }
+        }
     }
 
     public void Undo()
     {
-        if (IsApplied && IsPrepared) UndoImpl();
+        lock (lifecycle)
+        {
+            if (!IsApplied)
+                return;
+            UndoImpl();
+            IsApplied = false;
+            ReleaseProxy();
+        }
     }
 
     public void Free()
     {
-        FreeImpl();
-        IsValid = false;
+        lock (lifecycle)
+        {
+            if (!IsValid)
+                return;
+            Undo();
+            ReleaseProxy();
+            FreeImpl();
+            IsValid = false;
+            IsPrepared = false;
+            TrampolinePtr = 0;
+        }
     }
 
     public MethodBase GenerateTrampoline(MethodBase signature = null)
     {
-        if (TrampolineMethod == null)
+        if (signature == null)
+            throw new ArgumentNullException(nameof(signature));
+        lock (lifecycle)
         {
-            Prepare();
-            TrampolineMethod = GenerateNativeProxy(TrampolinePtr, signature);
+            if (!IsValid)
+                throw new ObjectDisposedException(GetType().Name);
+            if (TrampolineMethod == null)
+            {
+                Prepare();
+                TrampolineMethod = GenerateNativeProxy(TrampolinePtr, signature);
+            }
+            return TrampolineMethod;
         }
-
-        return TrampolineMethod;
     }
 
-    public TDelegate GenerateTrampoline<TDelegate>() where TDelegate : Delegate
+    public TDelegate GenerateTrampoline<TDelegate>()
+        where TDelegate : Delegate
     {
         if (!typeof(Delegate).IsAssignableFrom(typeof(TDelegate)))
             throw new InvalidOperationException($"Type {typeof(TDelegate)} not a delegate type.");
 
-        _ = GenerateTrampoline(typeof(TDelegate).GetMethod("Invoke"));
-
-        return Marshal.GetDelegateForFunctionPointer<TDelegate>(TrampolinePtr);
+        lock (lifecycle)
+        {
+            if (!IsValid)
+                throw new ObjectDisposedException(GetType().Name);
+            Prepare();
+            return Marshal.GetDelegateForFunctionPointer<TDelegate>(TrampolinePtr);
+        }
     }
 
     protected abstract void ApplyImpl();
 
     private void Prepare()
     {
-        if (IsPrepared) return;
+        if (IsPrepared)
+            return;
         Logger.LogDebug($"Preparing detour from 0x{OriginalMethodPtr:X2} to 0x{DetourMethodPtr:X2}");
-        PrepareImpl();
+        try
+        {
+            PrepareImpl();
+        }
+        catch
+        {
+            Free();
+            throw;
+        }
         Logger.LogDebug($"Prepared detour; Trampoline: 0x{TrampolinePtr:X2}");
         IsPrepared = true;
     }
@@ -124,8 +174,7 @@ internal abstract class BaseNativeDetour<T> : INativeDetour where T : BaseNative
         for (var i = 0; i < args.Length; i++)
             argTypes[i] = args[i].ParameterType;
 
-        using var dmd = new DynamicMethodDefinition(
-            $"NativeProxy<{(long) target:X16}>", returnType, argTypes);
+        using var dmd = new DynamicMethodDefinition($"NativeProxy<{(long)target:X16}>", returnType, argTypes);
 
         // Fill the stub with a throw so that calling it before the detour is applied
         // fails loudly instead of executing garbage.
@@ -139,12 +188,29 @@ internal abstract class BaseNativeDetour<T> : INativeDetour where T : BaseNative
         var dm = dmd.Generate();
 
         var triple = PlatformTriple.Current;
-        _trampolinePin = triple.PinMethodIfNeeded(dm);
-        triple.Compile(dm);
+        try
+        {
+            _trampolinePin = triple.PinMethodIfNeeded(dm);
+            triple.Compile(dm);
+            var nativeBody = triple.GetNativeMethodBody(dm);
+            _trampolineDetour = triple.CreateNativeDetour(nativeBody, target);
+            return dm;
+        }
+        catch
+        {
+            ReleaseProxy();
+            throw;
+        }
+    }
 
-        var nativeBody = triple.GetNativeMethodBody(dm);
-        _trampolineDetour = triple.CreateNativeDetour(nativeBody, target);
-
-        return dm;
+    private void ReleaseProxy()
+    {
+        // Lifecycle callers must drain native invocations before unpatching a hook.
+        _trampolineDetour.Simple?.Dispose();
+        _trampolineDetour.AltHandle?.Dispose();
+        _trampolineDetour = default;
+        _trampolinePin?.Dispose();
+        _trampolinePin = null;
+        TrampolineMethod = null;
     }
 }

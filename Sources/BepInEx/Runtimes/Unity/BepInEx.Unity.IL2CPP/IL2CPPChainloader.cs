@@ -26,7 +26,7 @@ public class IL2CPPChainloader : BaseChainloader<BasePlugin>
 
     private static readonly ConfigEntry<bool> ConfigDiskWriteUnityLog = ConfigFile.CoreConfig.Bind(
      "Logging.Disk", "WriteUnityLog",
-     false,
+     true,
      "Include unity log messages in log file output.");
 
 
@@ -119,7 +119,7 @@ public class IL2CPPChainloader : BaseChainloader<BasePlugin>
 
         Logger.Sources.Add(new IL2CPPUnityLogSource());
 
-        Application.CallLogCallback("Test call after applying unity logging hook", "", LogType.Assert, true);
+        Application.CallLogCallback("Test call after applying unity logging hook", "", LogType.Log, true);
     }
 
     protected override void InitializeLoggers()

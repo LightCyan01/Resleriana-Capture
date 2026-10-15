@@ -19,6 +19,8 @@ public class ConsoleLogListener : ILogListener
     /// <inheritdoc />
     public void LogEvent(object sender, LogEventArgs eventArgs)
     {
+        if (eventArgs.SuppressConsole && eventArgs.Level == LogLevel.Warning)
+            return;
         ConsoleManager.SetConsoleColor(eventArgs.Level.GetConsoleColor());
         ConsoleManager.ConsoleStream?.Write(eventArgs.ToStringLine());
         ConsoleManager.SetConsoleColor(ConsoleColor.Gray);

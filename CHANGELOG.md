@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.0
+
+- Rewrite the recorder with improved API, Battle and Atelier capture.
+- Preserve original API bodies, headers and unknown fields, with clearer links between requests, responses and gameplay observations.
+- Reduce repeated snapshots, redundant writes and diagnostic duplication.
+- Add durable saving, stronger crash recovery and verified archive cleanup.
+- Add readable request and record counts for each capture, stream, system and route.
+- Aggregate repeated warnings and known Unity material null-reference patterns while retaining their details and occurrence counts.
+- Check client and runtime compatibility before enabling native capture.
+- Upgrade the embedded runtime to .NET 10.0.13 and adapt BepInEx/Il2CppInterop for the new runtime and native capture.
+- Fix asset-bundle preservation in the English localization companion.
+
 ## 1.3.3
 
 - Read native generic enumerable battle targets through their iterator interfaces, preserving values previously lost to collection-reader errors.

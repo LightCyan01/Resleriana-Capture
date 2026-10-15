@@ -1,0 +1,947 @@
+{
+  "schema": 1,
+  "gameassembly_sha256": "35868ee52cb199b018e2ced962dd233a9f4d200a7e5d8e9903e7f4607f21f5ea",
+  "metadata_sha256": "af138395b956bc835f99b2fd140a4c5015781e56c9cab3052bdb7e69065cc9b0",
+  "bodies": [
+    {
+      "rva": 9125216,
+      "aliases": 1
+    },
+    {
+      "rva": 9211712,
+      "aliases": 659
+    },
+    {
+      "rva": 9212000,
+      "aliases": 135
+    },
+    {
+      "rva": 10097616,
+      "aliases": 1
+    },
+    {
+      "rva": 10113632,
+      "aliases": 1
+    },
+    {
+      "rva": 10114512,
+      "aliases": 1
+    },
+    {
+      "rva": 10119072,
+      "aliases": 1
+    },
+    {
+      "rva": 10120528,
+      "aliases": 1
+    },
+    {
+      "rva": 10121904,
+      "aliases": 1
+    },
+    {
+      "rva": 27032016,
+      "aliases": 1
+    },
+    {
+      "rva": 27036256,
+      "aliases": 1
+    },
+    {
+      "rva": 28081472,
+      "aliases": 1
+    },
+    {
+      "rva": 28225536,
+      "aliases": 1
+    },
+    {
+      "rva": 28230880,
+      "aliases": 1
+    },
+    {
+      "rva": 28827920,
+      "aliases": 1
+    },
+    {
+      "rva": 28836496,
+      "aliases": 1
+    },
+    {
+      "rva": 28850384,
+      "aliases": 1
+    },
+    {
+      "rva": 28924064,
+      "aliases": 1
+    },
+    {
+      "rva": 28931760,
+      "aliases": 1
+    },
+    {
+      "rva": 28950704,
+      "aliases": 1
+    },
+    {
+      "rva": 34204320,
+      "aliases": 1
+    },
+    {
+      "rva": 37049760,
+      "aliases": 1
+    },
+    {
+      "rva": 41221264,
+      "aliases": 1
+    },
+    {
+      "rva": 41228880,
+      "aliases": 1
+    },
+    {
+      "rva": 41230160,
+      "aliases": 1
+    },
+    {
+      "rva": 42075248,
+      "aliases": 1
+    },
+    {
+      "rva": 42147104,
+      "aliases": 1
+    },
+    {
+      "rva": 42160400,
+      "aliases": 1
+    },
+    {
+      "rva": 42161968,
+      "aliases": 1
+    },
+    {
+      "rva": 42329344,
+      "aliases": 1
+    },
+    {
+      "rva": 44573232,
+      "aliases": 1
+    },
+    {
+      "rva": 44585072,
+      "aliases": 1
+    },
+    {
+      "rva": 44585360,
+      "aliases": 1
+    },
+    {
+      "rva": 45354608,
+      "aliases": 1
+    },
+    {
+      "rva": 45354720,
+      "aliases": 1
+    },
+    {
+      "rva": 45355536,
+      "aliases": 1
+    },
+    {
+      "rva": 45356880,
+      "aliases": 1
+    },
+    {
+      "rva": 45366896,
+      "aliases": 1
+    },
+    {
+      "rva": 45367744,
+      "aliases": 1
+    },
+    {
+      "rva": 45368720,
+      "aliases": 1
+    },
+    {
+      "rva": 45380240,
+      "aliases": 1
+    },
+    {
+      "rva": 45385600,
+      "aliases": 1
+    },
+    {
+      "rva": 45391360,
+      "aliases": 1
+    },
+    {
+      "rva": 45396528,
+      "aliases": 1
+    },
+    {
+      "rva": 45438688,
+      "aliases": 1
+    },
+    {
+      "rva": 45439760,
+      "aliases": 1
+    },
+    {
+      "rva": 45446288,
+      "aliases": 1
+    },
+    {
+      "rva": 45447360,
+      "aliases": 1
+    },
+    {
+      "rva": 45457744,
+      "aliases": 1
+    },
+    {
+      "rva": 45459120,
+      "aliases": 1
+    },
+    {
+      "rva": 45460464,
+      "aliases": 1
+    },
+    {
+      "rva": 45461872,
+      "aliases": 1
+    },
+    {
+      "rva": 45463248,
+      "aliases": 1
+    },
+    {
+      "rva": 45478048,
+      "aliases": 1
+    },
+    {
+      "rva": 45478880,
+      "aliases": 1
+    },
+    {
+      "rva": 45480224,
+      "aliases": 1
+    },
+    {
+      "rva": 45486080,
+      "aliases": 1
+    },
+    {
+      "rva": 45486896,
+      "aliases": 1
+    },
+    {
+      "rva": 45488240,
+      "aliases": 1
+    },
+    {
+      "rva": 45489648,
+      "aliases": 1
+    },
+    {
+      "rva": 45516544,
+      "aliases": 1
+    },
+    {
+      "rva": 45517712,
+      "aliases": 1
+    },
+    {
+      "rva": 45517824,
+      "aliases": 1
+    },
+    {
+      "rva": 45519776,
+      "aliases": 1
+    },
+    {
+      "rva": 45521152,
+      "aliases": 1
+    },
+    {
+      "rva": 45523040,
+      "aliases": 1
+    },
+    {
+      "rva": 45523856,
+      "aliases": 1
+    },
+    {
+      "rva": 45525200,
+      "aliases": 1
+    },
+    {
+      "rva": 45646832,
+      "aliases": 1
+    },
+    {
+      "rva": 45652880,
+      "aliases": 1
+    },
+    {
+      "rva": 45700480,
+      "aliases": 1
+    },
+    {
+      "rva": 45708672,
+      "aliases": 1
+    },
+    {
+      "rva": 45918960,
+      "aliases": 1
+    },
+    {
+      "rva": 45919792,
+      "aliases": 1
+    },
+    {
+      "rva": 45921904,
+      "aliases": 1
+    },
+    {
+      "rva": 45923280,
+      "aliases": 1
+    },
+    {
+      "rva": 45944144,
+      "aliases": 1
+    },
+    {
+      "rva": 45945312,
+      "aliases": 1
+    },
+    {
+      "rva": 45947088,
+      "aliases": 1
+    },
+    {
+      "rva": 45949424,
+      "aliases": 1
+    },
+    {
+      "rva": 45950800,
+      "aliases": 1
+    },
+    {
+      "rva": 45952768,
+      "aliases": 1
+    },
+    {
+      "rva": 45954320,
+      "aliases": 1
+    },
+    {
+      "rva": 45955696,
+      "aliases": 1
+    },
+    {
+      "rva": 45994480,
+      "aliases": 1
+    },
+    {
+      "rva": 45995552,
+      "aliases": 1
+    },
+    {
+      "rva": 45996544,
+      "aliases": 1
+    },
+    {
+      "rva": 45997520,
+      "aliases": 1
+    },
+    {
+      "rva": 45998864,
+      "aliases": 1
+    },
+    {
+      "rva": 46000288,
+      "aliases": 1
+    },
+    {
+      "rva": 46001104,
+      "aliases": 1
+    },
+    {
+      "rva": 46002448,
+      "aliases": 1
+    },
+    {
+      "rva": 46004928,
+      "aliases": 1
+    },
+    {
+      "rva": 46006128,
+      "aliases": 1
+    },
+    {
+      "rva": 46007232,
+      "aliases": 1
+    },
+    {
+      "rva": 46008400,
+      "aliases": 1
+    },
+    {
+      "rva": 46169712,
+      "aliases": 1
+    },
+    {
+      "rva": 46170880,
+      "aliases": 1
+    },
+    {
+      "rva": 46172048,
+      "aliases": 1
+    },
+    {
+      "rva": 46173216,
+      "aliases": 1
+    },
+    {
+      "rva": 46231072,
+      "aliases": 1
+    },
+    {
+      "rva": 46237760,
+      "aliases": 1
+    },
+    {
+      "rva": 46243792,
+      "aliases": 1
+    },
+    {
+      "rva": 46249760,
+      "aliases": 1
+    },
+    {
+      "rva": 46294368,
+      "aliases": 1
+    },
+    {
+      "rva": 46295344,
+      "aliases": 1
+    },
+    {
+      "rva": 46296416,
+      "aliases": 1
+    },
+    {
+      "rva": 46297952,
+      "aliases": 1
+    },
+    {
+      "rva": 46299328,
+      "aliases": 1
+    },
+    {
+      "rva": 46301216,
+      "aliases": 1
+    },
+    {
+      "rva": 46304000,
+      "aliases": 1
+    },
+    {
+      "rva": 46304816,
+      "aliases": 1
+    },
+    {
+      "rva": 46306160,
+      "aliases": 1
+    },
+    {
+      "rva": 46307568,
+      "aliases": 1
+    },
+    {
+      "rva": 46310672,
+      "aliases": 1
+    },
+    {
+      "rva": 46312048,
+      "aliases": 1
+    },
+    {
+      "rva": 46349344,
+      "aliases": 1
+    },
+    {
+      "rva": 46350416,
+      "aliases": 1
+    },
+    {
+      "rva": 46351488,
+      "aliases": 1
+    },
+    {
+      "rva": 46352656,
+      "aliases": 1
+    },
+    {
+      "rva": 46354944,
+      "aliases": 1
+    },
+    {
+      "rva": 46356208,
+      "aliases": 1
+    },
+    {
+      "rva": 46376384,
+      "aliases": 1
+    },
+    {
+      "rva": 46377792,
+      "aliases": 1
+    },
+    {
+      "rva": 46378560,
+      "aliases": 1
+    },
+    {
+      "rva": 46379904,
+      "aliases": 1
+    },
+    {
+      "rva": 46381328,
+      "aliases": 1
+    },
+    {
+      "rva": 46382672,
+      "aliases": 1
+    },
+    {
+      "rva": 46384080,
+      "aliases": 1
+    },
+    {
+      "rva": 46386016,
+      "aliases": 1
+    },
+    {
+      "rva": 46387392,
+      "aliases": 1
+    },
+    {
+      "rva": 46389280,
+      "aliases": 1
+    },
+    {
+      "rva": 46486896,
+      "aliases": 1
+    },
+    {
+      "rva": 46489728,
+      "aliases": 1
+    },
+    {
+      "rva": 46492144,
+      "aliases": 1
+    },
+    {
+      "rva": 46494896,
+      "aliases": 1
+    },
+    {
+      "rva": 46496176,
+      "aliases": 1
+    },
+    {
+      "rva": 46498144,
+      "aliases": 1
+    },
+    {
+      "rva": 46499408,
+      "aliases": 1
+    },
+    {
+      "rva": 46500672,
+      "aliases": 1
+    },
+    {
+      "rva": 46502560,
+      "aliases": 1
+    },
+    {
+      "rva": 46505296,
+      "aliases": 1
+    },
+    {
+      "rva": 46507424,
+      "aliases": 1
+    },
+    {
+      "rva": 46508800,
+      "aliases": 1
+    },
+    {
+      "rva": 46510768,
+      "aliases": 1
+    },
+    {
+      "rva": 46512048,
+      "aliases": 1
+    },
+    {
+      "rva": 46514080,
+      "aliases": 1
+    },
+    {
+      "rva": 46515360,
+      "aliases": 1
+    },
+    {
+      "rva": 46517328,
+      "aliases": 1
+    },
+    {
+      "rva": 46538976,
+      "aliases": 1
+    },
+    {
+      "rva": 46540112,
+      "aliases": 1
+    },
+    {
+      "rva": 46541184,
+      "aliases": 1
+    },
+    {
+      "rva": 46546528,
+      "aliases": 1
+    },
+    {
+      "rva": 46549040,
+      "aliases": 1
+    },
+    {
+      "rva": 46550496,
+      "aliases": 1
+    },
+    {
+      "rva": 46552384,
+      "aliases": 1
+    },
+    {
+      "rva": 46553392,
+      "aliases": 1
+    },
+    {
+      "rva": 46554736,
+      "aliases": 1
+    },
+    {
+      "rva": 46556144,
+      "aliases": 1
+    },
+    {
+      "rva": 46557152,
+      "aliases": 1
+    },
+    {
+      "rva": 46558496,
+      "aliases": 1
+    },
+    {
+      "rva": 46570800,
+      "aliases": 1
+    },
+    {
+      "rva": 46636784,
+      "aliases": 1
+    },
+    {
+      "rva": 46648544,
+      "aliases": 1
+    },
+    {
+      "rva": 46791552,
+      "aliases": 1
+    },
+    {
+      "rva": 46860864,
+      "aliases": 1
+    },
+    {
+      "rva": 46942768,
+      "aliases": 1
+    },
+    {
+      "rva": 46945920,
+      "aliases": 1
+    },
+    {
+      "rva": 46949328,
+      "aliases": 1
+    },
+    {
+      "rva": 47119264,
+      "aliases": 4
+    },
+    {
+      "rva": 47128560,
+      "aliases": 2
+    },
+    {
+      "rva": 47547216,
+      "aliases": 1
+    },
+    {
+      "rva": 47636720,
+      "aliases": 1
+    },
+    {
+      "rva": 47644576,
+      "aliases": 1
+    },
+    {
+      "rva": 47666208,
+      "aliases": 1
+    },
+    {
+      "rva": 47666800,
+      "aliases": 1
+    },
+    {
+      "rva": 47668976,
+      "aliases": 1
+    },
+    {
+      "rva": 47707968,
+      "aliases": 1
+    },
+    {
+      "rva": 56392560,
+      "aliases": 1
+    },
+    {
+      "rva": 58000864,
+      "aliases": 1
+    },
+    {
+      "rva": 58001872,
+      "aliases": 1
+    },
+    {
+      "rva": 58002240,
+      "aliases": 1
+    },
+    {
+      "rva": 58002752,
+      "aliases": 1
+    },
+    {
+      "rva": 58003088,
+      "aliases": 1
+    },
+    {
+      "rva": 58007200,
+      "aliases": 1
+    },
+    {
+      "rva": 58011056,
+      "aliases": 1
+    },
+    {
+      "rva": 58014048,
+      "aliases": 1
+    },
+    {
+      "rva": 58014560,
+      "aliases": 1
+    },
+    {
+      "rva": 58017296,
+      "aliases": 1
+    },
+    {
+      "rva": 58017312,
+      "aliases": 1
+    },
+    {
+      "rva": 58020768,
+      "aliases": 1
+    },
+    {
+      "rva": 58026496,
+      "aliases": 1
+    },
+    {
+      "rva": 58028640,
+      "aliases": 1
+    },
+    {
+      "rva": 58033632,
+      "aliases": 1
+    },
+    {
+      "rva": 58034544,
+      "aliases": 1
+    },
+    {
+      "rva": 58038528,
+      "aliases": 1
+    },
+    {
+      "rva": 58042080,
+      "aliases": 1
+    },
+    {
+      "rva": 58042240,
+      "aliases": 1
+    },
+    {
+      "rva": 58043168,
+      "aliases": 1
+    },
+    {
+      "rva": 58043264,
+      "aliases": 1
+    },
+    {
+      "rva": 64433328,
+      "aliases": 2
+    },
+    {
+      "rva": 64433408,
+      "aliases": 1
+    },
+    {
+      "rva": 64434368,
+      "aliases": 1
+    },
+    {
+      "rva": 64435648,
+      "aliases": 1
+    },
+    {
+      "rva": 64436480,
+      "aliases": 1
+    },
+    {
+      "rva": 64447984,
+      "aliases": 1
+    },
+    {
+      "rva": 64450848,
+      "aliases": 1
+    },
+    {
+      "rva": 64459280,
+      "aliases": 1
+    },
+    {
+      "rva": 64465072,
+      "aliases": 1
+    },
+    {
+      "rva": 64467328,
+      "aliases": 1
+    },
+    {
+      "rva": 64520672,
+      "aliases": 1
+    },
+    {
+      "rva": 68709024,
+      "aliases": 1
+    },
+    {
+      "rva": 68709760,
+      "aliases": 1
+    },
+    {
+      "rva": 68714048,
+      "aliases": 1
+    },
+    {
+      "rva": 68714512,
+      "aliases": 1
+    },
+    {
+      "rva": 68718992,
+      "aliases": 1
+    },
+    {
+      "rva": 68738640,
+      "aliases": 1
+    },
+    {
+      "rva": 68758832,
+      "aliases": 1
+    },
+    {
+      "rva": 68799840,
+      "aliases": 1
+    },
+    {
+      "rva": 68804560,
+      "aliases": 1
+    },
+    {
+      "rva": 68824064,
+      "aliases": 1
+    },
+    {
+      "rva": 77502080,
+      "aliases": 1
+    },
+    {
+      "rva": 77527760,
+      "aliases": 1
+    },
+    {
+      "rva": 77683424,
+      "aliases": 1
+    },
+    {
+      "rva": 77687072,
+      "aliases": 1
+    },
+    {
+      "rva": 79410128,
+      "aliases": 1
+    },
+    {
+      "rva": 79411664,
+      "aliases": 1
+    },
+    {
+      "rva": 79412720,
+      "aliases": 1
+    },
+    {
+      "rva": 79421616,
+      "aliases": 1
+    },
+    {
+      "rva": 85713376,
+      "aliases": 1
+    },
+    {
+      "rva": 85744992,
+      "aliases": 1
+    },
+    {
+      "rva": 87114720,
+      "aliases": 1
+    },
+    {
+      "rva": 87160368,
+      "aliases": 1
+    },
+    {
+      "rva": 132725408,
+      "aliases": 1
+    },
+    {
+      "rva": 152798928,
+      "aliases": 1
+    }
+  ]
+}
