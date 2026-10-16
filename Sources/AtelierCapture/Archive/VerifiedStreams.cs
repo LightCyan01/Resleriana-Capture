@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Security.Cryptography;
@@ -110,6 +111,86 @@ internal sealed class GzipPrefix : Stream
 
     public override void Write(byte[] buffer, int offset, int count) =>
         throw new NotSupportedException();
+}
+
+// Deflate Optimal is the slowest packing step; a second thread compresses one chunk while the
+// caller inflates, hashes and parses the next. Chunk order keeps the entry content identical.
+internal sealed class OverlappedWrite(Stream target) : Stream
+{
+    private const int ChunkBytes = 1 << 20;
+    private byte[] filling = ArrayPool<byte>.Shared.Rent(ChunkBytes);
+    private byte[] writing = ArrayPool<byte>.Shared.Rent(ChunkBytes);
+    private int length;
+    private Task pending = Task.CompletedTask;
+
+    public override void Write(byte[] buffer, int offset, int count) =>
+        Write(buffer.AsSpan(offset, count));
+
+    public override void Write(ReadOnlySpan<byte> data)
+    {
+        while (!data.IsEmpty)
+        {
+            var count = Math.Min(data.Length, ChunkBytes - length);
+            data[..count].CopyTo(filling.AsSpan(length));
+            length += count;
+            data = data[count..];
+            if (length == ChunkBytes)
+                Hand();
+        }
+    }
+
+    // Surfaces any background write failure; the target is complete only after this returns.
+    internal void Complete()
+    {
+        if (length != 0)
+            Hand();
+        pending.GetAwaiter().GetResult();
+    }
+
+    private void Hand()
+    {
+        pending.GetAwaiter().GetResult();
+        (filling, writing) = (writing, filling);
+        var chunk = writing;
+        var count = length;
+        length = 0;
+        pending = Task.Run(() => target.Write(chunk, 0, count));
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            // The background write may still read its chunk; wait before returning buffers.
+            try
+            {
+                pending.Wait();
+            }
+            catch (AggregateException) { }
+            ArrayPool<byte>.Shared.Return(filling);
+            ArrayPool<byte>.Shared.Return(writing);
+        }
+        base.Dispose(disposing);
+    }
+
+    public override bool CanRead => false;
+    public override bool CanSeek => false;
+    public override bool CanWrite => true;
+    public override long Length => throw new NotSupportedException();
+    public override long Position
+    {
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
+    }
+
+    public override void Flush() { }
+
+    public override int Read(byte[] buffer, int offset, int count) =>
+        throw new NotSupportedException();
+
+    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+    public override void SetLength(long value) => throw new NotSupportedException();
 }
 
 internal sealed class StreamFacts(Stream input, Stream? output = null) : Stream

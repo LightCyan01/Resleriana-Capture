@@ -100,8 +100,9 @@ internal static class CaptureArchive
                         stamp.Bytes,
                         stamp.Sha256
                     );
+                    using var compress = new OverlappedWrite(target);
                     using var gzip = new GZipStream(input, CompressionMode.Decompress, true);
-                    using var facts = new StreamFacts(gzip, target);
+                    using var facts = new StreamFacts(gzip, compress);
                     using (var reader = new RecordReader(facts))
                         while (reader.Read() is { } record)
                             counts.Add(i, record);
@@ -145,6 +146,7 @@ internal static class CaptureArchive
                         counts.Add(i, markerReader.Read()!);
                         facts.Append(markerBytes);
                     }
+                    compress.Complete();
                     entries.Add(
                         new VerifiedArchiveEntry(
                             ArchiveCounts.Names[i],

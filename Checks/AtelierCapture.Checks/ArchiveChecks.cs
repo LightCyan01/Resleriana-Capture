@@ -42,6 +42,7 @@ internal static class ArchiveChecks
             UnboundNativeCounts(root);
             ArchiveExpansionWorkload(root);
             ParserControls();
+            OverlappedCompression();
             IdentityLedger(root);
             Console.WriteLine(
                 $"ARCHIVE_CHECKS_PASS assertions={assertions} elapsed_ms={started.ElapsedMilliseconds} runtime={Environment.Version} allocated_bytes={GC.GetTotalAllocatedBytes(true) - allocated} peak_working_set={System.Diagnostics.Process.GetCurrentProcess().PeakWorkingSet64}"
@@ -2182,6 +2183,46 @@ internal static class ArchiveChecks
             .Replace("Official", "Private", StringComparison.Ordinal);
         mismatch.Save();
         Fails(() => CaptureArchive.Pack(mismatch.Folder, false), "cross-environment envelope");
+    }
+
+    private static void OverlappedCompression()
+    {
+        var data = new byte[(5 << 19) + 12345];
+        new Random(7).NextBytes(data);
+        using var target = new MemoryStream();
+        using (var overlapped = new OverlappedWrite(target))
+        {
+            for (var offset = 0; offset < data.Length; )
+            {
+                var count = Math.Min(70001, data.Length - offset);
+                overlapped.Write(data, offset, count);
+                offset += count;
+            }
+            overlapped.Complete();
+        }
+        Require(
+            target.ToArray().AsSpan().SequenceEqual(data),
+            "Overlapped compression keeps every byte in order across partial chunks"
+        );
+        using var failing = new OverlappedWrite(new FailingWrite());
+        var failed = false;
+        try
+        {
+            // The failure surfaces at the next chunk hand-off or at Complete, whichever comes first.
+            failing.Write(data);
+            failing.Complete();
+        }
+        catch (IOException)
+        {
+            failed = true;
+        }
+        Require(failed, "Overlapped compression surfaces a background write failure");
+    }
+
+    private sealed class FailingWrite : MemoryStream
+    {
+        public override void Write(byte[] buffer, int offset, int count) =>
+            throw new IOException("Synthetic background write failure.");
     }
 
     private static void ParserControls()

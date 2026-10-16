@@ -6,6 +6,7 @@
 - Preserve original API bodies, headers and unknown fields, with clearer links between requests, responses and gameplay observations.
 - Reduce repeated snapshots, redundant writes and diagnostic duplication.
 - Stop waiting on disk for repeated warnings and save queued records together.
+- Compress capture archives on a second thread so the game exits sooner.
 - Add durable saving, stronger crash recovery and verified archive cleanup.
 - Add readable request and record counts for each capture, stream, system and route.
 - Aggregate repeated warnings and known Unity material null-reference patterns while retaining their details and occurrence counts.
