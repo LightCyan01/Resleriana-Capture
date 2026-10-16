@@ -9,6 +9,9 @@ internal static class NativeObjectType
 {
     private static readonly ConcurrentDictionary<Type, Func<IntPtr, object>> Wrap = new();
 
+    // Module.ScopeName is a runtime call that allocates; this runs for every snapshot child.
+    private static readonly ConcurrentDictionary<Type, bool> ConcreteRequired = new();
+
     internal static object WrapPointer(Type type, IntPtr pointer) =>
         Wrap.GetOrAdd(type, Wrapper)(pointer);
 
@@ -30,7 +33,10 @@ internal static class NativeObjectType
     {
         if (
             value is not Il2CppObjectBase native
-            || !RequiresConcrete(value.GetType().FullName, value.GetType().Module.ScopeName)
+            || !ConcreteRequired.GetOrAdd(
+                value.GetType(),
+                static type => RequiresConcrete(type.FullName, type.Module.ScopeName)
+            )
         )
             return value;
         object? result = null;

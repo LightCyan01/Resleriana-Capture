@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -8,7 +9,12 @@ internal static class NativeProtobuf
 {
     private static MethodInfo? serialize;
 
-    internal static bool IsMessage(Type type) =>
+    // GetInterfaces copies an array per call; snapshots ask this for every native node.
+    private static readonly ConcurrentDictionary<Type, bool> Messages = new();
+
+    internal static bool IsMessage(Type type) => Messages.GetOrAdd(type, ComputeIsMessage);
+
+    private static bool ComputeIsMessage(Type type) =>
         !type.IsEnum
         && (
             type.FullName == "Google.Protobuf.IMessage"
