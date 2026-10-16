@@ -94,42 +94,6 @@ The runtime certificate binds all immutable installed dependencies.
 
 ## Publish an update
 
-Build both full installers for the same version:
-
-```powershell
-py scripts/build.py
-py scripts/build.py --manual-only
-```
-
-The automatic build goes to `work/release/`; the manual build goes to
-`work/release-manual/` and omits all updater components. Their compiled mode and
-runtime certificate must agree. Separate default work directories prevent one
-build from replacing the other's staged files.
-
-An ordinary build produces the full installer without an automatic-update ZIP.
-The release maintainer creates that ZIP locally with the private signing key:
-
-```powershell
-py scripts/package.py --stage work/build/stage --output work/release --version X.Y.Z --signing-key "C:\path-outside-the-repository\release-private.pem"
-```
-
-Use the same version as the built stage. The helper checks that the key matches
-its embedded public key and signs the exact update manifest with ECDSA P-256 and
-SHA-256. Keep the private key outside the repository, release assets and GitHub
-Actions. Source builds and verification do not need it. A new trusted key or a
-change to any pinned base component requires a full manual installation.
-
-When publishing the stable `vX.Y.Z` release, upload
-`Resleriana-Capture-vX.Y.Z-win-x64-AutoUpdater.zip` and
-`Resleriana-Capture-vX.Y.Z-update-win-x64.zip`, plus `release-manifest.json` and
-`SHA256SUMS.txt` from the signed automatic package output. Also upload
-`Resleriana-Capture-vX.Y.Z-win-x64.zip`, `release-manifest-manual.json` and
-`SHA256SUMS-manual.txt` from the manual output to that same release. Use
-`release-notes.md` for its description. Without the update ZIP, existing
-automatic installations receive no automatic update. Manual packages never
-produce an automatic-update ZIP. Do not upload the private key or temporary
-signing inputs.
-
 Routine builds and checks run locally. The Windows verification workflow has one
 job and runs only through `workflow_dispatch`; it uploads a local package artifact
 and never publishes a release. Pushes and pull requests trigger no workflow.

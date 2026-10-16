@@ -16,7 +16,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
 
-from package import CONFIGURATION_CONTRACT, CONFIGURATION_VALUES, LOCALIZATION_CONFIG, MUTABLE_CONFIG_FILES, RECOVERY_CONTRACT, UPDATER_FILES, ROOT, install_file, package_update, parse_version, sha256, validate_stage
+from package import CONFIGURATION_CONTRACT, CONFIGURATION_VALUES, LOCALIZATION_CONFIG, MUTABLE_CONFIG_FILES, ROOT, install_file, parse_version, sha256, validate_stage
 
 BEPINEX_COMMIT = "5b766a3b7f6c164d4798924a93f3acf4db769d06"
 INTEROP_COMMIT = "dbda1cb353b0f4253345dc45136d170b9e50a5a0"
@@ -166,15 +166,14 @@ def extract(archive_path, stage, prefix="", install_only=False, plugins_only=Fal
 def source_inventory(runtime_only=False):
     folders = [ROOT / "Sources/BepInEx", ROOT / "Sources/Il2CppInterop", ROOT / "Sources/AtelierCapture.Native", ROOT / "Licenses", ROOT / ".config"]
     if not runtime_only:
-        folders.extend([ROOT / "Sources/AtelierCapture", ROOT / "Sources/AtelierCapture.Update",
-                        ROOT / "Sources/AtelierCapture.Updater"])
+        folders.append(ROOT / "Sources/AtelierCapture")
     files = {ROOT / "VERSION", ROOT / "global.json", ROOT / "README.md", ROOT / "CHANGELOG.md",
              ROOT / "scripts/build.py", ROOT / "scripts/package.py"}
     files.add(ROOT / ".github/workflows/release.yml")
     for folder in folders:
         for path in folder.rglob("*"):
             if path.is_file() and not {"bin", "obj", "node_modules", ".store"}.intersection(path.relative_to(folder).parts):
-                if path.suffix in {".cs", ".cpp", ".h", ".inc", ".csproj", ".props", ".targets", ".json", ".config", ".cfg", ".txt", ".md", ".ini", ".ps1", ".pem"}:
+                if path.suffix in {".cs", ".cpp", ".h", ".inc", ".csproj", ".props", ".targets", ".json", ".config", ".cfg", ".txt", ".md", ".ini", ".ps1"}:
                     files.add(path)
     return [{"path": path.relative_to(ROOT).as_posix(), "sha256": sha256(path), "size": path.stat().st_size}
             for path in sorted(files)]
@@ -182,14 +181,6 @@ def source_inventory(runtime_only=False):
 
 def digest_inventory(files):
     return hashlib.sha256(json.dumps(files, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-
-
-def base_revision(sources):
-    # Capture releases must not change loader/helper bytes just because the release commit changed.
-    prefixes = ("Sources/BepInEx/", "Sources/Il2CppInterop/", "Sources/AtelierCapture.Update/", "Sources/AtelierCapture.Updater/")
-    owned = [entry for entry in sources if entry["path"].startswith(prefixes)]
-    return digest_inventory({"sources": owned, "sdk": SDK_VERSION, "runtime": RUNTIME_VERSION,
-                             "dependencies": DEPENDENCIES, "bepinex": BEPINEX_COMMIT, "interop": INTEROP_COMMIT})
 
 
 def native_catalog():
@@ -441,11 +432,7 @@ def build(dotnet, project, workdir, offline, update_locks, **properties):
             shutil.copyfile(package, feed / package.name)
         write_offline_config(config, feed)
     props = [f"-p:{name}={value}" for name, value in properties.items()]
-    path_map = ",".join(f"{str(path).replace(',', ',,').replace('=', '==')}={mapped}"
-                        for path, mapped in ((workdir, "/_/build"), (ROOT, "/_/source")))
-    props += ["-p:GeneratePackageOnBuild=false", "-p:ContinuousIntegrationBuild=true",
-              "-p:DeterministicSourcePaths=false", "-p:EnableSourceLink=false", "-p:EnableSourceControlManagerQueries=false",
-              "-p:PathMap=" + path_map.replace("%", "%25").replace(",", "%2C").replace(";", "%3B")]
+    props += ["-p:GeneratePackageOnBuild=false", "-p:ContinuousIntegrationBuild=true", f"-p:PathMap={ROOT}=/_/Resleriana-Capture"]
     environment = dict(os.environ, DOTNET_ROOT=str(dotnet.parent), DOTNET_CLI_HOME=str(workdir / "cli"),
                        DOTNET_CLI_TELEMETRY_OPTOUT="1", DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1",
                        DOTNET_GENERATE_ASPNET_CERTIFICATE="false", DOTNET_NOLOGO="1",
@@ -494,7 +481,7 @@ def self_check():
         except ValueError:
             pass
         stage = root / "complete-stage"
-        names = UPDATER_FILES | {"winhttp.dll", "doorstop_config.ini", "capture-control.ps1", "dotnet/coreclr.dll",
+        names = {"winhttp.dll", "doorstop_config.ini", "capture-control.ps1", "dotnet/coreclr.dll",
                  "dotnet/System.Private.CoreLib.dll", "dotnet/System.Text.Json.dll", "dotnet/System.IO.Compression.dll",
                  "BepInEx/core/BepInEx.Core.dll", "BepInEx/core/BepInEx.Unity.IL2CPP.dll", "BepInEx/core/0Harmony.dll",
                  "BepInEx/core/Il2CppInterop.Runtime.dll", "BepInEx/core/Il2CppInterop.Common.dll",
@@ -512,52 +499,11 @@ def self_check():
         records = [{"path": name, "sha256": sha256(stage / name), "size": (stage / name).stat().st_size}
                    for name in sorted(names) if name not in MUTABLE_CONFIG_FILES]
         certificate = {"schema": 1, "runtime_major": 10, "runtime_version": RUNTIME_VERSION,
-                       "update_mode": "automatic",
-                       "capture_version": "1.4.0", "recovery_contract": RECOVERY_CONTRACT,
                        "runtime_files": records, "supported_client": SUPPORTED_CLIENT, "configuration_contract": CONFIGURATION_CONTRACT}
         certificate_path = stage / "BepInEx/plugins/capture-runtime.json"
         certificate_path.write_text(json.dumps(certificate))
         if len(validate_stage(stage)) != len(names) + 1:
             raise AssertionError("Complete stage inventory changed")
-        output = root / "release"
-        output.mkdir()
-        update = output / "Resleriana-Capture-v1.4.0-update-win-x64.zip"
-        update.write_bytes(b"stale signed update")
-        if package_update(stage, output, "1.4.0", None) is not None or update.exists():
-            raise AssertionError("Unsigned packaging retained an automatic-update asset")
-        update.write_bytes(b"previous signed update")
-        try:
-            package_update(stage, output, "1.4.0", ROOT / "forbidden-private-key.pem")
-            raise AssertionError("In-repository signing key accepted")
-        except ValueError:
-            pass
-        if update.read_bytes() != b"previous signed update":
-            raise AssertionError("Rejected signing deleted an earlier update")
-        updater_bytes = {name: (stage / name).read_bytes() for name in UPDATER_FILES}
-        for name in UPDATER_FILES:
-            (stage / name).unlink()
-        manual_certificate = dict(certificate, update_mode="manual",
-                                  runtime_files=[row for row in records if row["path"] not in UPDATER_FILES])
-        certificate_path.write_text(json.dumps(manual_certificate))
-        validate_stage(stage)
-        if package_update(stage, output, "1.4.0", None) is not None or update.read_bytes() != b"previous signed update":
-            raise AssertionError("Manual packaging changed an automatic asset")
-        try:
-            package_update(stage, output, "1.4.0", ROOT / "forbidden-private-key.pem")
-            raise AssertionError("Manual stage accepted automatic-update signing")
-        except ValueError:
-            pass
-        leftover = stage / "BepInEx/patchers/AtelierCapture.Updater.dll"
-        leftover.write_bytes(b"old updater")
-        try:
-            validate_stage(stage)
-            raise AssertionError("Manual installer retained an updater")
-        except ValueError:
-            pass
-        leftover.unlink()
-        for name, data in updater_bytes.items():
-            (stage / name).write_bytes(data)
-        certificate_path.write_text(json.dumps(certificate))
         (stage / "BepInEx/config/BepInEx.cfg").write_text(IL2CPP_CONFIGURATION + "[Logging.Console]\nEnabled = false\n")
         validate_stage(stage)
         for key, value in CONFIGURATION_VALUES.items():
@@ -595,9 +541,8 @@ def self_check():
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--workdir", type=Path)
-    parser.add_argument("--output", type=Path)
-    parser.add_argument("--manual-only", action="store_true", help="Omit the updater; install future versions manually")
+    parser.add_argument("--workdir", type=Path, default=ROOT / "work/build")
+    parser.add_argument("--output", type=Path, default=ROOT / "work/release")
     parser.add_argument("--version")
     parser.add_argument("--source-commit")
     parser.add_argument("--offline", action="store_true")
@@ -618,7 +563,7 @@ def main():
         args.source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     if not re.fullmatch(r"[a-f0-9]{40}", args.source_commit):
         parser.error("--source-commit must identify a full delivery/base commit; source bytes are recorded separately")
-    workdir = owned_output(args.workdir or ROOT / ("work/build-manual" if args.manual_only else "work/build"))
+    workdir = owned_output(args.workdir)
     workdir.mkdir(parents=True, exist_ok=True)
     toolchain = ROOT / "work/toolchain"
     sdk_archive = download("dotnet-sdk-10.0.402-win-x64.zip", toolchain, SDK_ARCHIVE, args.offline)
@@ -657,14 +602,13 @@ def main():
     (config_directory / "BepInEx.cfg").write_text(IL2CPP_CONFIGURATION + "\n[Logging.Disk]\nEnabled = true\nWriteUnityLog = true\nLogLevels = Fatal, Error, Warning, Message, Info\n", encoding="utf-8")
     shutil.copyfile(ROOT / ".config/AtelierResleriana.Plugin.Localization.cfg", stage / LOCALIZATION_CONFIG)
     compiled = workdir / "compiled"
-    runtime_revision = base_revision(sources)
     runtime = stage / "BepInEx/core"
     bepinex = ROOT / "Sources/BepInEx"
     interop = ROOT / "Sources/Il2CppInterop"
     build(dotnet, bepinex / "Runtimes/Unity/BepInEx.Unity.IL2CPP/BepInEx.Unity.IL2CPP.csproj", workdir,
           args.offline, args.update_locks, SolutionDir=str(bepinex) + "/", BuildDir=str(compiled / "BepInEx"),
           BuildArtifactsDirectory=str(compiled / "BepInEx") + "/", UnityReferenceDirectory=dependencies,
-          Version="6.0.0-be.788-capture.2", SourceRevisionId=runtime_revision)
+          Version="6.0.0-be.788-capture.2", SourceRevisionId=args.source_commit)
     for path in (compiled / "BepInEx/Unity.IL2CPP").glob("*.dll"):
         shutil.copyfile(path, runtime / path.name)
     for path in (compiled / "BepInEx/Unity.IL2CPP/runtimes/win-x64/native").glob("*.dll"):
@@ -672,7 +616,7 @@ def main():
     build(dotnet, interop / "Il2CppInterop.HarmonySupport/Il2CppInterop.HarmonySupport.csproj", workdir,
           args.offline, args.update_locks, BuildArtifactsDirectory=str(compiled / "Il2CppInterop") + "/",
           Il2CppReferenceDirectory=dependencies, CopyLocalLockFileAssemblies="true",
-          Version="1.5.3-capture.3", SourceRevisionId=runtime_revision)
+          Version="1.5.3-capture.3", SourceRevisionId=args.source_commit)
     for component in ("Runtime", "Common", "HarmonySupport"):
         framework = "netstandard2.0" if component == "Common" else "net6.0"
         directory = compiled / f"Il2CppInterop/bin/Il2CppInterop.{component}/{framework}"
@@ -682,25 +626,11 @@ def main():
     shutil.copyfile(terrafx, runtime / terrafx.name)
     native_provenance = None
     if not args.runtime_only:
-        if not args.manual_only:
-            for name in ("AtelierCapture.Update", "AtelierCapture.Updater"):
-                build(dotnet, ROOT / f"Sources/{name}/{name}.csproj", workdir, args.offline, args.update_locks,
-                      RuntimeDirectory=runtime, Version="1.0.0", SourceRevisionId=runtime_revision,
-                      BaseIntermediateOutputPath=str(workdir / f"obj/{name}") + "/",
-                      OutputPath=str(compiled / name) + "/", AppendTargetFrameworkToOutputPath="false",
-                      AppendRuntimeIdentifierToOutputPath="false")
-            for name in ("AtelierCapture.Update.exe", "AtelierCapture.Update.dll", "AtelierCapture.Update.deps.json", "AtelierCapture.Update.runtimeconfig.json"):
-                shutil.copyfile(compiled / "AtelierCapture.Update" / name, stage / "dotnet" / name)
-            with zipfile.ZipFile(dependencies / "dotnet-runtime-10.0.13.zip") as archive:
-                (stage / "dotnet/hostfxr.dll").write_bytes(archive.read(f"host/fxr/{RUNTIME_VERSION}/hostfxr.dll"))
-            (stage / "BepInEx/patchers").mkdir(exist_ok=True)
-            shutil.copyfile(compiled / "AtelierCapture.Updater/AtelierCapture.Updater.dll", stage / "BepInEx/patchers/AtelierCapture.Updater.dll")
         native_output, native_provenance = build_native(workdir)
         shutil.copyfile(native_output, stage / "BepInEx/plugins/AtelierCapture.Native.dll")
         capture_output = compiled / "AtelierCapture"
         build(dotnet, ROOT / "Sources/AtelierCapture/AtelierCapture.csproj", workdir, args.offline, args.update_locks,
               RuntimeDirectory=runtime, ReferenceDirectory=dependencies, Version=version, SourceRevisionId=source_digest,
-              CaptureAutoUpdates="false" if args.manual_only else "true",
               BaseIntermediateOutputPath=str(workdir / "obj/AtelierCapture") + "/",
               OutputPath=str(capture_output) + "/", AppendTargetFrameworkToOutputPath="false")
         shutil.copyfile(capture_output / "AtelierCapture.dll", stage / "BepInEx/plugins/AtelierCapture.dll")
@@ -713,7 +643,7 @@ def main():
     if not args.runtime_only:
         shutil.copyfile(control, stage / "capture-control.ps1")
     shutil.copyfile(ROOT / "README.md", stage / "README.md")
-    provenance = {"schema": 2, "update_mode": "manual" if args.manual_only else "automatic", "source_commit": args.source_commit, "source_digest": source_digest,
+    provenance = {"schema": 2, "source_commit": args.source_commit, "source_digest": source_digest,
                   "source_files": sources, "sdk": SDK_VERSION, "runtime": RUNTIME_VERSION,
                   "vendor_sources": [{"name": "BepInEx", "base": BEPINEX_COMMIT},
                                      {"name": "Il2CppInterop", "base": INTEROP_COMMIT, "scanner_backport": SCANNER_COMMIT}],
@@ -733,13 +663,11 @@ def main():
                      and path.relative_to(stage).parts[0] != "Licenses" and path.name != "README.md"
                      and path.relative_to(stage).as_posix() not in MUTABLE_CONFIG_FILES]
     certificate = {"schema": 1, "runtime_major": 10, "runtime_version": RUNTIME_VERSION,
-                   "update_mode": "manual" if args.manual_only else "automatic",
-                   "capture_version": version, "recovery_contract": RECOVERY_CONTRACT,
                    "runtime_files": runtime_files, "supported_client": SUPPORTED_CLIENT, "source_digest": source_digest,
                    "configuration_contract": CONFIGURATION_CONTRACT}
     (stage / "BepInEx/plugins/capture-runtime.json").write_text(json.dumps(certificate, indent=2) + "\n", encoding="utf-8")
     subprocess.run([sys.executable, str(ROOT / "scripts/package.py"), "--stage", str(stage),
-                    "--output", str(owned_output(args.output or ROOT / ("work/release-manual" if args.manual_only else "work/release"))), "--version", version], cwd=ROOT, check=True)
+                    "--output", str(owned_output(args.output)), "--version", version], cwd=ROOT, check=True)
     if source_inventory() != sources:
         raise ValueError("Source changed during packaging; rebuild this candidate")
 
