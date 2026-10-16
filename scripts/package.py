@@ -19,7 +19,8 @@ CONFIGURATION_CONTRACT = [{"path": "BepInEx/config/BepInEx.cfg", "section": "IL2
                           for key, value in CONFIGURATION_VALUES.items()]
 LOCALIZATION_CONFIG = "BepInEx/config/AtelierResleriana.Plugin.Localization.cfg"
 CONFIGURATION_CONTRACT.append({"path": LOCALIZATION_CONFIG, "section": "Data", "key": "AutoUpdate", "value": "false"})
-MUTABLE_CONFIG_FILES = {"BepInEx/config/BepInEx.cfg", LOCALIZATION_CONFIG}
+PRIVACY_CONFIG = "BepInEx/config/AtelierCapture.Privacy.json"
+MUTABLE_CONFIG_FILES = {"BepInEx/config/BepInEx.cfg", LOCALIZATION_CONFIG, PRIVACY_CONFIG}
 
 
 def parse_version(value):
@@ -71,7 +72,7 @@ def validate_stage(stage):
                 "BepInEx/core/TerraFX.Interop.Windows.dll",
                 "BepInEx/plugins/AtelierCapture.dll", "BepInEx/plugins/AtelierCapture.Native.dll", "BepInEx/plugins/capture-runtime.json",
                 "BepInEx/plugins/Resources/LocalizationData.json", "BepInEx/config/BepInEx.cfg",
-                "BepInEx/unity-libs/2022.3.62.zip", LOCALIZATION_CONFIG}
+                "BepInEx/unity-libs/2022.3.62.zip", LOCALIZATION_CONFIG, PRIVACY_CONFIG}
     files = []
     for path in stage.rglob("*"):
         if path.is_symlink() or not path.resolve().is_relative_to(stage):
@@ -108,6 +109,15 @@ def validate_stage(stage):
     if "coreclr_path = dotnet\\coreclr.dll" not in configuration or "corlib_dir = dotnet" not in configuration:
         raise ValueError("Doorstop must load the adjacent embedded runtime")
     for path in MUTABLE_CONFIG_FILES:
+        if path == PRIVACY_CONFIG:
+            privacy_path = stage / path
+            if privacy_path.stat().st_size > 4096:
+                raise ValueError("Privacy configuration exceeds 4096 bytes")
+            setting = json.loads(privacy_path.read_text(encoding="utf-8"), object_pairs_hook=lambda pairs: pairs)
+            if not (isinstance(setting, list) and len(setting) == 1 and isinstance(setting[0], tuple)
+                    and setting[0][0] == "enabled" and type(setting[0][1]) is bool):
+                raise ValueError("Privacy configuration requires exactly one boolean enabled setting")
+            continue
         config = configparser.ConfigParser(interpolation=None)
         config.read(stage / path, encoding="utf-8-sig")
         for entry in CONFIGURATION_CONTRACT:

@@ -54,7 +54,23 @@ Each ZIP holds four JSON Lines files and a manifest:
 A capture covers only what you played. Hooks that couldn't be installed, failed reads and unclear object origins show up as gaps in the manifest and diagnostics.
 
 > [!WARNING]
-> Captures contain account data, login credentials and session tokens. Bodies, decoded fields and headers are saved without redaction. The plugin keeps recordings on your PC and doesn't upload them, but anyone you send a capture to can read that data. See [Account and session data recorded](https://github.com/LightCyan01/Resleriana-Capture/blob/main/docs/account-and-session-data.md) for the fields and where they are stored.
+> By default, captures contain account data, login credentials and session tokens. Bodies, decoded fields and headers are saved without redaction. The plugin keeps recordings on your PC and doesn't upload them, but anyone you send a capture to can read that data. See [Account and session data recorded](https://github.com/LightCyan01/Resleriana-Capture/blob/main/docs/account-and-session-data.md) for the fields and where they are stored.
+
+### Optional privacy mode (1.4.1)
+
+Privacy mode is disabled by default. To enable it, close the game and edit `BepInEx/config/AtelierCapture.Privacy.json`:
+
+```json
+{
+  "enabled": true
+}
+```
+
+The setting is read at startup. Invalid or unreadable configuration stops capture before recording begins.
+
+Privacy mode retains qualified gameplay progress and numeric inputs/results while removing credentials, personal identifiers and profile details. Original bodies, headers, free-form logs and unaudited native snapshot values are omitted; native call identities remain. The manifest declares the mode and recording gaps. Recorded gameplay can still identify a player, so this mode does not guarantee anonymity.
+
+Keep `enabled` set to `false` to preserve full original data for research or a possible future account-progress import. Privacy-filtered captures have less data and cannot promise a complete account import. Enabling the setting affects new recordings; it does not change old captures or the game's separate BepInEx/Unity log files.
 
 ## Long sessions
 

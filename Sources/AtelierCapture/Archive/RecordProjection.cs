@@ -17,6 +17,7 @@ internal sealed class RecordProjection
     internal long? BodyBytes;
     internal string? BodyHash;
     internal bool HasOmission;
+    internal bool HasRawPayload;
     internal bool MaterialErrorMessage;
     internal RecordProjection? Payload,
         BootstrapSource,
@@ -203,6 +204,8 @@ internal sealed class RecordReader : IDisposable
                 frame.Key = String(true, null, true);
                 if (frame.Key == "omitted")
                     record.HasOmission = true;
+                if (frame.Level == 1 && frame.Key is "body" or "sha256" or "bytes" or "body_id")
+                    projection.HasRawPayload = true;
                 var significant =
                     frame.Level == 0
                         ? RootFields.Contains(frame.Key ?? "") || frame.Key is "metadata" or "data"

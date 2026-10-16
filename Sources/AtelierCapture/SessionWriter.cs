@@ -35,6 +35,7 @@ internal sealed partial class SessionWriter : IDisposable
     private readonly Source[] sources = [new("Official"), new("Private"), new("Unknown")];
     private readonly string root;
     private readonly object metadata;
+    private readonly CapturePrivacy privacy;
     private readonly Func<bool, object> status;
     private readonly Action<string> report;
     private readonly StorageHooks? hooks;
@@ -78,11 +79,13 @@ internal sealed partial class SessionWriter : IDisposable
         object metadata,
         Func<bool, object> status,
         Action<string> report,
-        StorageHooks? hooks
+        StorageHooks? hooks,
+        CapturePrivacy? privacy = null
     )
     {
         this.root = Path.GetFullPath(root);
-        this.metadata = metadata;
+        this.privacy = privacy ?? CapturePrivacy.Disabled;
+        this.metadata = this.privacy.SessionMetadata(metadata);
         this.status = status;
         this.report = report;
         this.hooks = hooks;
@@ -224,15 +227,16 @@ internal sealed partial class SessionWriter : IDisposable
         var current =
             observation.Value
             ?? throw new InvalidOperationException("Capture record has no observation scope.");
+        (kind, data) = privacy.Project(kind, data, systemId);
         var source = sources[sourceIndex];
         if (source.InitialStatus is null)
         {
             try
             {
                 source.InitialStatus =
-                    sourceIndex == ProcessSource
-                        ? new { scope = "process" }
-                        : status(sourceIndex == PrivateSource);
+                    privacy.Enabled ? privacy.Status
+                    : sourceIndex == ProcessSource ? new { scope = "process" }
+                    : status(sourceIndex == PrivateSource);
             }
             catch (Exception ex)
             {
@@ -446,6 +450,8 @@ internal sealed partial class SessionWriter : IDisposable
     {
         if (string.IsNullOrWhiteSpace(reason))
             throw new ArgumentException("Explicit abort needs a reason.", nameof(reason));
+        if (privacy.Enabled)
+            reason = "explicit_abort_privacy_mode";
         lock (admission)
         {
             if (aborted.IsCancellationRequested || completed.IsSet)
@@ -728,7 +734,7 @@ internal sealed partial class SessionWriter : IDisposable
                                         utc = source.Started,
                                         environment = source.Name,
                                         stopwatch_frequency = Stopwatch.Frequency,
-                                        contains_sensitive_raw_data = true,
+                                        contains_sensitive_raw_data = !privacy.Enabled,
                                         streams = StreamNames,
                                         metadata,
                                     }
@@ -1246,7 +1252,7 @@ internal sealed partial class SessionWriter : IDisposable
         {
             if (aborted.IsCancellationRequested)
                 return;
-            if (!CaptureArchive.Pack(folder, true))
+            if (!CaptureArchive.Pack(folder, true, privacy.Enabled))
                 throw new InvalidDataException(
                     "Old capture has no verified packageable checkpoint."
                 );
@@ -1303,7 +1309,9 @@ internal sealed partial class SessionWriter : IDisposable
             try
             {
                 for (var i = 0; i < 2; i++)
-                    sources[i].FinalStatus = status(i == PrivateSource);
+                    sources[i].FinalStatus = privacy.Enabled
+                        ? privacy.Status
+                        : status(i == PrivateSource);
             }
             catch (Exception ex)
             {

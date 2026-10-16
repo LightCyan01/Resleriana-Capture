@@ -597,6 +597,10 @@ internal sealed class ArchiveCounts : IDisposable
 
     private void VerifyBody(RecordProjection record)
     {
+        if (record.Get("omitted") == "privacy_mode" && record.HasRawPayload)
+            throw new InvalidDataException(
+                "Privacy body omission contains original payload metadata."
+            );
         var requestId = record.Get("request_id");
         var attemptId = record.Get("attempt_id");
         if (requestId is not null)

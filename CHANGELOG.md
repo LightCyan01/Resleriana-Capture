@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.1
+
+- Add an optional privacy configuration, disabled by default, that removes credentials, personal identifiers and profile details while retaining qualified gameplay progress.
+- Omit original bodies, headers, free-form logs and unaudited native values in privacy mode, with explicit recording gaps and per-run privacy metadata.
+- Preserve original recording policy during recovery; privacy mode leaves older full recordings unchanged.
+- Document account and session fields, configuration, reduced capture coverage and account-import limitations.
+
 ## 1.4.0
 
 - Rewrite the recorder with improved API, Battle and Atelier capture.

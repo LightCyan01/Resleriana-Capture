@@ -12,13 +12,17 @@ internal static class CaptureArchive
     private static readonly UTF8Encoding Utf8 = new(false, true);
     private const int MetadataLimit = 1024 * 1024;
 
-    internal static bool Pack(string folder, bool recovered)
+    internal static bool Pack(string folder, bool recovered, bool requirePrivacy = false)
     {
-        using var verified = PackVerified(folder, recovered);
+        using var verified = PackVerified(folder, recovered, requirePrivacy);
         return verified is not null;
     }
 
-    internal static VerifiedCapture? PackVerified(string folder, bool recovered)
+    internal static VerifiedCapture? PackVerified(
+        string folder,
+        bool recovered,
+        bool requirePrivacy = false
+    )
     {
         using var lease = new FileStream(
             Path.Combine(folder, "session.lock"),
@@ -26,15 +30,22 @@ internal static class CaptureArchive
             FileAccess.Write,
             FileShare.None
         );
-        return PackLeased(folder, recovered);
+        return PackLeased(folder, recovered, requirePrivacy);
     }
 
-    private static VerifiedCapture? PackLeased(string folder, bool recovered)
+    private static VerifiedCapture? PackLeased(string folder, bool recovered, bool requirePrivacy)
     {
         var checkpoint = ReadCheckpoint(folder);
         if (checkpoint is null || checkpoint.Environment == "Unknown")
             return null;
         var destination = Path.ChangeExtension(folder, ".zip");
+        if (
+            requirePrivacy
+            && !CapturePrivacy.IsFilteredMetadata(ReadStart(folder, checkpoint).Metadata)
+        )
+            throw new InvalidDataException(
+                "Privacy mode leaves full or unknown-policy recordings unchanged."
+            );
         if (File.Exists(destination))
         {
             var existing = OpenArchive(destination);
