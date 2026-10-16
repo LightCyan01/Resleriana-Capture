@@ -9,6 +9,7 @@ Sources/**/*.props text diff merge eol=lf
 Sources/**/*.targets text diff merge eol=lf
 Sources/**/*.sln text diff merge eol=lf
 Sources/AtelierCapture/*.json text diff merge eol=lf
+Sources/AtelierCapture/Privacy/*.json text diff merge eol=lf
 global.json text diff merge eol=lf
 scripts/*.py text diff merge eol=lf
 .github/workflows/*.yml text diff merge eol=lf
