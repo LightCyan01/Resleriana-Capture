@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -145,18 +146,34 @@ internal sealed class RecordReader : IDisposable
         "caused_by_event_id",
         "failed_listener",
     };
-    private readonly StreamReader reader;
+    private static readonly UTF8Encoding Strict = new(false, true);
+    private static readonly SearchValues<char> StringStops = SearchValues.Create([
+        .. Enumerable.Range(0, 32).Select(code => (char)code),
+        '"',
+        '\\',
+    ]);
+    private readonly Stream stream;
+    private readonly Decoder decoder = Strict.GetDecoder();
+    private readonly byte[] bytes = ArrayPool<byte>.Shared.Rent(65536);
+    private readonly char[] chars = ArrayPool<char>.Shared.Rent(Strict.GetMaxCharCount(65536));
+    private int position,
+        length;
+    private bool ended;
+    private readonly char[] keyChars = new char[128];
+    private readonly HashSet<string> keyNames = new(StringComparer.Ordinal);
+    private readonly HashSet<string>.AlternateLookup<ReadOnlySpan<char>> keyLookup;
     private StringBuilder? capture;
     private bool captureOverflow;
 
     internal RecordReader(Stream stream)
     {
-        reader = new StreamReader(stream, new UTF8Encoding(false, true), false, 65536, true);
+        this.stream = stream;
+        keyLookup = keyNames.GetAlternateLookup<ReadOnlySpan<char>>();
     }
 
     internal RecordProjection? Read()
     {
-        if (reader.Peek() == -1)
+        if (Peek() == -1)
             return null;
         var record = new RecordProjection();
         var frames = new List<Frame>();
@@ -175,13 +192,13 @@ internal sealed class RecordReader : IDisposable
             Space(true);
             if (frame.Object && frame.State is 0 or 4)
             {
-                if (reader.Peek() == '}' && frame.State == 0)
+                if (Peek() == '}' && frame.State == 0)
                 {
                     Take();
                     Finish();
                     continue;
                 }
-                if (reader.Peek() != '"')
+                if (Peek() != '"')
                     throw new InvalidDataException("Capture JSON object key is invalid.");
                 frame.Key = String(true, null, true);
                 if (frame.Key == "omitted")
@@ -195,7 +212,7 @@ internal sealed class RecordReader : IDisposable
                                 || ErrorEligibilityFields.Contains(frame.Key ?? "")
                                 || frame.Key == "body"
                             );
-                if (significant && !frame.Seen.Add(frame.Key!))
+                if (significant && !(frame.Seen ??= new(StringComparer.Ordinal)).Add(frame.Key!))
                     throw new InvalidDataException("Capture identity/control field is duplicated.");
                 frame.State = 1;
                 continue;
@@ -220,7 +237,7 @@ internal sealed class RecordReader : IDisposable
                 frame.State = frame.Object ? 4 : 5;
                 continue;
             }
-            if (!frame.Object && frame.State == 0 && reader.Peek() == ']')
+            if (!frame.Object && frame.State == 0 && Peek() == ']')
             {
                 Take();
                 Finish();
@@ -247,7 +264,7 @@ internal sealed class RecordReader : IDisposable
                 captureOverflow = false;
                 frame.Capture = key;
             }
-            var next = reader.Peek();
+            var next = Peek();
             if (next is '{' or '[')
             {
                 if (
@@ -415,9 +432,26 @@ internal sealed class RecordReader : IDisposable
         return document.RootElement.Clone();
     }
 
+    // Walks a local decoded buffer: StreamReader.Peek/Read per character dominated archive time.
+    private int Peek() => position < length || Fill() ? chars[position] : -1;
+
+    private bool Fill()
+    {
+        while (!ended)
+        {
+            var read = stream.Read(bytes, 0, 65536);
+            ended = read == 0;
+            length = decoder.GetChars(bytes, 0, read, chars, 0, ended);
+            position = 0;
+            if (length != 0)
+                return true;
+        }
+        return false;
+    }
+
     private int Take()
     {
-        var value = reader.Read();
+        var value = position < length || Fill() ? chars[position++] : -1;
         if (capture is not null && value != -1)
         {
             if (capture.Length < ControlLimit)
@@ -430,7 +464,7 @@ internal sealed class RecordReader : IDisposable
 
     private void Space(bool inside)
     {
-        while (reader.Peek() is ' ' or '\t' or '\r' || (inside && reader.Peek() == '\n'))
+        while (Peek() is ' ' or '\t' or '\r' || (inside && Peek() == '\n'))
             Take();
     }
 
@@ -443,12 +477,35 @@ internal sealed class RecordReader : IDisposable
     {
         if (Take() != '"')
             throw new InvalidDataException("Capture JSON string is invalid.");
-        var value = retain ? new StringBuilder() : null;
+        var value = retain && !key ? new StringBuilder() : null;
+        var keyLength = 0;
         while (true)
         {
+            if (capture is null && body is null && match is null)
+            {
+                // Plain runs are copied in bulk; escapes, controls and the quote take the checked path.
+                var available = chars.AsSpan(position, length - position);
+                var stop = available.IndexOfAny(StringStops);
+                var run = stop < 0 ? available : available[..stop];
+                if (key)
+                {
+                    var kept = Math.Min(run.Length, keyChars.Length - keyLength);
+                    run[..kept].CopyTo(keyChars.AsSpan(keyLength));
+                    keyLength += kept;
+                }
+                else if (value is not null)
+                {
+                    if (value.Length + run.Length > 8192)
+                        throw new InvalidDataException(
+                            "Capture identity exceeds its control bound."
+                        );
+                    value.Append(run);
+                }
+                position += run.Length;
+            }
             var character = Take();
             if (character == '"')
-                return value?.ToString();
+                return key ? KeyName(keyChars.AsSpan(0, keyLength)) : value?.ToString();
             if (character < 32)
                 throw new InvalidDataException(
                     "Capture JSON string is unfinished or contains a control byte."
@@ -487,14 +544,29 @@ internal sealed class RecordReader : IDisposable
         {
             body?.Add((char)character);
             match?.Add((char)character);
-            if (value is null)
+            if (key)
+            {
+                if (keyLength < keyChars.Length)
+                    keyChars[keyLength++] = (char)character;
                 return;
-            if (key && value.Length >= 128)
+            }
+            if (value is null)
                 return;
             if (value.Length >= 8192)
                 throw new InvalidDataException("Capture identity exceeds its control bound.");
             value.Append((char)character);
         }
+    }
+
+    // Field names repeat millions of times per stream; reuse one string per distinct name.
+    private string KeyName(ReadOnlySpan<char> name)
+    {
+        if (keyLookup.TryGetValue(name, out var known))
+            return known;
+        var text = name.ToString();
+        if (keyNames.Count < 4096)
+            keyNames.Add(text);
+        return text;
     }
 
     private int HexCharacter()
@@ -518,33 +590,33 @@ internal sealed class RecordReader : IDisposable
     private string? Number(bool retain)
     {
         var value = retain ? new StringBuilder() : null;
-        if (reader.Peek() == '-')
+        if (Peek() == '-')
             Digit();
-        if (reader.Peek() == '0')
+        if (Peek() == '0')
             Digit();
         else
         {
-            if (reader.Peek() is < '1' or > '9')
+            if (Peek() is < '1' or > '9')
                 throw new InvalidDataException("Capture JSON value is invalid.");
-            while (reader.Peek() is >= '0' and <= '9')
+            while (Peek() is >= '0' and <= '9')
                 Digit();
         }
-        if (reader.Peek() == '.')
+        if (Peek() == '.')
         {
             Digit();
-            if (reader.Peek() is < '0' or > '9')
+            if (Peek() is < '0' or > '9')
                 throw new InvalidDataException("Capture JSON fraction is invalid.");
-            while (reader.Peek() is >= '0' and <= '9')
+            while (Peek() is >= '0' and <= '9')
                 Digit();
         }
-        if (reader.Peek() is 'e' or 'E')
+        if (Peek() is 'e' or 'E')
         {
             Digit();
-            if (reader.Peek() is '+' or '-')
+            if (Peek() is '+' or '-')
                 Digit();
-            if (reader.Peek() is < '0' or > '9')
+            if (Peek() is < '0' or > '9')
                 throw new InvalidDataException("Capture JSON exponent is invalid.");
-            while (reader.Peek() is >= '0' and <= '9')
+            while (Peek() is >= '0' and <= '9')
                 Digit();
         }
         return value?.ToString();
@@ -559,7 +631,11 @@ internal sealed class RecordReader : IDisposable
         }
     }
 
-    public void Dispose() => reader.Dispose();
+    public void Dispose()
+    {
+        ArrayPool<byte>.Shared.Return(bytes);
+        ArrayPool<char>.Shared.Return(chars);
+    }
 
     private sealed class Frame(bool isObject, int level, RecordProjection projection)
     {
@@ -569,7 +645,7 @@ internal sealed class RecordReader : IDisposable
         internal int State;
         internal string? Key,
             Capture;
-        internal readonly HashSet<string> Seen = new(StringComparer.Ordinal);
+        internal HashSet<string>? Seen;
     }
 
     private sealed class MaterialMessageMatch

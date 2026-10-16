@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Security.Cryptography;
 
@@ -137,17 +138,36 @@ internal sealed class StreamFacts(Stream input, Stream? output = null) : Stream
         output?.Write(data);
         hash.AppendData(data);
         Bytes = checked(Bytes + data.Length);
-        foreach (var value in data)
+        Records = checked(Records + data.Count((byte)10));
+        crc = Crc(crc, data);
+    }
+
+    // Slicing-by-8: the byte-at-a-time table loop was most of the archive hashing time.
+    private static uint Crc(uint crc, ReadOnlySpan<byte> data)
+    {
+        var t = CrcTable;
+        for (; data.Length >= 8; data = data[8..])
         {
-            if (value == 10)
-                Records = checked(Records + 1);
-            crc = CrcTable[(crc ^ value) & 255] ^ (crc >> 8);
+            var low = BinaryPrimitives.ReadUInt32LittleEndian(data) ^ crc;
+            var high = BinaryPrimitives.ReadUInt32LittleEndian(data[4..]);
+            crc =
+                t[1792 + (low & 255)]
+                ^ t[1536 + ((low >> 8) & 255)]
+                ^ t[1280 + ((low >> 16) & 255)]
+                ^ t[1024 + (low >> 24)]
+                ^ t[768 + (high & 255)]
+                ^ t[512 + ((high >> 8) & 255)]
+                ^ t[256 + ((high >> 16) & 255)]
+                ^ t[high >> 24];
         }
+        foreach (var value in data)
+            crc = t[(crc ^ value) & 255] ^ (crc >> 8);
+        return crc;
     }
 
     private static uint[] MakeTable()
     {
-        var result = new uint[256];
+        var result = new uint[8 * 256];
         for (uint i = 0; i < 256; i++)
         {
             var value = i;
@@ -155,6 +175,8 @@ internal sealed class StreamFacts(Stream input, Stream? output = null) : Stream
                 value = (value >> 1) ^ ((value & 1) == 0 ? 0 : 0xEDB88320);
             result[i] = value;
         }
+        for (var i = 256; i < result.Length; i++)
+            result[i] = (result[i - 256] >> 8) ^ result[result[i - 256] & 255];
         return result;
     }
 
