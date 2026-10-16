@@ -1,3 +1,5 @@
+using System.Buffers;
+
 namespace AtelierCapture.Storage;
 
 internal sealed class CompressedMember : Stream
@@ -17,7 +19,7 @@ internal sealed class CompressedMember : Stream
             var index = checked((int)(length / BlockSize));
             var offset = (int)(length % BlockSize);
             if (index == blocks.Count)
-                blocks.Add(new byte[BlockSize]);
+                blocks.Add(ArrayPool<byte>.Shared.Rent(BlockSize));
             var count = Math.Min(data.Length, BlockSize - offset);
             data[..count].CopyTo(blocks[index].AsSpan(offset));
             length = checked(length + count);
@@ -75,6 +77,9 @@ internal sealed class CompressedMember : Stream
     {
         if (disposing)
         {
+            // Captured bytes are sensitive; never hand them back to the pool readable.
+            foreach (var block in blocks)
+                ArrayPool<byte>.Shared.Return(block, clearArray: true);
             blocks.Clear();
         }
         base.Dispose(disposing);

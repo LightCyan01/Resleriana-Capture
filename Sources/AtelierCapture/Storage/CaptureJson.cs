@@ -170,7 +170,7 @@ internal static class CaptureJson
 
     private sealed class StreamingBuffer(Stream output) : IBufferWriter<byte>, IDisposable
     {
-        private byte[] buffer = new byte[65536];
+        private byte[] buffer = ArrayPool<byte>.Shared.Rent(65536);
 
         public void Advance(int count)
         {
@@ -183,16 +183,19 @@ internal static class CaptureJson
         {
             if (sizeHint > buffer.Length)
             {
-                System.Security.Cryptography.CryptographicOperations.ZeroMemory(buffer);
-                buffer = new byte[sizeHint];
+                ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
+                buffer = ArrayPool<byte>.Shared.Rent(sizeHint);
             }
             return buffer;
         }
 
         public Span<byte> GetSpan(int sizeHint = 0) => GetMemory(sizeHint).Span;
 
-        public void Dispose() =>
-            System.Security.Cryptography.CryptographicOperations.ZeroMemory(buffer);
+        public void Dispose()
+        {
+            ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
+            buffer = [];
+        }
     }
 }
 
