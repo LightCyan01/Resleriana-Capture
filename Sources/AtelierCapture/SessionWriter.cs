@@ -537,6 +537,16 @@ internal sealed partial class SessionWriter : IDisposable
                 }
                 try
                 {
+                    CloseCheckpoints(source);
+                }
+                catch (Exception ex)
+                {
+                    Report(
+                        $"Capture checkpoint close failed ({ex.GetType().Name}); source files were retained."
+                    );
+                }
+                try
+                {
                     source.Lease?.Dispose();
                     source.Lease = null;
                 }
@@ -721,6 +731,7 @@ internal sealed partial class SessionWriter : IDisposable
                     {
                         foreach (var log in source.Logs)
                             log?.ReopenAfterFailure();
+                        CloseCheckpoints(source);
                         throw;
                     }
                 }
@@ -880,21 +891,34 @@ internal sealed partial class SessionWriter : IDisposable
 
     private void WriteCheckpoint(Source source, StorageCheckpointPayload checkpoint, byte[] bytes)
     {
-        var path = Path.Combine(source.Folder!, $"session-state.{checkpoint.Generation % 2}.json");
+        var slot = (int)(checkpoint.Generation % 2);
+        var path = Path.Combine(source.Folder!, $"session-state.{slot}.json");
         hooks?.Before?.Invoke(StorageAction.CheckpointWrite, path, checkpoint.Generation);
-        using var file = new FileStream(
+        // Kept open for the session: reopening per commit doubled the checkpoint cost.
+        var file = source.Checkpoints[slot] ??= new FileStream(
             path,
             FileMode.Open,
             FileAccess.ReadWrite,
             FileShare.Read,
             4096
         );
+        file.Position = 0;
         file.Write(bytes);
         file.SetLength(bytes.Length);
         hooks?.After?.Invoke(StorageAction.CheckpointWrite, path, checkpoint.Generation);
         hooks?.Before?.Invoke(StorageAction.CheckpointFlush, path, checkpoint.Generation);
         file.Flush(flushToDisk: true);
         hooks?.After?.Invoke(StorageAction.CheckpointFlush, path, checkpoint.Generation);
+    }
+
+    private static void CloseCheckpoints(Source source)
+    {
+        for (var i = 0; i < source.Checkpoints.Length; i++)
+        {
+            var file = source.Checkpoints[i];
+            source.Checkpoints[i] = null;
+            file?.Dispose();
+        }
     }
 
     private void FreezeBootstrap(Source target)
@@ -1308,6 +1332,7 @@ internal sealed partial class SessionWriter : IDisposable
     {
         internal readonly string Name = name;
         internal readonly DurableLog?[] Logs = new DurableLog?[4];
+        internal readonly FileStream?[] Checkpoints = new FileStream?[2];
         internal readonly DateTimeOffset Started = DateTimeOffset.UtcNow;
         internal string? Folder,
             OwnedFolderName,

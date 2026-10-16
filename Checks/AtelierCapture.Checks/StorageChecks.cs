@@ -2394,7 +2394,7 @@ internal static class StorageChecks
     {
         var checkpoints = Directory
             .GetFiles(folder, "session-state.*.json")
-            .Select(File.ReadAllBytes)
+            .Select(ReadShared)
             .Where(bytes => bytes.Length != 0)
             .Select(bytes => StorageCheckpoint.Decode(bytes))
             .ToArray();
@@ -2448,6 +2448,15 @@ internal static class StorageChecks
             );
         }
         return state;
+    }
+
+    // The live writer keeps checkpoint slots open, as it does its streams.
+    private static byte[] ReadShared(string path)
+    {
+        using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+        var bytes = new byte[checked((int)file.Length)];
+        file.ReadExactly(bytes);
+        return bytes;
     }
 
     private static string[] Lines(string folder, int stream)
