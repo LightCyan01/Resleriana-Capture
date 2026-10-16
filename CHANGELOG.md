@@ -4,17 +4,22 @@
 
 - Rewrite the recorder with improved API, Battle and Atelier capture.
 - Preserve original API bodies, headers and unknown fields, with clearer links between requests, responses and gameplay observations.
-- Reduce repeated snapshots, redundant writes and diagnostic duplication.
-- Stop waiting on disk for repeated warnings and save queued records together.
-- Compress capture archives on a dedicated worker without depending on game callback threads.
-- Add durable saving, stronger crash recovery and verified archive cleanup.
+- Replace repeated object graphs with focused gameplay snapshots and references, preserving observed inputs and results while excluding UI and rendering internals.
+- Preserve supported gameplay records without the previous body, collection and depth truncation limits; report unsupported reads and hooks as explicit gaps.
+- Reduce allocation, native type lookup and checkpoint overhead during recording.
+- Queue warnings and known Unity material errors without waiting on disk, and save queued records together. A crash can lose diagnostics that have not been saved; API and gameplay records still wait for durable saving.
+- Speed up archive parsing and hashing, and compress ZIP entries on a dedicated worker without depending on game callback threads.
+- Add durable saving, stronger crash recovery and verified archive cleanup; fix buffer growth and network-lock failure paths.
 - Add readable request and record counts for each capture, stream, system and route.
 - Aggregate repeated warnings and known Unity material null-reference patterns while retaining their details and occurrence counts.
 - Capture Unity messages and exception stacks from background threads as well as the main thread.
 - Describe gameplay and queued diagnostic durability separately in capture manifests.
+- Add capture status and explicit abort commands through `capture-control.ps1`.
 - Check client and runtime compatibility before enabling native capture.
 - Upgrade the embedded runtime to .NET 10.0.13 and adapt BepInEx/Il2CppInterop for the new runtime and native capture.
 - Fix asset-bundle preservation in the English localization companion.
+
+Captures remain one ZIP per run and environment, with the same five entries, compression model and timestamp filenames. Schema 5 records the new evidence and durability metadata; schema 4 recordings remain readable during recovery.
 
 ## 1.3.3
 
