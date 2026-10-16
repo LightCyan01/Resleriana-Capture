@@ -339,23 +339,6 @@ public sealed class Plugin : BasePlugin
         }
     }
 
-    internal static Type ResolveType(string name)
-    {
-        var matches = AppDomain
-            .CurrentDomain.GetAssemblies()
-            .Select(assembly => assembly.GetType(name, false))
-            .Where(type => type is not null)
-            .Cast<Type>()
-            .Distinct()
-            .ToArray();
-        return matches.Length switch
-        {
-            1 => matches[0],
-            0 => throw new TypeLoadException(name),
-            _ => throw new AmbiguousMatchException(name),
-        };
-    }
-
     private static void ClosingFailure(string stage, Exception error)
     {
         ObserverErrors[2].AddOrUpdate("closure_" + stage, 1, (_, count) => checked(count + 1));

@@ -45,12 +45,12 @@ internal sealed class NativeApiBindings
     {
         if (!Plugin.Compatibility.ApiVerified)
             throw new InvalidDataException("Native API compatibility is unverified.");
-        var http = Plugin.ResolveType("BestHTTP.HTTPRequest");
-        var response = Plugin.ResolveType("BestHTTP.HTTPResponse");
-        var transport = Plugin.ResolveType("PMLKMPHGENK");
-        var descriptor = Plugin.ResolveType("IAIMAAJBIOO");
-        var message = Plugin.ResolveType("Google.Protobuf.IMessage");
-        var crypto = Plugin.ResolveType("MJEDHIOLBGP");
+        var http = NativeContract.ResolveType("BestHTTP.HTTPRequest");
+        var response = NativeContract.ResolveType("BestHTTP.HTTPResponse");
+        var transport = NativeContract.ResolveType("PMLKMPHGENK");
+        var descriptor = NativeContract.ResolveType("IAIMAAJBIOO");
+        var message = NativeContract.ResolveType("Google.Protobuf.IMessage");
+        var crypto = NativeContract.ResolveType("MJEDHIOLBGP");
         Send = Method(http, "Send", http, false, 0x9A67A0);
         Dispose = Method(http, "Dispose", typeof(void), false, 0x9A6D50);
         State = Method(
@@ -59,7 +59,7 @@ internal sealed class NativeApiBindings
             typeof(void),
             false,
             0x9A13D0,
-            Plugin.ResolveType("BestHTTP.HTTPRequestStates")
+            NativeContract.ResolveType("BestHTTP.HTTPRequestStates")
         );
         EntityBody = Method(
             http,
@@ -73,7 +73,7 @@ internal sealed class NativeApiBindings
         requestMethod = Method(
             http,
             "get_MethodType",
-            Plugin.ResolveType("BestHTTP.HTTPMethods"),
+            NativeContract.ResolveType("BestHTTP.HTTPMethods"),
             false,
             0x9A09D0
         );
@@ -95,7 +95,7 @@ internal sealed class NativeApiBindings
         responseStatus = Method(response, "get_StatusCode", typeof(int), false, 0x931050);
         responseStreaming = Method(response, "get_IsStreamed", typeof(bool), false, 0x8A7820);
         responseRequest = Property(response, "baseRequest", http);
-        var uri = Plugin.ResolveType("Il2CppSystem.Uri");
+        var uri = NativeContract.ResolveType("Il2CppSystem.Uri");
         requestUri = Method(http, "get_Uri", uri, false, 0x8A56A0);
         originalUri = Method(uri, "get_OriginalString", typeof(string), false, 0x8A15EE0);
         SendHeaders = Method(
@@ -146,7 +146,7 @@ internal sealed class NativeApiBindings
             crypto
         );
         Merge = Method(
-            Plugin.ResolveType("Google.Protobuf.MessageExtensions"),
+            NativeContract.ResolveType("Google.Protobuf.MessageExtensions"),
             "MergeFrom",
             typeof(void),
             true,
@@ -154,10 +154,10 @@ internal sealed class NativeApiBindings
             message,
             typeof(Il2CppStructArray<byte>),
             typeof(bool),
-            Plugin.ResolveType("Google.Protobuf.ExtensionRegistry")
+            NativeContract.ResolveType("Google.Protobuf.ExtensionRegistry")
         );
         serialize = Method(
-            Plugin.ResolveType("Google.Protobuf.MessageExtensions"),
+            NativeContract.ResolveType("Google.Protobuf.MessageExtensions"),
             "ToByteArray",
             typeof(Il2CppStructArray<byte>),
             true,

@@ -145,7 +145,7 @@ internal static partial class Network
     {
         if (Parsers.TryGetValue(name, out var cached))
             return cached;
-        var type = Plugin.ResolveType(name);
+        var type = NativeContract.ResolveType(name);
         var parser =
             type.GetProperty("Parser", BindingFlags.Public | BindingFlags.Static)?.GetValue(null)
             ?? throw new MissingMemberException("Native protobuf parser is unavailable.");

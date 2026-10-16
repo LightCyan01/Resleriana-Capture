@@ -85,19 +85,20 @@ internal static class NativeProjection
         "SynthesisCombinationRankDisplay",
     };
 
-    private static readonly HashSet<string> UnitBacklinks = new(StringComparer.Ordinal)
-    {
-        "BattleUnitConditionControl.m_selfUnit",
-        "BattleUnitDamageControl.m_selfUnit",
-        "BattleUnitTimelineControl.m_selfUnit",
-        "BattleUnitMoveControl.m_selfUnit",
-        "IAKOGAEEOOC.NONLCDPNJKN",
-        "NHEIMMIAMJO._PKCPKAMAFCH_k__BackingField",
-        "NACHLMPIJDK._KMLNAEHMGPG_k__BackingField",
-    };
+    // Tuple keys: this runs for every native snapshot child, so no per-call key string.
+    private static readonly HashSet<(string Owner, string Field)> UnitBacklinks =
+    [
+        ("BattleUnitConditionControl", "m_selfUnit"),
+        ("BattleUnitDamageControl", "m_selfUnit"),
+        ("BattleUnitTimelineControl", "m_selfUnit"),
+        ("BattleUnitMoveControl", "m_selfUnit"),
+        ("IAKOGAEEOOC", "NONLCDPNJKN"),
+        ("NHEIMMIAMJO", "_PKCPKAMAFCH_k__BackingField"),
+        ("NACHLMPIJDK", "_KMLNAEHMGPG_k__BackingField"),
+    ];
 
     internal static bool ReferenceChild(string owner, string field, string childType) =>
-        UnitBacklinks.Contains(owner + "." + field)
+        UnitBacklinks.Contains((owner, field))
         || childType == "Il2CppSystem.Threading.CancellationTokenSource"
         || childType.StartsWith("Cysharp.Threading.Tasks.IUniTaskSource", StringComparison.Ordinal)
         || GlobalOwners.Contains(childType)

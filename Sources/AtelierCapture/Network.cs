@@ -25,7 +25,6 @@ internal static partial class Network
     private static NetworkContext? current;
 
     internal static NetworkContext? CurrentContext => current;
-    internal static bool? IsPrivate => current?.IsPrivate;
 
     internal static NetworkContext? ContextFor(object? value)
     {

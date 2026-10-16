@@ -1,19 +1,34 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace AtelierCapture;
 
 internal static class NativeContract
 {
+    // Concrete-class snapshot reads resolve per child; only unique hits are cached so failures retry.
+    private static readonly ConcurrentDictionary<string, Type> Resolved = new(
+        StringComparer.Ordinal
+    );
+
     internal static Type ResolveType(string name)
     {
+        if (Resolved.TryGetValue(name, out var cached))
+            return cached;
+        // Distinct folds type forwarders that surface one type through several assemblies.
         var matches = AppDomain
             .CurrentDomain.GetAssemblies()
             .Select(a => a.GetType(name.Replace('/', '+'), false))
-            .Where(t => t is not null)
+            .OfType<Type>()
+            .Distinct()
             .ToArray();
-        return matches.Length == 1
-            ? matches[0]!
-            : throw new TypeLoadException("Exact native type identity is unavailable: " + name);
+        return matches.Length switch
+        {
+            1 => Resolved[name] = matches[0],
+            0 => throw new TypeLoadException("Exact native type identity is unavailable: " + name),
+            _ => throw new AmbiguousMatchException(
+                "Exact native type identity is ambiguous: " + name
+            ),
+        };
     }
 
     internal static MethodInfo Bind(

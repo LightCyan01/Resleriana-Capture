@@ -208,12 +208,7 @@ internal sealed class CountOutput(Stream destination) : Stream
     {
         destination.Write(data);
         Bytes = checked(Bytes + data.Length);
-        int newline;
-        while ((newline = data.IndexOf((byte)'\n')) >= 0)
-        {
-            Records = checked(Records + 1);
-            data = data[(newline + 1)..];
-        }
+        Records = checked(Records + data.Count((byte)'\n'));
     }
 
     public override void Write(byte[] buffer, int offset, int count) =>

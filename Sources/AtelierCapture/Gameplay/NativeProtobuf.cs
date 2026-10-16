@@ -42,12 +42,10 @@ internal static class NativeProtobuf
             ["Google.Protobuf.IMessage"],
             true
         );
-        var argument = serialize.GetParameters()[0].ParameterType.IsInstanceOfType(message)
+        var parameter = serialize.GetParameters()[0].ParameterType;
+        var argument = parameter.IsInstanceOfType(message)
             ? message
-            : NativeObjectType.WrapPointer(
-                serialize.GetParameters()[0].ParameterType,
-                ((Il2CppObjectBase)message).Pointer
-            );
+            : NativeObjectType.WrapPointer(parameter, ((Il2CppObjectBase)message).Pointer);
         Il2CppStructArray<byte>? result = null;
         try
         {

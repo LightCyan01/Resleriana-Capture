@@ -28,7 +28,7 @@ internal sealed class UnityQuitSubscription : IDisposable
         Action callback
     )
     {
-        var application = Plugin.ResolveType("UnityEngine.Application");
+        var application = NativeContract.ResolveType("UnityEngine.Application");
         var parameters = new[] { typeof(Il2CppSystem.Action) };
         var add =
             application.GetMethod(
