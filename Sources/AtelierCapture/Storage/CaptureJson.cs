@@ -183,8 +183,10 @@ internal static class CaptureJson
         {
             if (sizeHint > buffer.Length)
             {
+                // Rent first: a failed rent must leave the owned buffer for Dispose's single return.
+                var larger = ArrayPool<byte>.Shared.Rent(sizeHint);
                 ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
-                buffer = ArrayPool<byte>.Shared.Rent(sizeHint);
+                buffer = larger;
             }
             return buffer;
         }
