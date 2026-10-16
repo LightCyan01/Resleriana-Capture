@@ -807,54 +807,6 @@ internal static class StorageChecks
         }
     }
 
-    internal static void RunRecoveryChecks()
-    {
-        var root = Path.GetFullPath(
-            Path.Combine("work", "checks", "storage-recovery", Guid.NewGuid().ToString("N"))
-        );
-        CrashVectors(root);
-        RestartRecovery(Path.Combine(root, "Acknowledge"));
-        ActiveLeaseRecovery(Path.Combine(root, "after_checkpoint_flush"));
-        AdmittedRecoveryShutdown(Path.Combine(root, "CheckpointWrite"));
-        InvalidRecovery(Path.Combine(root, "DataFlush"));
-        Console.WriteLine(
-            JsonSerializer.Serialize(
-                new
-                {
-                    storage_recovery_checks = "passed",
-                    root,
-                    scope = "synthetic force-kill restart, lease, pending failure, admission/shutdown/abort",
-                }
-            )
-        );
-    }
-
-    internal static void RunCleanupChecks()
-    {
-        var root = Path.GetFullPath(
-            Path.Combine("work", "checks", "storage-cleanup", Guid.NewGuid().ToString("N"))
-        );
-        SingleEncoding(Path.Combine(root, "single-encoding"));
-        WriterArchiveShutdown(Path.Combine(root, "both-environments"));
-        CleanupFailures(Path.Combine(root, "failure-controls"));
-        BoundedOldRecovery(Path.Combine(root, "bounded-old"));
-        CompactMeasurement(Path.Combine(root, "compact"));
-        Console.WriteLine(
-            JsonSerializer.Serialize(new { storage_cleanup_checks = "passed", root })
-        );
-    }
-
-    internal static void RunFilenameChecks()
-    {
-        var root = Path.GetFullPath(
-            Path.Combine("work", "checks", "storage-filenames", Guid.NewGuid().ToString("N"))
-        );
-        FilenameReservations(root);
-        Console.WriteLine(
-            JsonSerializer.Serialize(new { storage_filename_checks = "passed", root })
-        );
-    }
-
     private static void FilenameReservations(string root)
     {
         var timestamp = new DateTime(2026, 1, 2, 3, 4, 5);

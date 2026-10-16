@@ -61,12 +61,12 @@ internal sealed partial class SessionWriter
                     break;
                 }
             }
-            if (reason is null && sources[2].Initialized)
+            if (reason is null && sources[ProcessSource].Initialized)
             {
-                var process = sources[2];
+                var process = sources[ProcessSource];
                 var targetIndex =
-                    process.TransferEnvironment == "Official" ? 0
-                    : process.TransferEnvironment == "Private" ? 1
+                    process.TransferEnvironment == "Official" ? OfficialSource
+                    : process.TransferEnvironment == "Private" ? PrivateSource
                     : -1;
                 var owner = targetIndex < 0 ? null : packages[targetIndex]?.BootstrapOwnership;
                 if (
@@ -77,11 +77,13 @@ internal sealed partial class SessionWriter
                     || owner.Environment != "Unknown"
                     || owner.CheckpointHash
                         != Convert.ToHexString(SHA256.HashData(process.CheckpointBytes!))
-                    || owner.DiagnosticsHash != process.Logs[3]!.Sha256
-                    || owner.Records != process.Logs[3]!.Records
-                    || owner.TransferredRecords != process.Logs[3]!.Records
-                    || sources[targetIndex].BootstrapCopiedBytes != process.Logs[3]!.ExtractedBytes
-                    || sources[targetIndex].BootstrapCopiedRecords != process.Logs[3]!.Records
+                    || owner.DiagnosticsHash != process.Logs[DiagnosticsStream]!.Sha256
+                    || owner.Records != process.Logs[DiagnosticsStream]!.Records
+                    || owner.TransferredRecords != process.Logs[DiagnosticsStream]!.Records
+                    || sources[targetIndex].BootstrapCopiedBytes
+                        != process.Logs[DiagnosticsStream]!.ExtractedBytes
+                    || sources[targetIndex].BootstrapCopiedRecords
+                        != process.Logs[DiagnosticsStream]!.Records
                     || process.Logs.Take(3).Any(log => log!.Records != 0 || log.ExtractedBytes != 0)
                 )
                     reason = "process_prefix_not_fully_owned_by_verified_archive";

@@ -16,6 +16,13 @@ internal sealed partial class SessionWriter : IDisposable
 {
     internal const long QueueBudget = 64 * 1024 * 1024;
     internal const int QueueCapacity = 2048;
+    private const int OfficialSource = 0,
+        PrivateSource = 1,
+        ProcessSource = 2;
+    private const int ApiStream = 0,
+        CombatStream = 1,
+        RawStream = 2,
+        DiagnosticsStream = 3;
     private static readonly string[] StreamNames = ["api", "combat", "raw", "diagnostics"];
     private readonly BlockingCollection<Batch> queue = new(QueueCapacity);
     private readonly HashSet<Batch> retained = [];
@@ -145,15 +152,15 @@ internal sealed partial class SessionWriter : IDisposable
     )
     {
         using var automatic = observation.Value is null ? BeginObservation() : null;
-        var index = isPrivate ? 1 : 0;
+        var index = isPrivate ? PrivateSource : OfficialSource;
         if (Volatile.Read(ref firstEnvironment) < 0)
             Interlocked.CompareExchange(ref firstEnvironment, index, -1);
         Add(
             index,
-            combat ? 1
-                : kind == "raw_body" ? 2
-                : kind is "request" or "response" ? 0
-                : 3,
+            combat ? CombatStream
+                : kind == "raw_body" ? RawStream
+                : kind is "request" or "response" ? ApiStream
+                : DiagnosticsStream,
             kind,
             data,
             retainedBytes,
@@ -166,8 +173,8 @@ internal sealed partial class SessionWriter : IDisposable
         using var automatic = observation.Value is null ? BeginObservation() : null;
         var known = Volatile.Read(ref firstEnvironment);
         Add(
-            known < 0 ? 2 : known,
-            3,
+            known < 0 ? ProcessSource : known,
+            DiagnosticsStream,
             kind,
             new
             {
@@ -199,7 +206,9 @@ internal sealed partial class SessionWriter : IDisposable
             try
             {
                 source.InitialStatus =
-                    sourceIndex == 2 ? new { scope = "process" } : status(sourceIndex == 1);
+                    sourceIndex == ProcessSource
+                        ? new { scope = "process" }
+                        : status(sourceIndex == PrivateSource);
             }
             catch (Exception ex)
             {
@@ -270,12 +279,15 @@ internal sealed partial class SessionWriter : IDisposable
                 batch = new Batch(current.Entries.ToArray(), current.Bytes);
                 if (
                     current.Entries.Any(entry =>
-                        entry.Source != 2 && !sources[entry.Source].Initialized
-                    ) && sources[2].Initialized
+                        entry.Source != ProcessSource && !sources[entry.Source].Initialized
+                    ) && sources[ProcessSource].Initialized
                 )
                     batch = new Batch(
                         batch.Entries,
-                        checked(batch.Bytes + sources[2].Logs[3]!.ExtractedBytes * 4)
+                        checked(
+                            batch.Bytes
+                            + sources[ProcessSource].Logs[DiagnosticsStream]!.ExtractedBytes * 4
+                        )
                     );
                 lock (admission)
                 {
@@ -461,7 +473,7 @@ internal sealed partial class SessionWriter : IDisposable
                     [
                         new(
                             0,
-                            3,
+                            DiagnosticsStream,
                             new
                             {
                                 kind = "capture_status",
@@ -471,7 +483,7 @@ internal sealed partial class SessionWriter : IDisposable
                         ),
                         new(
                             0,
-                            3,
+                            DiagnosticsStream,
                             new
                             {
                                 kind = "session_end",
@@ -542,7 +554,7 @@ internal sealed partial class SessionWriter : IDisposable
                 {
                     try
                     {
-                        var index = source.Name == "Official" ? 0 : 1;
+                        var index = source.Name == "Official" ? OfficialSource : PrivateSource;
                         packages[index] = CaptureArchive.PackVerified(source.Folder!, false);
                         source.ArchivePending = packages[index] is null;
                         if (source.ArchivePending)
@@ -627,7 +639,7 @@ internal sealed partial class SessionWriter : IDisposable
                                 .Where(entry => entry.Stream == i)
                                 .Select(entry => entry.Data)
                                 .ToList();
-                            if (!source.Initialized && i == 3)
+                            if (!source.Initialized && i == DiagnosticsStream)
                             {
                                 streamEntries.Insert(
                                     0,
@@ -736,7 +748,7 @@ internal sealed partial class SessionWriter : IDisposable
             using (var gzip = new GZipStream(member, CompressionLevel.Fastest, leaveOpen: true))
             using (var output = new CountOutput(gzip))
             {
-                if (!source.Initialized && stream == 3)
+                if (!source.Initialized && stream == DiagnosticsStream)
                 {
                     foreach (var record in records.Take(2))
                         WriteStoredRecord(output, record);
@@ -887,15 +899,15 @@ internal sealed partial class SessionWriter : IDisposable
 
     private void FreezeBootstrap(Source target)
     {
-        var process = sources[2];
+        var process = sources[ProcessSource];
         if (!process.Initialized || process.Frozen)
             return;
         CommitRecords(
             process,
             [
                 new(
-                    2,
-                    3,
+                    ProcessSource,
+                    DiagnosticsStream,
                     new
                     {
                         kind = "session_end",
@@ -915,7 +927,7 @@ internal sealed partial class SessionWriter : IDisposable
 
     private void WriteBootstrapMarkers(Source target, CountOutput output)
     {
-        var process = sources[2];
+        var process = sources[ProcessSource];
         target.BootstrapCopiedBytes = 0;
         target.BootstrapCopiedRecords = 0;
         if (target.Name == "Unknown" || !process.Frozen)
@@ -928,8 +940,8 @@ internal sealed partial class SessionWriter : IDisposable
             checkpoint_sha256 = Convert.ToHexString(
                 System.Security.Cryptography.SHA256.HashData(process.CheckpointBytes!)
             ),
-            diagnostics_sha256 = process.Logs[3]!.Sha256,
-            records = process.Logs[3]!.Records,
+            diagnostics_sha256 = process.Logs[DiagnosticsStream]!.Sha256,
+            records = process.Logs[DiagnosticsStream]!.Records,
         };
         if (process.TransferEnvironment != target.Name)
         {
@@ -945,7 +957,7 @@ internal sealed partial class SessionWriter : IDisposable
             return;
         }
         using var file = new FileStream(
-            process.Logs[3]!.Path,
+            process.Logs[DiagnosticsStream]!.Path,
             FileMode.Open,
             FileAccess.Read,
             FileShare.ReadWrite,
@@ -999,8 +1011,8 @@ internal sealed partial class SessionWriter : IDisposable
         if (inRecord)
             throw new InvalidDataException("Bootstrap spool ends within a record.");
         if (
-            target.BootstrapCopiedBytes != process.Logs[3]!.ExtractedBytes
-            || target.BootstrapCopiedRecords != process.Logs[3]!.Records
+            target.BootstrapCopiedBytes != process.Logs[DiagnosticsStream]!.ExtractedBytes
+            || target.BootstrapCopiedRecords != process.Logs[DiagnosticsStream]!.Records
         )
             throw new InvalidDataException(
                 "Bootstrap copied prefix differs from its durable record/byte totals."
@@ -1209,7 +1221,7 @@ internal sealed partial class SessionWriter : IDisposable
             try
             {
                 for (var i = 0; i < 2; i++)
-                    sources[i].FinalStatus = status(i == 1);
+                    sources[i].FinalStatus = status(i == PrivateSource);
             }
             catch (Exception ex)
             {
