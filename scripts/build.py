@@ -413,6 +413,14 @@ def nuget_inventory(packages):
     return result
 
 
+def write_offline_config(config, feed):
+    configuration = ET.Element("configuration")
+    sources = ET.SubElement(configuration, "packageSources")
+    ET.SubElement(sources, "clear")
+    ET.SubElement(sources, "add", key="local", value=feed.as_posix())
+    ET.ElementTree(configuration).write(config, encoding="utf-8", xml_declaration=True)
+
+
 def build(dotnet, project, workdir, offline, update_locks, **properties):
     packages = workdir / "packages"
     config = ROOT / ".config/nuget.config"
@@ -422,7 +430,7 @@ def build(dotnet, project, workdir, offline, update_locks, **properties):
         feed.mkdir(exist_ok=True)
         for package in packages.glob("*/*/*.nupkg"):
             shutil.copyfile(package, feed / package.name)
-        config.write_text(f'<configuration><packageSources><clear/><add key="local" value="{feed.as_posix()}"/></packageSources></configuration>', encoding="utf-8")
+        write_offline_config(config, feed)
     props = [f"-p:{name}={value}" for name, value in properties.items()]
     props += ["-p:GeneratePackageOnBuild=false", "-p:ContinuousIntegrationBuild=true", f"-p:PathMap={ROOT}=/_/Resleriana-Capture"]
     environment = dict(os.environ, DOTNET_ROOT=str(dotnet.parent), DOTNET_CLI_HOME=str(workdir / "cli"),
@@ -449,6 +457,10 @@ def self_check():
             except ValueError:
                 if name == "safe.dll":
                     raise
+        feed = root / 'feed & "quoted" <dir>'
+        write_offline_config(root / "nuget.offline.config", feed)
+        if ET.parse(root / "nuget.offline.config").find("packageSources/add").get("value") != feed.as_posix():
+            raise AssertionError("Offline feed path was not escaped")
         archive = root / "localization.zip"
         with zipfile.ZipFile(archive, "w") as output:
             output.writestr("dotnet/coreclr.dll", b"old runtime must never overlay")

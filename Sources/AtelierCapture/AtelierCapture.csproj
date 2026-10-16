@@ -10,6 +10,8 @@
       >$(MSBuildThisFileDirectory)..\..\work\build\stage\BepInEx\core</RuntimeDirectory>
     <ReferenceDirectory Condition="'$(ReferenceDirectory)' == ''"
       >$(MSBuildThisFileDirectory)..\..\work\build\dependencies</ReferenceDirectory>
+    <!-- build.py moves obj elsewhere; keep IDE/check-build outputs out of the compile glob. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <PathMap Condition="'$(Configuration)' == 'Release'"
