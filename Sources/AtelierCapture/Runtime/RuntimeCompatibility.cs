@@ -57,6 +57,21 @@ internal sealed class RuntimeCompatibility
         }
     }
 
+    internal static void RequireUpdateGate(string gameRoot)
+    {
+        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(gameRoot));
+        if (
+            !string.Equals(
+                AppContext.GetData("AtelierCapture.UpdateReady") as string,
+                root,
+                StringComparison.OrdinalIgnoreCase
+            ) || File.Exists(Path.Combine(root, "BepInEx/capture-update/transaction.json"))
+        )
+            throw new InvalidOperationException(
+                "Capture update recovery did not finish. Capture has not started; see BepInEx/capture-update/status.json and LogOutput.log."
+            );
+    }
+
     internal static RuntimeCompatibility Inspect(string gameRoot, string certificatePath)
     {
         var result = new RuntimeCompatibility();

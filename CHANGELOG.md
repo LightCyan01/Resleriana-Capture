@@ -2,6 +2,9 @@
 
 ## 1.4.0
 
+- Add automatic capture updates from stable releases, installed after the game exits.
+- Recover interrupted plugin updates before recording starts, with verified rollback copies.
+- Keep BepInEx, runtime, localization and existing captures outside automatic update payloads.
 - Rewrite the recorder with improved API, Battle and Atelier capture.
 - Preserve original API bodies, headers and unknown fields, with clearer links between requests, responses and gameplay observations.
 - Reduce repeated snapshots, redundant writes and diagnostic duplication.

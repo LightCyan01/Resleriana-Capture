@@ -81,6 +81,14 @@ powershell -ExecutionPolicy Bypass -File .\capture-control.ps1 -ProcessId (Get-P
 
 Aborting marks the run incomplete and keeps the data already saved. It can't save data to a broken drive.
 
+## Automatic capture updates
+
+The updater checks for newer stable releases in the background, at most once per hour. Compatible updates download while you play and install after the game process exits. The current session keeps its original recorder version. A crash or forced close also releases the updater to install; if the updater is interrupted, the next launch finishes recovery before capture starts.
+
+Automatic updates replace only the capture plugin, its native companion and their compatibility certificate. A release that changes BepInEx, the updater or the embedded runtime requires the full installer. Existing captures and recording recovery folders are preserved. Downloads that fail validation leave the installed recorder in place.
+
+To disable automatic updates, set `Enabled = false` under `[Updates]` in `BepInEx/config/AtelierCapture.Updater.cfg`. Recovery of an already interrupted installation still runs. Local builds and releases with the same version number do not update automatically.
+
 ## How recording works
 
 The plugin hooks the game's HTTP send, response decoding and completion paths. It keeps each original API body before decoding, so fields the decoder doesn't know about are kept. Battle and Atelier hooks copy the state they need while it is valid and hand the records to a background writer. The plugin doesn't poll every frame.

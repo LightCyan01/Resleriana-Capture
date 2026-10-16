@@ -37,6 +37,7 @@ jobs:
             Copy-Item -Destination $captureCheckOutput -Force
           Get-ChildItem work/build/stage/BepInEx/plugins -Filter *.dll -File |
             Copy-Item -Destination $captureCheckOutput -Force
+          Copy-Item work/build/stage/dotnet/AtelierCapture.Update.dll -Destination $captureCheckOutput -Force
           & work/toolchain/dotnet10/dotnet.exe "$captureCheckOutput/AtelierCapture.Checks.dll"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           py scripts/build.py --self-check

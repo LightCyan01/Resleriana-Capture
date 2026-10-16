@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Version>1.0.0</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
+    <RuntimeDirectory Condition="'$(RuntimeDirectory)' == ''"
+      >$(MSBuildThisFileDirectory)..\..\work\build\stage\BepInEx\core</RuntimeDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference
+      Include="BepInEx.Core"
+      HintPath="$(RuntimeDirectory)\BepInEx.Core.dll"
+      Private="false"
+    />
+    <Reference
+      Include="BepInEx.Preloader.Core"
+      HintPath="$(RuntimeDirectory)\BepInEx.Preloader.Core.dll"
+      Private="false"
+    />
+  </ItemGroup>
+</Project>

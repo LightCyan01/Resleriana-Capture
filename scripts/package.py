@@ -10,6 +10,12 @@ import shutil
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
+UPDATE_TARGETS = ["BepInEx/plugins/AtelierCapture.dll", "BepInEx/plugins/AtelierCapture.Native.dll",
+                  "BepInEx/plugins/capture-runtime.json"]
+RECOVERY_CONTRACT = "capture5-checkpoint2"
+UPDATER_FILES = {"BepInEx/patchers/AtelierCapture.Updater.dll", "dotnet/AtelierCapture.Update.exe",
+                 "dotnet/AtelierCapture.Update.dll", "dotnet/AtelierCapture.Update.deps.json",
+                 "dotnet/AtelierCapture.Update.runtimeconfig.json", "dotnet/hostfxr.dll"}
 CONFIGURATION_VALUES = {
     "UnityBaseLibrariesSource": "2022.3.62.zip",
     "GlobalMetadataPath": "{GameDataPath}/il2cpp_data/Metadata/global-metadata.dat",
@@ -47,6 +53,8 @@ def install_file(name):
         return path.suffix in {".dll", ".exe", ".json", ".dat"} or path.name in {".version", "LICENSE.txt", "THIRD-PARTY-NOTICES.txt"}
     if path.parent.as_posix() == "BepInEx/core":
         return path.suffix in {".dll", ".config"}
+    if name == "BepInEx/patchers/AtelierCapture.Updater.dll":
+        return True
     if name == "BepInEx/plugins/Resources/LocalizationData.json":
         return True
     if name in MUTABLE_CONFIG_FILES or name in {"BepInEx/unity-libs/2022.3.62.zip", "BepInEx/plugins/capture-runtime.json"}:
@@ -63,7 +71,7 @@ def sha256(path):
 
 def validate_stage(stage):
     stage = stage.resolve()
-    required = {"winhttp.dll", "doorstop_config.ini", "capture-control.ps1", "dotnet/coreclr.dll", "dotnet/System.Private.CoreLib.dll",
+    required = UPDATER_FILES | {"winhttp.dll", "doorstop_config.ini", "capture-control.ps1", "dotnet/coreclr.dll", "dotnet/System.Private.CoreLib.dll",
                 "dotnet/System.Text.Json.dll", "dotnet/System.IO.Compression.dll",
                 "BepInEx/core/BepInEx.Core.dll", "BepInEx/core/BepInEx.Unity.IL2CPP.dll",
                 "BepInEx/core/Il2CppInterop.Runtime.dll", "BepInEx/core/Il2CppInterop.Common.dll",
@@ -86,6 +94,9 @@ def validate_stage(stage):
     certificate = json.loads((stage / "BepInEx/plugins/capture-runtime.json").read_text())
     if certificate.get("schema") != 1 or certificate.get("runtime_major") != 10 or certificate.get("runtime_version") != "10.0.13":
         raise ValueError("Install runtime certificate must identify embedded .NET 10.0.13")
+    parse_version(certificate["capture_version"])
+    if certificate.get("recovery_contract") != RECOVERY_CONTRACT:
+        raise ValueError("Capture update recovery contract missing or unsupported")
     client = certificate.get("supported_client", {})
     for key in ("executable_sha256", "gameassembly_sha256", "metadata_sha256"):
         if not re.fullmatch(r"[a-f0-9]{64}", client.get(key, "")):
@@ -119,6 +130,21 @@ def validate_stage(stage):
     return sorted(files)
 
 
+def package_update(stage, output, version):
+    certificate = json.loads((stage / UPDATE_TARGETS[-1]).read_text())
+    if certificate["capture_version"] != version:
+        raise ValueError("Capture update version differs from runtime certificate")
+    manifest = {"schema": 1, "version": version, "recovery_contract": RECOVERY_CONTRACT,
+                "files": [{"path": name, "size": (stage / name).stat().st_size,
+                           "sha256": sha256(stage / name)} for name in UPDATE_TARGETS]}
+    path = output / f"Resleriana-Capture-v{version}-update-win-x64.zip"
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        archive.writestr("update.json", json.dumps(manifest, indent=2) + "\n")
+        for name in UPDATE_TARGETS:
+            archive.write(stage / name, name)
+    return path
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--version-only", action="store_true")
@@ -137,11 +163,13 @@ def main():
         with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
             for name in files:
                 archive.write(args.stage / name, name)
+        update_path = package_update(args.stage, args.output, version)
         plugin_path = args.stage / "BepInEx/plugins/AtelierCapture.dll"
         provenance = json.loads((args.stage.parent / "dependencies.json").read_text())
         manifest = {"schema": 2, "version": version, "source_commit": provenance["source_commit"],
                     "source_digest": provenance["source_digest"], "sdk": provenance["sdk"], "runtime": provenance["runtime"],
                     "archive": {"name": archive_path.name, "sha256": sha256(archive_path)},
+                    "update": {"name": update_path.name, "sha256": sha256(update_path)},
                     "plugin": {"name": "AtelierCapture.dll", "sha256": sha256(plugin_path)},
                     "dependencies": provenance["dependencies"], "packages": provenance["packages"],
                     "source_files": provenance["source_files"], "vendor_sources": provenance["vendor_sources"], "native_observer": provenance["native_observer"],
@@ -154,7 +182,7 @@ def main():
         notes = section[1].strip() if section and section[1].strip() else "Local candidate; native/gameplay and hardware qualification status must be read from the delivery evidence.\n"
         (args.output / "release-notes.md").write_text(notes + "\n", encoding="utf-8")
         (args.output / "SHA256SUMS.txt").write_text(
-            "".join(f"{sha256(path)}  {path.name}\n" for path in (archive_path, manifest_path)), encoding="utf-8")
+            "".join(f"{sha256(path)}  {path.name}\n" for path in (archive_path, update_path, manifest_path)), encoding="utf-8")
         shutil.copyfile(plugin_path, args.output / "AtelierCapture.dll")
         outputs["asset"] = archive_path.name
         print(f"v{version}: {len(files)} install files, {archive_path.stat().st_size:,} bytes")

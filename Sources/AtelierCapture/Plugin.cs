@@ -38,6 +38,7 @@ public sealed class Plugin : BasePlugin
 
     public override void Load()
     {
+        RuntimeCompatibility.RequireUpdateGate(Paths.GameRootPath);
         Log = base.Log;
         operational = new OperationalStatus(message => Log.LogWarning(message));
         var pluginPath = typeof(Plugin).Assembly.Location;

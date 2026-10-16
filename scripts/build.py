@@ -16,7 +16,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
 
-from package import CONFIGURATION_CONTRACT, CONFIGURATION_VALUES, LOCALIZATION_CONFIG, MUTABLE_CONFIG_FILES, ROOT, install_file, parse_version, sha256, validate_stage
+from package import CONFIGURATION_CONTRACT, CONFIGURATION_VALUES, LOCALIZATION_CONFIG, MUTABLE_CONFIG_FILES, RECOVERY_CONTRACT, UPDATER_FILES, ROOT, install_file, parse_version, sha256, validate_stage
 
 BEPINEX_COMMIT = "5b766a3b7f6c164d4798924a93f3acf4db769d06"
 INTEROP_COMMIT = "dbda1cb353b0f4253345dc45136d170b9e50a5a0"
@@ -166,7 +166,8 @@ def extract(archive_path, stage, prefix="", install_only=False, plugins_only=Fal
 def source_inventory(runtime_only=False):
     folders = [ROOT / "Sources/BepInEx", ROOT / "Sources/Il2CppInterop", ROOT / "Sources/AtelierCapture.Native", ROOT / "Licenses", ROOT / ".config"]
     if not runtime_only:
-        folders.extend([ROOT / "Sources/AtelierCapture", ROOT / "Checks/AtelierCapture.Checks"])
+        folders.extend([ROOT / "Sources/AtelierCapture", ROOT / "Sources/AtelierCapture.Update",
+                        ROOT / "Sources/AtelierCapture.Updater", ROOT / "Checks/AtelierCapture.Checks"])
     files = {ROOT / "VERSION", ROOT / "global.json", ROOT / "README.md", ROOT / "CHANGELOG.md",
              ROOT / "scripts/build.py", ROOT / "scripts/package.py"}
     files.add(ROOT / ".github/workflows/release.yml")
@@ -181,6 +182,14 @@ def source_inventory(runtime_only=False):
 
 def digest_inventory(files):
     return hashlib.sha256(json.dumps(files, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def base_revision(sources):
+    # Capture releases must not change loader/helper bytes just because the release commit changed.
+    prefixes = ("Sources/BepInEx/", "Sources/Il2CppInterop/", "Sources/AtelierCapture.Update/", "Sources/AtelierCapture.Updater/")
+    owned = [entry for entry in sources if entry["path"].startswith(prefixes)]
+    return digest_inventory({"sources": owned, "sdk": SDK_VERSION, "runtime": RUNTIME_VERSION,
+                             "dependencies": DEPENDENCIES, "bepinex": BEPINEX_COMMIT, "interop": INTEROP_COMMIT})
 
 
 def native_catalog():
@@ -481,7 +490,7 @@ def self_check():
         except ValueError:
             pass
         stage = root / "complete-stage"
-        names = {"winhttp.dll", "doorstop_config.ini", "capture-control.ps1", "dotnet/coreclr.dll",
+        names = UPDATER_FILES | {"winhttp.dll", "doorstop_config.ini", "capture-control.ps1", "dotnet/coreclr.dll",
                  "dotnet/System.Private.CoreLib.dll", "dotnet/System.Text.Json.dll", "dotnet/System.IO.Compression.dll",
                  "BepInEx/core/BepInEx.Core.dll", "BepInEx/core/BepInEx.Unity.IL2CPP.dll", "BepInEx/core/0Harmony.dll",
                  "BepInEx/core/Il2CppInterop.Runtime.dll", "BepInEx/core/Il2CppInterop.Common.dll",
@@ -499,6 +508,7 @@ def self_check():
         records = [{"path": name, "sha256": sha256(stage / name), "size": (stage / name).stat().st_size}
                    for name in sorted(names) if name not in MUTABLE_CONFIG_FILES]
         certificate = {"schema": 1, "runtime_major": 10, "runtime_version": RUNTIME_VERSION,
+                       "capture_version": "1.4.0", "recovery_contract": RECOVERY_CONTRACT,
                        "runtime_files": records, "supported_client": SUPPORTED_CLIENT, "configuration_contract": CONFIGURATION_CONTRACT}
         certificate_path = stage / "BepInEx/plugins/capture-runtime.json"
         certificate_path.write_text(json.dumps(certificate))
@@ -602,13 +612,14 @@ def main():
     (config_directory / "BepInEx.cfg").write_text(IL2CPP_CONFIGURATION + "\n[Logging.Disk]\nEnabled = true\nWriteUnityLog = true\nLogLevels = Fatal, Error, Warning, Message, Info\n", encoding="utf-8")
     shutil.copyfile(ROOT / ".config/AtelierResleriana.Plugin.Localization.cfg", stage / LOCALIZATION_CONFIG)
     compiled = workdir / "compiled"
+    runtime_revision = base_revision(sources)
     runtime = stage / "BepInEx/core"
     bepinex = ROOT / "Sources/BepInEx"
     interop = ROOT / "Sources/Il2CppInterop"
     build(dotnet, bepinex / "Runtimes/Unity/BepInEx.Unity.IL2CPP/BepInEx.Unity.IL2CPP.csproj", workdir,
           args.offline, args.update_locks, SolutionDir=str(bepinex) + "/", BuildDir=str(compiled / "BepInEx"),
           BuildArtifactsDirectory=str(compiled / "BepInEx") + "/", UnityReferenceDirectory=dependencies,
-          Version="6.0.0-be.788-capture.2", SourceRevisionId=args.source_commit)
+          Version="6.0.0-be.788-capture.2", SourceRevisionId=runtime_revision)
     for path in (compiled / "BepInEx/Unity.IL2CPP").glob("*.dll"):
         shutil.copyfile(path, runtime / path.name)
     for path in (compiled / "BepInEx/Unity.IL2CPP/runtimes/win-x64/native").glob("*.dll"):
@@ -616,7 +627,7 @@ def main():
     build(dotnet, interop / "Il2CppInterop.HarmonySupport/Il2CppInterop.HarmonySupport.csproj", workdir,
           args.offline, args.update_locks, BuildArtifactsDirectory=str(compiled / "Il2CppInterop") + "/",
           Il2CppReferenceDirectory=dependencies, CopyLocalLockFileAssemblies="true",
-          Version="1.5.3-capture.3", SourceRevisionId=args.source_commit)
+          Version="1.5.3-capture.3", SourceRevisionId=runtime_revision)
     for component in ("Runtime", "Common", "HarmonySupport"):
         framework = "netstandard2.0" if component == "Common" else "net6.0"
         directory = compiled / f"Il2CppInterop/bin/Il2CppInterop.{component}/{framework}"
@@ -626,6 +637,18 @@ def main():
     shutil.copyfile(terrafx, runtime / terrafx.name)
     native_provenance = None
     if not args.runtime_only:
+        for name in ("AtelierCapture.Update", "AtelierCapture.Updater"):
+            build(dotnet, ROOT / f"Sources/{name}/{name}.csproj", workdir, args.offline, args.update_locks,
+                  RuntimeDirectory=runtime, Version="1.0.0", SourceRevisionId=runtime_revision,
+                  BaseIntermediateOutputPath=str(workdir / f"obj/{name}") + "/",
+                  OutputPath=str(compiled / name) + "/", AppendTargetFrameworkToOutputPath="false",
+                  AppendRuntimeIdentifierToOutputPath="false")
+        for name in ("AtelierCapture.Update.exe", "AtelierCapture.Update.dll", "AtelierCapture.Update.deps.json", "AtelierCapture.Update.runtimeconfig.json"):
+            shutil.copyfile(compiled / "AtelierCapture.Update" / name, stage / "dotnet" / name)
+        with zipfile.ZipFile(dependencies / "dotnet-runtime-10.0.13.zip") as archive:
+            (stage / "dotnet/hostfxr.dll").write_bytes(archive.read(f"host/fxr/{RUNTIME_VERSION}/hostfxr.dll"))
+        (stage / "BepInEx/patchers").mkdir(exist_ok=True)
+        shutil.copyfile(compiled / "AtelierCapture.Updater/AtelierCapture.Updater.dll", stage / "BepInEx/patchers/AtelierCapture.Updater.dll")
         native_output, native_provenance = build_native(workdir)
         shutil.copyfile(native_output, stage / "BepInEx/plugins/AtelierCapture.Native.dll")
         capture_output = compiled / "AtelierCapture"
@@ -663,6 +686,7 @@ def main():
                      and path.relative_to(stage).parts[0] != "Licenses" and path.name != "README.md"
                      and path.relative_to(stage).as_posix() not in MUTABLE_CONFIG_FILES]
     certificate = {"schema": 1, "runtime_major": 10, "runtime_version": RUNTIME_VERSION,
+                   "capture_version": version, "recovery_contract": RECOVERY_CONTRACT,
                    "runtime_files": runtime_files, "supported_client": SUPPORTED_CLIENT, "source_digest": source_digest,
                    "configuration_contract": CONFIGURATION_CONTRACT}
     (stage / "BepInEx/plugins/capture-runtime.json").write_text(json.dumps(certificate, indent=2) + "\n", encoding="utf-8")

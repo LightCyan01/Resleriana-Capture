@@ -16,10 +16,31 @@ internal static class Program
         "BuildChecks",
         "DiagnosticChecks",
         "JsonCaptureChecks",
+        "UpdateChecks",
     ];
 
     private static int Main(string[] args)
     {
+        if (args.Length == 3 && args[0] == "--update-package-check")
+        {
+            UpdateChecks.RunPackage(args[1], args[2]);
+            return 0;
+        }
+        if (args.Length == 3 && args[0] == "--update-crash-child")
+        {
+            UpdateChecks.RunCrashChild(args[1], args[2]);
+            return 0;
+        }
+        if (args.Length == 3 && args[0] == "--update-lock-child")
+        {
+            UpdateChecks.RunLockChild(args[1]);
+            return 0;
+        }
+        if (args.Length == 3 && args[0] == "--update-game-child")
+        {
+            UpdateChecks.RunGameChild(args[1], args[2]);
+            return 0;
+        }
         if (args.Length == 3 && args[0] == "--storage-crash-child")
         {
             StorageChecks.RunCrashChild(args[1], args[2]);
@@ -47,7 +68,7 @@ internal static class Program
         var results = new List<object>();
         foreach (var name in selected)
         {
-            if (!Groups.Contains(name, StringComparer.Ordinal))
+            if (!Groups.Contains(name, StringComparer.Ordinal) && name != "UpdateHostChecks")
             {
                 Console.Error.WriteLine($"Unknown check group: {name}");
                 return 2;
