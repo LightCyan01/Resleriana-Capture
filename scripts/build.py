@@ -16,7 +16,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
 
-from package import CONFIGURATION_CONTRACT, CONFIGURATION_VALUES, LOCALIZATION_CONFIG, MUTABLE_CONFIG_FILES, ROOT, install_file, parse_version, sha256, validate_stage
+from package import CONFIGURATION_CONTRACT, CONFIGURATION_VALUES, LOCALIZATION_CONFIG, MUTABLE_CONFIG_FILES, PRIVACY_CONFIG, ROOT, install_file, parse_version, sha256, validate_stage
 
 BEPINEX_COMMIT = "5b766a3b7f6c164d4798924a93f3acf4db769d06"
 INTEROP_COMMIT = "dbda1cb353b0f4253345dc45136d170b9e50a5a0"
@@ -488,7 +488,7 @@ def self_check():
                  "BepInEx/core/Il2CppInterop.HarmonySupport.dll", "BepInEx/plugins/AtelierCapture.dll", "BepInEx/plugins/AtelierCapture.Native.dll",
                  "BepInEx/core/TerraFX.Interop.Windows.dll",
                  "BepInEx/plugins/Resources/LocalizationData.json", "BepInEx/config/BepInEx.cfg",
-                 "BepInEx/unity-libs/2022.3.62.zip", LOCALIZATION_CONFIG}
+                 "BepInEx/unity-libs/2022.3.62.zip", LOCALIZATION_CONFIG, PRIVACY_CONFIG}
         for name in names:
             path = stage / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -496,6 +496,7 @@ def self_check():
         (stage / "doorstop_config.ini").write_text("coreclr_path = dotnet\\coreclr.dll\ncorlib_dir = dotnet\n")
         (stage / "BepInEx/config/BepInEx.cfg").write_text(IL2CPP_CONFIGURATION)
         (stage / LOCALIZATION_CONFIG).write_text("[Data]\nAutoUpdate = false\n")
+        (stage / PRIVACY_CONFIG).write_text('{"enabled":false}\n')
         records = [{"path": name, "sha256": sha256(stage / name), "size": (stage / name).stat().st_size}
                    for name in sorted(names) if name not in MUTABLE_CONFIG_FILES]
         certificate = {"schema": 1, "runtime_major": 10, "runtime_version": RUNTIME_VERSION,
@@ -601,6 +602,7 @@ def main():
     config_directory.mkdir(exist_ok=True)
     (config_directory / "BepInEx.cfg").write_text(IL2CPP_CONFIGURATION + "\n[Logging.Disk]\nEnabled = true\nWriteUnityLog = true\nLogLevels = Fatal, Error, Warning, Message, Info\n", encoding="utf-8")
     shutil.copyfile(ROOT / ".config/AtelierResleriana.Plugin.Localization.cfg", stage / LOCALIZATION_CONFIG)
+    shutil.copyfile(ROOT / ".config/AtelierCapture.Privacy.json", stage / PRIVACY_CONFIG)
     compiled = workdir / "compiled"
     runtime = stage / "BepInEx/core"
     bepinex = ROOT / "Sources/BepInEx"

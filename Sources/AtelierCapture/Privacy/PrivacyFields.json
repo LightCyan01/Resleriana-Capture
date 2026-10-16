@@ -1,0 +1,2417 @@
+{
+  "schema": 1,
+  "descriptor": "atelier-resleriana-2.16.0.protoset",
+  "descriptor_sha256": "96264797a38e2643be227ebe68e625fcf5e01dd4ff5ef01d2e08a1771a4ddbff",
+  "policy": "known_numeric_gameplay_no_arbitrary_strings_bytes_or_profile",
+  "excluded_messages": [
+    "blend.api.AdvertisingIdUpdateRequest",
+    "blend.api.AuthSignInRequest",
+    "blend.api.AuthSignInResponse",
+    "blend.api.AuthSignUpAppleRequest",
+    "blend.api.AuthSignUpAppleResponse",
+    "blend.api.AuthSignUpGoogleRequest",
+    "blend.api.AuthSignUpGoogleResponse",
+    "blend.api.AuthSignUpPasscodeRequest",
+    "blend.api.AuthSignUpPasscodeResponse",
+    "blend.api.AuthSignUpRequest",
+    "blend.api.AuthSignUpResponse",
+    "blend.api.DebugKtidLinkRequest",
+    "blend.api.KtidWebTokenResponse",
+    "blend.api.ProfileUpdateCharaHomeFavoriteCharacterListRequest",
+    "blend.api.ProfileUpdateFavoriteBattleToolsRequest",
+    "blend.api.ProfileUpdateFavoriteCharacterRequest",
+    "blend.api.ProfileUpdateFavoritePartyRequest",
+    "blend.api.ProfileUpdateMemoRequest",
+    "blend.api.ProfileUpdateNameRequest",
+    "blend.api.ProfileUpdateSelectedHomeIdRequest",
+    "blend.api.PurchaseSessionPublishRequest",
+    "blend.api.PurchaseSessionStartRequest",
+    "blend.api.PurchaseSessionStartResponse",
+    "blend.api.PurchaseVerifyRequest",
+    "blend.api.RefundInfoGetCountryCodeResponse",
+    "blend.api.RefundInfoGetRequest",
+    "blend.api.RefundInfoGetResponse",
+    "blend.api.UserLinkAppleRequest",
+    "blend.api.UserLinkGoogleRequest",
+    "blend.api.UserLinksListResponse",
+    "blend.api.UserUpdateBirthdateRequest",
+    "blend.api.UserUpdateLanguageRequest",
+    "blend.api.WebSessionTokenResponse",
+    "blend.model.DamageContestTopRank",
+    "blend.model.InvitationCode",
+    "blend.model.LegendChallengeTopRank",
+    "blend.model.Profile",
+    "blend.model.UserName"
+  ],
+  "excluded_fields": [
+    "blend.api.EquipmentPresetUpdateNameRequest.name",
+    "blend.api.EventDamageContestResponse.top_ranks",
+    "blend.api.EventLegendChallengeResponse.top_ranks",
+    "blend.api.EventTopResponse.invitation_codes",
+    "blend.api.InvitationCreateResponse.invitation_code",
+    "blend.api.InvitationReceiveRequest.invitation_code",
+    "blend.api.UserLogInResponse.auto_download_asset_size_limit_mb",
+    "blend.api.UserLogInResponse.created_at",
+    "blend.api.UserLogInResponse.ktstore",
+    "blend.model.BattleContext.start_txid",
+    "blend.model.BulkMail.body",
+    "blend.model.BulkMail.subject",
+    "blend.model.EquipmentPreset.name",
+    "blend.model.EventTitle.bgm_path_hash",
+    "blend.model.EventTitle.ui_asset_path_hash",
+    "blend.model.GachaMixedWishListRateBySelection.percent_rate_per_card",
+    "blend.model.GachaMixedWishListRateSet.non_selected_card_rate",
+    "blend.model.GachaMixedWishListRateSet.selected_card_rate",
+    "blend.model.GachaRate.percent_rate_per_card",
+    "blend.model.GachaRateSummary.percent_rate",
+    "blend.model.KeyTask.name",
+    "blend.model.MailParams.body",
+    "blend.model.MailParams.datetime1",
+    "blend.model.MailParams.datetime2",
+    "blend.model.MailParams.serial_code",
+    "blend.model.MailParams.subject",
+    "blend.model.MailParams.value",
+    "blend.model.PurchaseStep.description",
+    "blend.model.PurchaseStep.name",
+    "blend.model.Resources.profile",
+    "blend.model.ShopGemList.admob_unit_id",
+    "blend.model.Status.birth_month",
+    "blend.model.Status.birth_year",
+    "blend.model.Status.is_invited",
+    "blend.model.StoreProduct.currency",
+    "blend.model.StoreProduct.product_id",
+    "blend.model.StoreProductPrice.android_product_id",
+    "blend.model.StoreProductPrice.ios_product_id",
+    "blend.model.StoreProductPrice.steam_product_id",
+    "blend.model.Title.bgm_path_hash",
+    "blend.model.Title.timeline_asset_path_hash"
+  ],
+  "messages": {
+    "blend.api.AtelierResearchRequest": {
+      "group_id": "int32",
+      "count": "int32"
+    },
+    "blend.api.AutoConversionEntry": {
+      "valuable_item_id": "int32",
+      "converted_quantity": "int32"
+    },
+    "blend.api.BattleAttackRequest": {
+      "mode": "enum:blend.enum.battle_attack_mode.BattleAttackMode",
+      "skill_command": "blend.model.BattleSkillCommand",
+      "active_skill_command": "blend.model.BattleActiveSkillCommand",
+      "battle_tool_command": "blend.model.BattleBattleToolCommand",
+      "battle_tool_mix_command": "blend.model.BattleBattleToolMixCommand",
+      "ship_tool_command": "blend.model.BattleShipToolCommand",
+      "start_auto_command": "blend.model.BattleStartAutoCommand",
+      "stop_auto_command": "blend.model.BattleStopAutoCommand",
+      "formation": "blend.model.BattleFormation"
+    },
+    "blend.api.BattleAttackResponse": {
+      "history": "blend.model.BattleHistory"
+    },
+    "blend.api.BattleFinishResponse": {
+      "quest_result": "blend.model.QuestResult",
+      "exploration_result": "blend.model.ExplorationResult",
+      "gacha_battle_result": "blend.model.GachaBattleResult",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.BattleResumeResponse": {
+      "history": "blend.model.BattleHistory",
+      "context": "blend.model.BattleContext",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.BattleStartResponse": {
+      "history": "blend.model.BattleHistory",
+      "context": "blend.model.BattleContext",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.ChangedResourcesResponse": {
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.CharaHomeRegisterRequest": {
+      "slot_id": "int32",
+      "character_id": "int32",
+      "motion_id": "int32",
+      "camera_id": "int32",
+      "bgm_id": "int32",
+      "background_id": "int32"
+    },
+    "blend.api.CharacterBulkSetRequest": {
+      "character_id": "int32",
+      "slot1_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot2_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot3_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "memoria_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.CharacterEnhanceRequest": {
+      "character_id": "int32",
+      "consumed_items": "[]blend.model.ConsumedItem"
+    },
+    "blend.api.CharacterEnhancementResetRequest": {
+      "character_id": "int32",
+      "only_reset_level": "bool"
+    },
+    "blend.api.CharacterEnhancementResetResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.CharacterEquipRequest": {
+      "character_id": "int32",
+      "slot_type": "int32",
+      "equipment_tool_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.CharacterGrowboardBulkReleaseRequest": {
+      "character_id": "int32",
+      "target_page": "int32",
+      "panel_bits": "int32",
+      "is_ex": "bool",
+      "board_type": "google.protobuf.Int32Value"
+    },
+    "blend.api.CharacterGrowboardPageReleaseRequest": {
+      "character_id": "int32",
+      "is_ex": "bool",
+      "board_type": "google.protobuf.Int32Value"
+    },
+    "blend.api.CharacterLevelLimitReleaseRequest": {
+      "character_id": "int32"
+    },
+    "blend.api.CharacterMemoriaSetRequest": {
+      "character_id": "int32",
+      "memoria_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.CharacterRarityEnhanceRequest": {
+      "character_id": "int32",
+      "rarity_count": "int32"
+    },
+    "blend.api.CharacterSkillEvolveRequest": {
+      "character_id": "int32",
+      "skill_type": "int32"
+    },
+    "blend.api.CharacterSkillLockReleaseRequest": {
+      "character_id": "int32",
+      "skill_type": "int32"
+    },
+    "blend.api.CharacterSkinSetRequest": {
+      "character_id": "int32",
+      "character_skin_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.CharacterStoryClearRequest": {
+      "character_story_id": "int32",
+      "condition": "google.protobuf.Int32Value"
+    },
+    "blend.api.CharacterStoryClearResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.CommunicationStoryClearRequest": {
+      "character_id": "int32",
+      "story_number": "int32"
+    },
+    "blend.api.CommunicationStoryClearResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.CommunicationStoryReleaseRequest": {
+      "character_id": "int32",
+      "story_number": "int32"
+    },
+    "blend.api.DailyPassBulkReceiveRequest": {
+      "daily_pass_id": "int32"
+    },
+    "blend.api.DailyPassBulkReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.DailyPassReceiveRequest": {
+      "daily_pass_id": "int32",
+      "target_day": "int32"
+    },
+    "blend.api.DailyPassReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.DebugCharacterEnhanceRequest": {
+      "character_ids": "[]int32",
+      "level": "google.protobuf.Int32Value",
+      "rarity": "google.protobuf.Int32Value",
+      "growboard_current_page": "google.protobuf.Int32Value",
+      "growboard_ex_current_page": "google.protobuf.Int32Value",
+      "growboard_neo_current_page": "google.protobuf.Int32Value",
+      "ignore_limits": "bool"
+    },
+    "blend.api.DebugExplorationFinishRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.DebugLoginBonusListResponse": {
+      "login_bonuses": "[]blend.model.LoginBonus"
+    },
+    "blend.api.DebugMailSendRequest": {
+      "count": "int32"
+    },
+    "blend.api.DebugShopPurchaseRequest": {
+      "shop_product_id": "int32"
+    },
+    "blend.api.DebugShopStoreProductListResponse": {
+      "store_product_prices": "[]blend.model.StoreProductPrice"
+    },
+    "blend.api.DebugTitleListResponse": {
+      "titles": "[]blend.model.Title",
+      "event_titles": "[]blend.model.EventTitle"
+    },
+    "blend.api.DebugTutorialStepUpdateRequest": {
+      "tutorial_step": "int32"
+    },
+    "blend.api.DebugUserBulkResourceRequest": {
+      "types": "[]int32",
+      "stackable_resource_rate": "int32",
+      "entity_count": "int32"
+    },
+    "blend.api.DebugUserLastMainStoryQuestRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.DebugUserResourceRequest": {
+      "type": "int32",
+      "value": "int32"
+    },
+    "blend.api.DishOrderRequest": {
+      "dish_id": "int32"
+    },
+    "blend.api.DishOrderResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "additional_rewards": "[]blend.model.Reward"
+    },
+    "blend.api.EmblemAcquisitionDramaRequest": {
+      "emblem_ids": "[]int32"
+    },
+    "blend.api.EquipmentPresetBulkSetRequest": {
+      "number": "int32",
+      "slot1_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot2_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot3_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "memoria_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.EquipmentPresetEquipRequest": {
+      "number": "int32",
+      "slot_type": "int32",
+      "equipment_tool_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.EquipmentPresetMemoriaSetRequest": {
+      "number": "int32",
+      "memoria_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.EquipmentPresetUpdateNameRequest": {
+      "number": "int32"
+    },
+    "blend.api.EventDamageContestRequest": {
+      "episode_id": "int32"
+    },
+    "blend.api.EventDamageContestResponse": {
+      "rank": "blend.model.DamageContestRank"
+    },
+    "blend.api.EventLegendChallengeRequest": {
+      "episode_id": "int32"
+    },
+    "blend.api.EventLegendChallengeResponse": {
+      "rank": "blend.model.LegendChallengeRank",
+      "border_rank_scores": "[]blend.model.BorderRankScore"
+    },
+    "blend.api.EventReviveRequest": {
+      "event_id": "int32"
+    },
+    "blend.api.EventTopResponse": {
+      "changed_resources": "blend.model.Resources",
+      "invitation_mission_states": "[]blend.model.InvitationMissionState",
+      "damage_contest_rank": "blend.model.DamageContestRank",
+      "legend_challenge_ranks": "[]blend.model.LegendChallengeRank"
+    },
+    "blend.api.ExpeditionRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "special_rewards": "[]blend.model.Reward",
+      "is_special_reward_rare": "bool",
+      "valuable_item_auto_conversions": "[]blend.api.AutoConversionEntry"
+    },
+    "blend.api.ExpeditionStartRequest": {
+      "new_expeditions": "[]blend.model.NewExpedition"
+    },
+    "blend.api.ExpeditionStartResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "special_rewards": "[]blend.model.Reward",
+      "is_special_reward_rare": "bool",
+      "valuable_item_auto_conversions": "[]blend.api.AutoConversionEntry"
+    },
+    "blend.api.ExplorationBattleStartRequest": {
+      "area_id": "int32",
+      "enemy_weak_level": "int32"
+    },
+    "blend.api.ExplorationExploreRequest": {
+      "area_id": "int32",
+      "gathering_index": "int32"
+    },
+    "blend.api.ExplorationExploreResponse": {
+      "result": "blend.model.ExplorationResult",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.ExplorationFinishRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.ExplorationFinishResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.ExplorationRetireRequest": {
+      "is_story": "bool"
+    },
+    "blend.api.ExplorationSkipRequest": {
+      "quest_id": "int32",
+      "party_number": "int32",
+      "repeat_count": "int32"
+    },
+    "blend.api.ExplorationSkipResponse": {
+      "rewards_per_clear": "[]blend.model.RewardList",
+      "rewards": "[]blend.model.Reward",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.ExplorationStartRequest": {
+      "quest_id": "int32",
+      "party_number": "int32",
+      "control_character_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.ExplorationUpdatePartyRequest": {
+      "party_number": "int32"
+    },
+    "blend.api.ExternalPurchaseProductId": {
+      "store_product_id": "int32",
+      "shop_product_id": "int32"
+    },
+    "blend.api.ExternalPurchaseReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "product_ids": "[]blend.api.ExternalPurchaseProductId"
+    },
+    "blend.api.GachaBattleStartRequest": {
+      "gacha_id": "int32",
+      "gacha_battle_id": "int32"
+    },
+    "blend.api.GachaExecuteRequest": {
+      "gacha_id": "int32",
+      "gacha_button_id": "int32",
+      "client_timestamp": "google.protobuf.Timestamp"
+    },
+    "blend.api.GachaExecuteResponse": {
+      "drawn_rewards": "[]blend.model.Reward",
+      "bonus_rewards": "[]blend.model.Reward",
+      "medal_rewards": "[]blend.model.Reward",
+      "changed_resources": "blend.model.Resources",
+      "gacha": "blend.model.Gacha",
+      "wish_list_state": "blend.model.GachaWishListState"
+    },
+    "blend.api.GachaListRequest": {
+      "gacha_category": "int32"
+    },
+    "blend.api.GachaListResponse": {
+      "gachas": "[]blend.model.Gacha",
+      "gacha_rate_sets": "[]blend.model.GachaRateSet",
+      "gacha_mixed_wish_list_rate_sets": "[]blend.model.GachaMixedWishListRateSet",
+      "wish_list_states": "[]blend.model.GachaWishListState",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.GachaStepUpExecuteRequest": {
+      "gacha_id": "int32",
+      "gacha_step_up_button_id": "int32",
+      "client_timestamp": "google.protobuf.Timestamp"
+    },
+    "blend.api.GachaStepUpExecuteResponse": {
+      "drawn_rewards": "[]blend.model.Reward",
+      "bonus_rewards": "[]blend.model.Reward",
+      "medal_rewards": "[]blend.model.Reward",
+      "changed_resources": "blend.model.Resources",
+      "gacha": "blend.model.Gacha",
+      "wish_list_state": "blend.model.GachaWishListState"
+    },
+    "blend.api.GachaWishListSetRequest": {
+      "gacha_id": "int32",
+      "character_ids": "[]int32",
+      "memoria_ids": "[]int32",
+      "character_skin_ids": "[]int32"
+    },
+    "blend.api.GachaWishListSetResponse": {
+      "wish_list_state": "blend.model.GachaWishListState"
+    },
+    "blend.api.GrowthPackBulkReceiveRequest": {
+      "growth_pack_id": "int32"
+    },
+    "blend.api.GrowthPackBulkReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.GrowthPackPointPurchaseRequest": {
+      "growth_pack_id": "int32",
+      "point": "int32"
+    },
+    "blend.api.GrowthPackPurchaseRequest": {
+      "growth_pack_id": "int32"
+    },
+    "blend.api.GrowthPackReceiveRequest": {
+      "growth_pack_step_id": "int32",
+      "is_premium": "bool"
+    },
+    "blend.api.GrowthPackReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.HouseBuildingCountRewardReceiveRequest": {
+      "house_building_id": "int32"
+    },
+    "blend.api.HouseBuildingCountRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.HouseBuildingEnhanceRequest": {
+      "house_building_id": "int32",
+      "count": "google.protobuf.Int32Value",
+      "house_building_product_type_id": "google.protobuf.Int32Value",
+      "house_building_product_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.HouseBuildingEnhanceResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.HouseBuildingRentRequest": {
+      "house_building_id": "int32",
+      "rental_tools": "[]blend.model.ToolEntity"
+    },
+    "blend.api.HouseBuildingRentalRewardReceiveRequest": {
+      "house_building_id": "int32"
+    },
+    "blend.api.HouseBuildingRentalRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "trend_bonuses": "[]blend.model.HouseBuildingShopTrendBonus"
+    },
+    "blend.api.HouseBuildingResetRequest": {
+      "house_building_id": "int32"
+    },
+    "blend.api.HouseBuildingRewardReceiveRequest": {
+      "house_building_id": "int32"
+    },
+    "blend.api.HouseBuildingRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.HouseBuildingStartRequest": {
+      "house_building_id": "int32"
+    },
+    "blend.api.IllustratedBookStartRequest": {
+      "illustrated_book_reward_id": "int32"
+    },
+    "blend.api.IllustratedBookStartResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "memoria_ids": "[]int32",
+      "valuable_item_ids": "[]int32"
+    },
+    "blend.api.InvitationCreateRequest": {
+      "invitation_id": "int32"
+    },
+    "blend.api.InvitationCreateResponse": {},
+    "blend.api.InvitationReceiveRequest": {
+      "invitation_id": "int32"
+    },
+    "blend.api.ItemBundleOpenRequest": {
+      "item_id": "int32"
+    },
+    "blend.api.ItemBundleOpenResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.ItemChallengeExecuteRequest": {
+      "item_challenge_id": "int32",
+      "challenge_tools": "[]blend.model.ToolEntity"
+    },
+    "blend.api.ItemChallengeExecuteResponse": {
+      "changed_resources": "blend.model.Resources",
+      "score": "int32",
+      "failed_parameter_set_ids": "[]int32"
+    },
+    "blend.api.ItemChallengeRewardReceiveRequest": {
+      "item_challenge_id": "int32"
+    },
+    "blend.api.ItemChallengeRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.LoginBonusReceiveResponse": {
+      "login_bonuses": "[]blend.model.LoginBonus",
+      "changed_resources": "blend.model.Resources",
+      "bannered_gachas": "[]blend.model.Gacha"
+    },
+    "blend.api.MailDeleteRequest": {
+      "entity_ids": "[]int32"
+    },
+    "blend.api.MailDeleteResponse": {
+      "changed_resources": "blend.model.Resources",
+      "list": "blend.model.MailList"
+    },
+    "blend.api.MailListResponse": {
+      "list": "blend.model.MailList",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.MailOpenRequest": {
+      "entity_ids": "[]int32"
+    },
+    "blend.api.MailOpenResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "overflowed_rewards": "[]blend.model.Resource",
+      "list": "blend.model.MailList"
+    },
+    "blend.api.ManaPurchaseRequest": {
+      "count": "int32"
+    },
+    "blend.api.ManaUseItemRequest": {
+      "item_id": "int32",
+      "count": "int32"
+    },
+    "blend.api.MemoriaEnhanceRequest": {
+      "memoria_entity_id": "int32",
+      "consumed_items": "[]blend.model.ConsumedItem",
+      "consumed_memoria_entity_ids": "[]int32"
+    },
+    "blend.api.MemoriaEnhanceResponse": {
+      "changed_resources": "blend.model.Resources",
+      "deleted_resources": "blend.model.ResourceEntities"
+    },
+    "blend.api.MemoriaLimitBreakRequest": {
+      "memoria_entity_id": "int32",
+      "consumed_items": "[]blend.model.ConsumedItem",
+      "consumed_memoria_entity_ids": "[]int32"
+    },
+    "blend.api.MemoriaLimitBreakResponse": {
+      "changed_resources": "blend.model.Resources",
+      "deleted_resources": "blend.model.ResourceEntities"
+    },
+    "blend.api.MemoriaLockRequest": {
+      "memoria_entity_id": "int32",
+      "is_locked": "bool"
+    },
+    "blend.api.MemoriaSellRequest": {
+      "entity_ids": "[]int32"
+    },
+    "blend.api.MemoriaSellResponse": {
+      "changed_resources": "blend.model.Resources",
+      "deleted_resources": "blend.model.ResourceEntities",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.MissionCountRewardReceiveRequest": {
+      "category": "int32"
+    },
+    "blend.api.MissionCountRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.MissionEventTabRewardReceiveRequest": {
+      "event_tab_id": "int32"
+    },
+    "blend.api.MissionEventTabRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.MissionNavigationTaskProceedRequest": {
+      "navigation_task_url_id": "int32"
+    },
+    "blend.api.MissionReceiveRequest": {
+      "mission_ids": "[]int32",
+      "bulk_receive": "bool"
+    },
+    "blend.api.MissionReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "step_rewards": "[]blend.model.Reward"
+    },
+    "blend.api.ModTimelineReleaseRequest": {
+      "mod_timeline_id": "int32"
+    },
+    "blend.api.MultiMissionReceiveRequest": {
+      "multi_mission_step_id": "int32"
+    },
+    "blend.api.MultiMissionReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "multi_mission_counts": "[]blend.model.MultiMissionCount"
+    },
+    "blend.api.MultiMissionStatusRequest": {
+      "event_id": "int32"
+    },
+    "blend.api.MultiMissionStatusResponse": {
+      "multi_mission_counts": "[]blend.model.MultiMissionCount"
+    },
+    "blend.api.PartyBattleToolsSetRequest": {
+      "party_type": "int32",
+      "number": "int32",
+      "battle_tool_entity_ids": "[]int32"
+    },
+    "blend.api.PartyBulkUpdateRequest": {
+      "party_type": "int32",
+      "number": "int32",
+      "members": "[]blend.model.PartyMemberWithEquipment",
+      "battle_tool_entity_ids": "[]int32",
+      "leader_position": "int32"
+    },
+    "blend.api.PresentExecuteRequest": {
+      "present_id": "int32",
+      "gifted_tools": "[]blend.model.ToolEntity"
+    },
+    "blend.api.PresentExecuteResponse": {
+      "changed_resources": "blend.model.Resources",
+      "deleted_resources": "blend.model.ResourceEntities",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.QuestBattleRentalPartyStartRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.QuestBattleSkipRequest": {
+      "quest_id": "int32",
+      "party_number": "int32",
+      "skip_count": "int32"
+    },
+    "blend.api.QuestBattleSkipResponse": {
+      "quest_result": "blend.model.QuestSkipResult",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.QuestBattleSoloRaidBattleStartRequest": {
+      "quest_id": "int32",
+      "enemy_weak_level": "int32",
+      "members": "[]blend.model.PartyMemberWithEquipment",
+      "battle_tool_entity_ids": "[]int32",
+      "leader_position": "int32",
+      "ship_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.QuestBattleStartRequest": {
+      "quest_id": "int32",
+      "party_number": "int32",
+      "enemy_weak_level": "int32",
+      "ship_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.QuestBattleTotalBattleStartRequest": {
+      "quest_id": "int32",
+      "enemy_weak_level": "int32",
+      "members": "[]blend.model.PartyMemberWithEquipment",
+      "battle_tool_entity_ids": "[]int32",
+      "leader_position": "int32",
+      "ship_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.QuestClearedPartyListRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.QuestClearedPartyListResponse": {
+      "cleared_parties": "[]blend.model.QuestClearedParty"
+    },
+    "blend.api.QuestDailyClearAddRequest": {
+      "episode_id": "int32",
+      "count": "int32"
+    },
+    "blend.api.QuestScoreRankFirstRewardReceiveRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.QuestScoreRankFirstRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.QuestStreetMoveRequest": {
+      "quest_id": "int32",
+      "move_part_id": "int32"
+    },
+    "blend.api.QuestStreetStartRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.QuestStreetTalkRequest": {
+      "talk_id": "int32"
+    },
+    "blend.api.QuestTalkEventFinishRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.QuestTalkEventFinishResponse": {
+      "first_clear_rewards": "[]blend.model.Reward",
+      "changed_resources": "blend.model.Resources"
+    },
+    "blend.api.RecipeCountRewardReceiveRequest": {
+      "receive_plans": "[]blend.model.RecipeCountRewardReceive"
+    },
+    "blend.api.RecipeCountRewardReceiveResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.RecipeFavoriteRequest": {
+      "recipe_id": "int32",
+      "is_favorite": "bool"
+    },
+    "blend.api.RecipeLearnResponse": {
+      "changed_resources": "blend.model.Resources",
+      "learned_recipe_ids": "[]int32",
+      "learning_rewards": "[]blend.model.Reward"
+    },
+    "blend.api.RentalPartyBattleToolsSetRequest": {
+      "fixed_party_id": "int32",
+      "battle_tool_entity_ids": "[]int32"
+    },
+    "blend.api.RentalPartyBulkUpdateRequest": {
+      "fixed_party_id": "int32",
+      "members": "[]blend.model.PartyMemberWithEquipment",
+      "battle_tool_entity_ids": "[]int32"
+    },
+    "blend.api.RentalPartyCharacterBulkEquipRequest": {
+      "fixed_party_id": "int32",
+      "character_id": "int32",
+      "slot1_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot2_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot3_equipment_tool_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.RentalPartyCharacterEquipRequest": {
+      "fixed_party_id": "int32",
+      "character_id": "int32",
+      "slot_type": "int32",
+      "equipment_tool_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.ShipBulkUpdateRequest": {
+      "ship_id": "int32",
+      "number": "int32",
+      "character_ids": "[]int32",
+      "main_memoria_entity_id": "google.protobuf.Int32Value",
+      "sub_memoria_entity_ids": "[]int32"
+    },
+    "blend.api.ShipCreateRequest": {
+      "ship_part_id": "int32",
+      "count": "int32"
+    },
+    "blend.api.ShipShipToolsSetRequest": {
+      "ship_id": "int32",
+      "ship_tool_entity_ids": "[]int32"
+    },
+    "blend.api.ShipSynthesizeRequest": {
+      "recipe_id": "int32"
+    },
+    "blend.api.ShipSynthesizeResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.ShopBoxGachaExecuteRequest": {
+      "box_gacha_id": "int32",
+      "count": "int32"
+    },
+    "blend.api.ShopBoxGachaExecuteResponse": {
+      "changed_resources": "blend.model.Resources",
+      "pickup_rewards": "[]blend.model.Reward",
+      "rewards": "[]blend.model.Reward",
+      "is_reset": "bool"
+    },
+    "blend.api.ShopGemListResponse": {
+      "changed_resources": "blend.model.Resources",
+      "gem_list": "blend.model.ShopGemList"
+    },
+    "blend.api.ShopPieceExchangeRequest": {
+      "character_id": "int32",
+      "quantity": "int32"
+    },
+    "blend.api.ShopPurchaseRequest": {
+      "shop_product_id": "int32",
+      "quantity": "int32",
+      "shop_product_limited_discount_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.ShopPurchaseResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.ShopRandomShopListRequest": {
+      "shop_id": "int32"
+    },
+    "blend.api.ShopRandomShopListResponse": {
+      "changed_resources": "blend.model.Resources",
+      "random_shop_state": "blend.model.RandomShopState"
+    },
+    "blend.api.ShopRandomShopPurchaseRequest": {
+      "shop_product_id": "int32",
+      "quantity": "int32",
+      "shop_product_limited_discount_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.ShopRandomShopPurchaseResponse": {
+      "changed_resources": "blend.model.Resources",
+      "random_shop_state": "blend.model.RandomShopState"
+    },
+    "blend.api.ShopRandomShopRefreshRequest": {
+      "shop_id": "int32"
+    },
+    "blend.api.ShopRandomShopRefreshResponse": {
+      "changed_resources": "blend.model.Resources",
+      "random_shop_state": "blend.model.RandomShopState"
+    },
+    "blend.api.ShopReceiveFirstPurchaseBonusResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.ShopWheelRequest": {
+      "shop_wheel_id": "int32"
+    },
+    "blend.api.ShopWheelResponse": {
+      "changed_resources": "blend.model.Resources",
+      "drama_id": "int32",
+      "rarity_id": "int32",
+      "rewards": "[]blend.model.Reward",
+      "gem_list": "blend.model.ShopGemList"
+    },
+    "blend.api.SoloRaidResetRequest": {
+      "quest_id": "int32"
+    },
+    "blend.api.SpecialOfferPurchaseRequest": {
+      "special_offer_id": "int32"
+    },
+    "blend.api.StaminaPurchaseRequest": {
+      "count": "int32"
+    },
+    "blend.api.StaminaUseItemRequest": {
+      "item_id": "int32",
+      "count": "int32"
+    },
+    "blend.api.StaminaUseSpareStaminaRequest": {
+      "count": "int32"
+    },
+    "blend.api.SynthesisBulkExecuteRequest": {
+      "recipe_id": "int32",
+      "character_ids": "[]int32",
+      "ingredient_id": "google.protobuf.Int32Value",
+      "count": "int32",
+      "trait_stimulator_ids": "[]int32",
+      "client_timestamp": "google.protobuf.Timestamp"
+    },
+    "blend.api.SynthesisCombinationRankingRequest": {
+      "recipe_id": "int32"
+    },
+    "blend.api.SynthesisCombinationRankingResponse": {
+      "total": "blend.model.SynthesisCombinationRanking",
+      "weekly": "blend.model.SynthesisCombinationRanking",
+      "monthly": "blend.model.SynthesisCombinationRanking"
+    },
+    "blend.api.SynthesisExecuteEasyRequest": {
+      "recipe_id": "int32",
+      "count": "int32",
+      "client_timestamp": "google.protobuf.Timestamp"
+    },
+    "blend.api.SynthesisExecuteEasyResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.api.SynthesisExecuteRentalRequest": {
+      "recipe_id": "int32",
+      "ranking_type": "int32",
+      "rank_number": "int32",
+      "count": "int32",
+      "trait_stimulator_ids": "[]int32",
+      "client_timestamp": "google.protobuf.Timestamp"
+    },
+    "blend.api.SynthesisExecuteRequest": {
+      "recipe_id": "int32",
+      "character_ids": "[]int32",
+      "ingredient_id": "google.protobuf.Int32Value",
+      "trait_stimulator_ids": "[]int32",
+      "client_timestamp": "google.protobuf.Timestamp"
+    },
+    "blend.api.SynthesisExecuteResponse": {
+      "changed_resources": "blend.model.Resources",
+      "rewards": "[]blend.model.Reward",
+      "grade": "int32",
+      "start_grade_up": "int32",
+      "final_grade_up": "int32",
+      "drama_reward_index": "int32"
+    },
+    "blend.api.ToolConvertRequest": {
+      "consumed_tools": "[]blend.model.ToolEntity"
+    },
+    "blend.api.ToolConvertResponse": {
+      "changed_resources": "blend.model.Resources",
+      "deleted_resources": "blend.model.ResourceEntities",
+      "rewards": "[]blend.model.Reward",
+      "tool_conversion_limit_count": "int32"
+    },
+    "blend.api.ToolLockRequest": {
+      "tool": "blend.model.ToolEntity",
+      "is_locked": "bool"
+    },
+    "blend.api.ToolTraitRankUpRequest": {
+      "tool": "blend.model.ToolEntity",
+      "trait_index": "int32"
+    },
+    "blend.api.TotalBattleAchieveLineDramaRequest": {
+      "total_battle_id": "int32"
+    },
+    "blend.api.TotalBattleResetPanelRequest": {
+      "total_battle_panel_id": "int32"
+    },
+    "blend.api.UserLogInResponse": {
+      "resources": "blend.model.Resources",
+      "master_data": "blend.model.MasterData",
+      "battle_resume_status": "enum:blend.enum.battle_resume_status.BattleResumeStatus",
+      "tool_conversion_limit_count": "int32"
+    },
+    "blend.model.BattleAbility": {
+      "ability_id": "int32",
+      "effects": "[]blend.model.BattleAbility.EffectParams"
+    },
+    "blend.model.BattleAbility.EffectParams": {
+      "effect_id": "int32",
+      "rest_count": "int32"
+    },
+    "blend.model.BattleAction": {
+      "number": "int32",
+      "state": "blend.model.BattleState",
+      "action_type": "enum:blend.enum.battle_action_type.BattleActionType",
+      "is_battle_tool_mix": "bool",
+      "actor_type": "enum:blend.enum.battle_member_type.BattleMemberType",
+      "actor_id": "int32",
+      "is_skipped": "bool",
+      "is_character_change": "bool",
+      "skill_id": "int32",
+      "skill_type": "google.protobuf.Int32Value",
+      "active_skill_type": "google.protobuf.Int32Value",
+      "main_target_id": "int32",
+      "skill_target_mode": "enum:blend.enum.battle_skill_target_mode.BattleSkillTargetMode",
+      "battle_tool_number": "google.protobuf.Int32Value",
+      "ship_tool_number": "google.protobuf.Int32Value",
+      "protector_id": "google.protobuf.Int32Value",
+      "protection_state_change_id": "google.protobuf.Int32Value",
+      "skill_results": "[]blend.model.BattleSkillResult",
+      "timeline_moves": "[]blend.model.BattleTimelineMove",
+      "before_skill_effect_results": "[]blend.model.BattleEffectResult",
+      "effect_results": "[]blend.model.BattleEffectResult",
+      "is_counter": "bool",
+      "total_dealt_hp_damage": "int64",
+      "is_additional_attack": "bool",
+      "is_special_counter": "bool"
+    },
+    "blend.model.BattleActionSetup": {
+      "number": "int32",
+      "state": "blend.model.BattleState",
+      "actor_type": "enum:blend.enum.battle_member_type.BattleMemberType",
+      "actor_id": "int32",
+      "is_disabled": "bool",
+      "timeline_moves": "[]blend.model.BattleTimelineMove",
+      "effect_results": "[]blend.model.BattleEffectResult",
+      "after_timeline_effect_results": "[]blend.model.BattleEffectResult",
+      "timeline_result": "blend.model.BattleTimelineResult",
+      "state_change_results": "[]blend.model.BattleStateChangeResult",
+      "skill_selections": "[]blend.model.BattleSelectionSkill",
+      "battle_tool_selections": "[]blend.model.BattleSelectionBattleTool",
+      "active_skill_selections": "[]blend.model.BattleSelectionActiveSkill",
+      "battle_tool_mix_selections": "[]blend.model.BattleSelectionBattleToolMix",
+      "ship_tool_selections": "[]blend.model.BattleSelectionShipTool",
+      "total_dealt_hp_damage": "int64"
+    },
+    "blend.model.BattleActiveSkill": {
+      "skill_id": "int32",
+      "active_skill_type": "int32",
+      "rest_count": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleActiveSkillCommand": {
+      "active_skill_type": "int32",
+      "main_target_id": "int32",
+      "value": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleAlly": {
+      "character_id": "int32",
+      "current_character_id": "int32",
+      "after_change_character_id": "google.protobuf.Int32Value",
+      "skills": "[]blend.model.BattleSkill",
+      "active_skills": "[]blend.model.BattleActiveSkill",
+      "is_leader": "bool"
+    },
+    "blend.model.BattleBarrier": {
+      "barrier_state_change_number": "int32",
+      "barrier_hp": "int32",
+      "barrier_max_hp": "int32"
+    },
+    "blend.model.BattleBaseEnemyNumber": {
+      "base_enemy_id": "int32",
+      "current_number": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleBattleTool": {
+      "number": "int32",
+      "tool_id": "int32",
+      "traits": "[]blend.model.BattleTrait",
+      "usage_count": "int32"
+    },
+    "blend.model.BattleBattleToolCommand": {
+      "battle_tool_numbers": "[]int32"
+    },
+    "blend.model.BattleBattleToolMixCommand": {
+      "battle_tool_numbers": "[]int32"
+    },
+    "blend.model.BattleBurstGauge": {
+      "current_gauge": "int32",
+      "max_gauge": "int32",
+      "is_enable": "bool"
+    },
+    "blend.model.BattleCharacterStatus": {
+      "speed": "int32",
+      "attack": "int32",
+      "magic": "int32",
+      "defense": "int32",
+      "mental": "int32"
+    },
+    "blend.model.BattleContext": {
+      "quest_id": "int32",
+      "exploration_area_id": "int32",
+      "gacha_battle_id": "int32",
+      "party_number": "google.protobuf.Int32Value",
+      "gacha_id": "google.protobuf.Int32Value",
+      "rental_fixed_party_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleDamageContestResult": {
+      "score": "int64",
+      "best_score": "int64"
+    },
+    "blend.model.BattleEffectAttackSkillResult": {
+      "actor_id": "int32",
+      "skill_id": "int32",
+      "main_target_id": "int32",
+      "skill_results": "[]blend.model.BattleSkillResult",
+      "protector_id": "google.protobuf.Int32Value",
+      "protection_state_change_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleEffectResult": {
+      "effect_id": "int32",
+      "effector_id": "int32",
+      "effect_target_id": "google.protobuf.Int32Value",
+      "support_character_id": "google.protobuf.Int32Value",
+      "hp_damage": "google.protobuf.Int64Value",
+      "hp_heal": "google.protobuf.Int32Value",
+      "barrier_damage": "google.protobuf.Int64Value",
+      "party_gauge_heal": "google.protobuf.Int32Value",
+      "break_gauge_heal": "google.protobuf.Int32Value",
+      "break_gauge_consume": "google.protobuf.Int32Value",
+      "is_skill": "bool",
+      "is_invalid": "bool",
+      "is_revived": "bool",
+      "is_reflection": "bool",
+      "is_barrier_broken": "bool",
+      "overwritten_timeline_panels": "[]blend.model.BattleTimelinePanel",
+      "deal_state_change_id": "google.protobuf.Int32Value",
+      "deal_state_change_result": "enum:blend.enum.battle_deal_state_change_result.BattleDealStateChangeResult",
+      "dealt_state_change": "blend.model.BattleStateChange",
+      "removed_state_changes": "[]blend.model.BattleStateChange",
+      "effect_motion_id": "google.protobuf.Int32Value",
+      "field_effect_id": "google.protobuf.Int32Value",
+      "summons": "blend.model.BattleEffectSummons",
+      "enemy_hp_gauge": "blend.model.BattleEnemyHpGauge",
+      "effect_attack_skill_result": "blend.model.BattleEffectAttackSkillResult",
+      "is_minus_effect_to_ally": "bool",
+      "add_burst_gauge": "google.protobuf.Int32Value",
+      "add_bomb_gauge": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleEffectSummons": {
+      "is_success": "bool",
+      "members": "[]blend.model.BattleEffectSummonsMember"
+    },
+    "blend.model.BattleEffectSummonsMember": {
+      "member_id": "int32",
+      "enemies_index": "int32"
+    },
+    "blend.model.BattleEnemy": {
+      "enemy_id": "int32",
+      "is_boss": "bool",
+      "break_gauge_number": "int32",
+      "max_break_gauge": "int32",
+      "break_gauge": "int32",
+      "is_broken": "bool",
+      "initial_break_gauges": "[]int32",
+      "break_waits": "[]int32",
+      "base_enemy_number": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleEnemyHpGauge": {
+      "current_gauge": "int64",
+      "max_gauge": "int64",
+      "rest_enemy_count": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleFieldEffect": {
+      "field_effect_id": "int32",
+      "turn": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleFormation": {
+      "members": "[]blend.model.BattleFormationMember"
+    },
+    "blend.model.BattleFormationMember": {
+      "member_id": "int32",
+      "x": "float",
+      "z": "float"
+    },
+    "blend.model.BattleHistory": {
+      "status": "enum:blend.enum.battle_status.BattleStatus",
+      "start": "blend.model.BattleStart",
+      "wave_starts": "[]blend.model.BattleWaveStart",
+      "action_setups": "[]blend.model.BattleActionSetup",
+      "actions": "[]blend.model.BattleAction",
+      "previous_state": "blend.model.BattleState",
+      "previous_formation": "blend.model.BattleFormation",
+      "auto_type": "enum:blend.enum.battle_auto_type.BattleAutoType",
+      "record": "blend.model.BattleRecord"
+    },
+    "blend.model.BattleLegendChallengeResult": {
+      "total_turn": "int32",
+      "total_turn_score": "int32",
+      "max_dealt_hp_damage": "int64",
+      "max_dealt_hp_damage_score": "int32",
+      "received_hp_damage": "int64",
+      "received_hp_damage_score": "int32",
+      "dead_allies_count": "int32",
+      "dead_allies_count_score": "int32",
+      "total_score": "int32",
+      "is_new_record": "bool"
+    },
+    "blend.model.BattleMember": {
+      "member_id": "int32",
+      "type": "enum:blend.enum.battle_member_type.BattleMemberType",
+      "max_hp": "int32",
+      "hp": "int32",
+      "initial_hp": "int32",
+      "hp_loop_count": "int32",
+      "barrier_hp": "int32",
+      "barriers": "[]blend.model.BattleBarrier",
+      "is_alive": "bool",
+      "is_stun": "bool",
+      "is_barrier_broken": "bool",
+      "initial_status": "blend.model.BattleCharacterStatus",
+      "current_status": "blend.model.BattleCharacterStatus",
+      "resistance": "blend.model.BattleResistance",
+      "state_change_resistances": "[]blend.model.BattleStateChangeResistance",
+      "memoria_abilities": "[]blend.model.BattleAbility",
+      "state_changes": "[]blend.model.BattleStateChange",
+      "state_change_summaries": "[]blend.model.BattleStateChangeSummary",
+      "burst_gauge": "blend.model.BattleBurstGauge",
+      "ally": "blend.model.BattleAlly",
+      "enemy": "blend.model.BattleEnemy",
+      "ship_support_ability": "blend.model.BattleShipSupportAbility",
+      "ship_main_memoria": "blend.model.BattleShipMainMemoria"
+    },
+    "blend.model.BattleMissionResult": {
+      "old_cleared_ids": "[]int32",
+      "cleared_ids": "[]int32"
+    },
+    "blend.model.BattleRecord": {
+      "quest_max_dealt_hp_damage": "int64",
+      "episode_max_total_dealt_hp_damage": "int64"
+    },
+    "blend.model.BattleResistance": {
+      "slashing": "int32",
+      "impact": "int32",
+      "piercing": "int32",
+      "fire": "int32",
+      "ice": "int32",
+      "lightning": "int32",
+      "wind": "int32"
+    },
+    "blend.model.BattleScoreDetail": {
+      "total_turn": "int32",
+      "total_turn_score": "int32",
+      "max_dealt_hp_damage": "int64",
+      "max_dealt_hp_damage_score": "int32",
+      "received_hp_damage": "int64",
+      "received_hp_damage_score": "int32",
+      "dead_allies_count": "int32",
+      "dead_allies_count_score": "int32",
+      "total_score": "int32"
+    },
+    "blend.model.BattleScoreResult": {
+      "score": "int32",
+      "rank": "int32"
+    },
+    "blend.model.BattleSelectionActiveSkill": {
+      "active_skill_type": "int32",
+      "skill_id": "int32",
+      "is_all": "bool",
+      "targets": "[]blend.model.BattleSelectionTarget",
+      "all_timeline_moves": "[]blend.model.BattleTimelineMove",
+      "all_overwritten_timeline_panels": "[]blend.model.BattleTimelinePanel",
+      "all_skill_lamp": "int32",
+      "is_character_change": "bool",
+      "target_turn_range": "enum:blend.enum.battle_timeline_target_turn_range.BattleTimelineTargetTurnRange"
+    },
+    "blend.model.BattleSelectionBattleTool": {
+      "number": "int32",
+      "is_all": "bool",
+      "targets": "[]blend.model.BattleSelectionTarget",
+      "all_timeline_moves": "[]blend.model.BattleTimelineMove",
+      "all_overwritten_timeline_panels": "[]blend.model.BattleTimelinePanel"
+    },
+    "blend.model.BattleSelectionBattleToolMix": {
+      "number": "int32",
+      "is_all": "bool",
+      "targets": "[]blend.model.BattleSelectionTarget",
+      "all_timeline_moves": "[]blend.model.BattleTimelineMove",
+      "all_overwritten_timeline_panels": "[]blend.model.BattleTimelinePanel"
+    },
+    "blend.model.BattleSelectionShipTool": {
+      "number": "int32",
+      "is_all": "bool",
+      "targets": "[]blend.model.BattleSelectionTarget",
+      "all_timeline_moves": "[]blend.model.BattleTimelineMove",
+      "all_overwritten_timeline_panels": "[]blend.model.BattleTimelinePanel"
+    },
+    "blend.model.BattleSelectionSkill": {
+      "skill_type": "int32",
+      "skill_id": "int32",
+      "is_all": "bool",
+      "targets": "[]blend.model.BattleSelectionTarget",
+      "all_timeline_moves": "[]blend.model.BattleTimelineMove",
+      "all_overwritten_timeline_panels": "[]blend.model.BattleTimelinePanel",
+      "all_skill_lamp": "int32",
+      "is_character_change": "bool"
+    },
+    "blend.model.BattleSelectionTarget": {
+      "target_id": "int32",
+      "display_id": "google.protobuf.Int32Value",
+      "hp_damage": "google.protobuf.Int64Value",
+      "hp_damage_for_critical": "google.protobuf.Int64Value",
+      "critical_rate": "float",
+      "barrier_damage": "google.protobuf.Int64Value",
+      "hp_heal": "google.protobuf.Int32Value",
+      "break_damage": "google.protobuf.Int32Value",
+      "break_type": "enum:blend.enum.battle_break_type.BattleBreakType",
+      "is_killed": "bool",
+      "is_critical": "bool",
+      "is_weak": "bool",
+      "is_resist": "bool",
+      "single_timeline_moves": "[]blend.model.BattleTimelineMove",
+      "single_overwritten_timeline_panels": "[]blend.model.BattleTimelinePanel",
+      "single_skill_lamp": "int32"
+    },
+    "blend.model.BattleShip": {
+      "members": "[]blend.model.BattleShipMember",
+      "ship_support_ability_ids": "[]int32",
+      "support_ability_ids": "[]int32",
+      "support_ability_value_coef": "google.protobuf.Int32Value",
+      "main_memoria_ability_ids": "[]int32",
+      "main_memoria_value_coef": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleShipMainMemoria": {
+      "memoria_id": "int32",
+      "ability_ids": "[]int32",
+      "level": "int32",
+      "limit_break": "int32",
+      "value_coef": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleShipMember": {
+      "character_id": "int32",
+      "rarity": "int32"
+    },
+    "blend.model.BattleShipSupportAbility": {
+      "support_abilities": "[]blend.model.BattleAbility",
+      "value_coef": "int32"
+    },
+    "blend.model.BattleShipTool": {
+      "number": "int32",
+      "tool_id": "int32",
+      "skill_id": "int32",
+      "usage_count": "int32"
+    },
+    "blend.model.BattleShipToolCommand": {
+      "ship_tool_number": "int32"
+    },
+    "blend.model.BattleSkill": {
+      "skill_id": "int32",
+      "skill_type": "int32",
+      "rest_count": "google.protobuf.Int32Value",
+      "lamp": "int32"
+    },
+    "blend.model.BattleSkillCommand": {
+      "skill_type": "int32",
+      "main_target_id": "int32"
+    },
+    "blend.model.BattleSkillResult": {
+      "target_id": "int32",
+      "hp_damage": "google.protobuf.Int64Value",
+      "hp_damage_for_critical": "google.protobuf.Int64Value",
+      "hp_heal": "google.protobuf.Int32Value",
+      "barrier_damage": "google.protobuf.Int64Value",
+      "break_damage": "google.protobuf.Int32Value",
+      "break_type": "enum:blend.enum.battle_break_type.BattleBreakType",
+      "is_break_damage_invalid": "bool",
+      "is_miss": "bool",
+      "is_miss_special": "bool",
+      "is_invalid": "bool",
+      "is_weak": "bool",
+      "is_resist": "bool",
+      "is_critical": "bool",
+      "critical_rate": "float",
+      "is_guard": "bool",
+      "is_killed": "bool",
+      "is_barrier_broken": "bool"
+    },
+    "blend.model.BattleStart": {
+      "state": "blend.model.BattleState"
+    },
+    "blend.model.BattleStartAutoCommand": {
+      "action_number": "google.protobuf.Int32Value",
+      "auto_type": "enum:blend.enum.battle_auto_type.BattleAutoType"
+    },
+    "blend.model.BattleState": {
+      "battle_id": "int32",
+      "wave_ids": "[]int32",
+      "wave": "int32",
+      "total_turn": "int32",
+      "members": "[]blend.model.BattleMember",
+      "timeline_panels": "[]blend.model.BattleTimelinePanel",
+      "timeline_units": "[]blend.model.BattleTimelineUnit",
+      "battle_tools": "[]blend.model.BattleBattleTool",
+      "party_gauge": "int32",
+      "bomb_gauge": "int32",
+      "field_effect": "blend.model.BattleFieldEffect",
+      "base_enemy_numbers": "[]blend.model.BattleBaseEnemyNumber",
+      "enemy_hp_gauge": "blend.model.BattleEnemyHpGauge",
+      "ship": "blend.model.BattleShip",
+      "ship_tools": "[]blend.model.BattleShipTool"
+    },
+    "blend.model.BattleStateChange": {
+      "state_change_id": "int32",
+      "rest_count": "int32",
+      "value": "int32",
+      "level": "google.protobuf.Int32Value",
+      "is_display_restricted": "bool",
+      "is_provocation": "bool",
+      "target_id": "google.protobuf.Int32Value",
+      "is_invincible": "bool",
+      "is_hidden": "bool",
+      "is_barrier": "bool",
+      "is_special_avoidance": "bool",
+      "is_tip_display": "bool"
+    },
+    "blend.model.BattleStateChangeResistance": {
+      "state_change_id": "int32",
+      "is_invalid": "bool",
+      "value": "int32"
+    },
+    "blend.model.BattleStateChangeResult": {
+      "member_id": "int32",
+      "state_change_id": "int32",
+      "hp_damage": "google.protobuf.Int64Value",
+      "hp_heal": "google.protobuf.Int32Value",
+      "is_invalid": "bool",
+      "disabled_action": "bool"
+    },
+    "blend.model.BattleStateChangeSummary": {
+      "id": "int32",
+      "value": "int32"
+    },
+    "blend.model.BattleStopAutoCommand": {
+      "action_number": "int32"
+    },
+    "blend.model.BattleTimelineMove": {
+      "member_id": "int32",
+      "number": "int32",
+      "wait": "google.protobuf.Int32Value",
+      "reason": "enum:blend.enum.battle_timeline_move_reason.BattleTimelineMoveReason",
+      "from_index": "google.protobuf.Int32Value",
+      "to_index": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleTimelinePanel": {
+      "turn": "int32",
+      "panel_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.BattleTimelineResult": {
+      "hp_damage": "google.protobuf.Int64Value",
+      "is_killed": "bool",
+      "effect_results": "[]blend.model.BattleEffectResult"
+    },
+    "blend.model.BattleTimelineUnit": {
+      "member_id": "int32",
+      "number": "int32",
+      "wait": "int32",
+      "type": "enum:blend.enum.battle_timeline_unit_type.BattleTimelineUnitType",
+      "enemy_skill_type": "google.protobuf.Int32Value",
+      "is_enemy_strong": "bool"
+    },
+    "blend.model.BattleTool": {
+      "entity_id": "int32",
+      "tool_id": "int32",
+      "traits": "[]blend.model.TraitParams",
+      "is_locked": "bool",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.BattleToolTraitStimulator": {
+      "battle_tool_trait_id": "int32",
+      "quantity": "int32"
+    },
+    "blend.model.BattleTrait": {
+      "trait_id": "int32",
+      "rank": "int32"
+    },
+    "blend.model.BattleWaveStart": {
+      "action_number": "int32",
+      "state": "blend.model.BattleState",
+      "effect_results": "[]blend.model.BattleEffectResult"
+    },
+    "blend.model.BorderRankScore": {
+      "border_rank": "google.protobuf.Int32Value",
+      "border_total_score": "google.protobuf.Int64Value"
+    },
+    "blend.model.BoxGachaCardState": {
+      "card_id": "int32",
+      "count": "int32"
+    },
+    "blend.model.BoxGachaState": {
+      "box_gacha_id": "int32",
+      "number": "int32",
+      "card_states": "[]blend.model.BoxGachaCardState"
+    },
+    "blend.model.BulkMail": {
+      "id": "int32",
+      "template_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.CharaHome": {
+      "slot_id": "int32",
+      "character_id": "int32",
+      "background_id": "int32",
+      "motion_id": "int32",
+      "camera_id": "int32",
+      "bgm_id": "int32",
+      "created_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.CharaHomeBackground": {
+      "background_id": "int32",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.CharaHomeMotion": {
+      "motion_id": "int32",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.Character": {
+      "character_id": "int32",
+      "rarity": "int32",
+      "exp": "int32",
+      "slot1_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot2_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot3_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "memoria_entity_id": "google.protobuf.Int32Value",
+      "normal1_skill_rank": "int32",
+      "normal2_skill_rank": "int32",
+      "growboard_current_page": "int32",
+      "growboard_panel_bits": "int32",
+      "growboard_ex_current_page": "int32",
+      "growboard_ex_panel_bits": "int32",
+      "growboard_neo_current_page": "int32",
+      "growboard_neo_panel_bits": "int32",
+      "growboard_neo_max_page": "int32",
+      "board_ability1_rank": "int32",
+      "board_ability2_rank": "int32",
+      "board_ability3_rank": "int32",
+      "growboard_hp": "int32",
+      "growboard_speed": "int32",
+      "growboard_attack": "int32",
+      "growboard_magic": "int32",
+      "growboard_defense": "int32",
+      "growboard_mental": "int32",
+      "growboard_all_status_rate": "int32",
+      "growboard_trait_rank_weight_bonus": "int32",
+      "growboard_level_limit": "int32",
+      "level_limit_increase_value": "int32",
+      "is_normal1_skill_evolved": "bool",
+      "is_normal2_skill_evolved": "bool",
+      "is_burst_skill_evolved": "bool",
+      "skin_id": "google.protobuf.Int32Value",
+      "is_normal1_skill_locked": "bool",
+      "is_normal2_skill_locked": "bool",
+      "is_burst_skill_locked": "bool",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.CharacterPiece": {
+      "character_id": "int32",
+      "quantity": "int32"
+    },
+    "blend.model.CharacterSkillRecord": {
+      "character_id": "int32",
+      "skill_ids": "[]int32"
+    },
+    "blend.model.CharacterSkillRestCount": {
+      "normal1": "google.protobuf.Int32Value",
+      "normal2": "google.protobuf.Int32Value",
+      "burst": "google.protobuf.Int32Value"
+    },
+    "blend.model.CharacterSkillResultRecord": {
+      "character_id": "int32",
+      "break_count": "int32",
+      "broken_enemy_attack_count": "int32",
+      "critical_attack_count": "int32"
+    },
+    "blend.model.CharacterSkin": {
+      "character_skin_id": "int32",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.CharacterStoryState": {
+      "character_story_id": "int32",
+      "clear_count": "int32",
+      "condition_states": "[]int32"
+    },
+    "blend.model.CommunicationState": {
+      "character_id": "int32",
+      "released_story_numbers": "[]int32",
+      "cleared_story_numbers": "[]int32",
+      "reward_scene_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.ConsumedItem": {
+      "item_id": "int32",
+      "quantity": "int32"
+    },
+    "blend.model.ConsumedQuantifiedResource": {
+      "type": "int32",
+      "id": "int32",
+      "quantity": "int32"
+    },
+    "blend.model.DailyPassState": {
+      "daily_pass_id": "int32",
+      "login_days": "[]int32",
+      "received_days": "[]int32",
+      "started_at": "google.protobuf.Timestamp",
+      "expires_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.DamageContestRank": {
+      "current_rank": "google.protobuf.Int32Value",
+      "next_rank_range_id": "google.protobuf.Int32Value",
+      "border_total_damage": "google.protobuf.Int64Value",
+      "show_previous_ranking": "bool"
+    },
+    "blend.model.Emblem": {
+      "emblem_id": "int32",
+      "rarity": "int32",
+      "drama_rarity": "int32"
+    },
+    "blend.model.EpisodeState": {
+      "episode_id": "int32",
+      "daily_clear_count": "int32",
+      "daily_clear_addition_count": "int32",
+      "daily_updated_at": "google.protobuf.Timestamp",
+      "cleared_tower_floor": "int32",
+      "daily_bonus_count": "int32",
+      "max_total_damage": "int64",
+      "remaining_attempts_when_updated": "int32",
+      "remaining_attempts_updated_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.EquipmentPreset": {
+      "number": "int32",
+      "slot1_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot2_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot3_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "memoria_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.EquipmentTool": {
+      "entity_id": "int32",
+      "tool_id": "int32",
+      "traits": "[]blend.model.TraitParams",
+      "is_locked": "bool",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.EquipmentToolTraitStimulator": {
+      "equipment_tool_trait_id": "int32",
+      "quantity": "int32"
+    },
+    "blend.model.EventTitle": {
+      "id": "int32",
+      "start_at": "google.protobuf.Timestamp",
+      "end_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.ExpeditionState": {
+      "number": "int32",
+      "expedition_id": "int32",
+      "character_ids": "[]int32",
+      "started_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.ExplorationPartyStatus": {
+      "hps": "[]int32",
+      "skill_rest_counts": "[]blend.model.CharacterSkillRestCount",
+      "party_gauge": "int32",
+      "battle_tool_usage_counts": "[]int32"
+    },
+    "blend.model.ExplorationProgress": {
+      "is_story": "bool",
+      "quest_id": "int32",
+      "area_id": "int32",
+      "route_types": "[]enum:blend.enum.exploration_route_type.ExplorationRouteType",
+      "route_indices": "[]int32",
+      "gathering_states": "[]int32",
+      "party_number": "int32",
+      "party_status": "blend.model.ExplorationPartyStatus",
+      "rewards": "[]blend.model.Reward",
+      "character_exp": "int32",
+      "total_turn": "int32",
+      "control_character_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.ExplorationResult": {
+      "items": "[]blend.model.ResultItem"
+    },
+    "blend.model.Gacha": {
+      "gacha_id": "int32",
+      "start_dash_end_at": "google.protobuf.Timestamp",
+      "gacha_button_states": "[]blend.model.GachaButtonState",
+      "step_up_execution_count": "int32"
+    },
+    "blend.model.GachaBattleResult": {
+      "first_clear_rewards": "[]blend.model.Reward"
+    },
+    "blend.model.GachaBattleState": {
+      "gacha_battle_id": "int32"
+    },
+    "blend.model.GachaButtonState": {
+      "gacha_id": "int32",
+      "gacha_button_id": "int32",
+      "execution_count": "int32",
+      "last_executed_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.GachaCard": {
+      "card_type": "int32",
+      "card_id": "int32",
+      "card_quantity": "int32",
+      "character_acquisition_rarity_id": "google.protobuf.Int32Value",
+      "character_acquisition_skin_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.GachaMixedWishListRate": {
+      "gacha_rate_id": "int32",
+      "cards": "[]blend.model.GachaCard",
+      "rates": "[]blend.model.GachaMixedWishListRateBySelection"
+    },
+    "blend.model.GachaMixedWishListRateBySelection": {
+      "character_count": "int32",
+      "memoria_count": "int32",
+      "character_skin_count": "int32"
+    },
+    "blend.model.GachaMixedWishListRateSet": {
+      "gacha_id": "int32",
+      "dynamic_rows": "[]blend.model.GachaMixedWishListRate",
+      "rows": "[]blend.model.GachaRate",
+      "summaries": "[]blend.model.GachaRateSummary",
+      "pickup_total_character_ids": "[]int32"
+    },
+    "blend.model.GachaNotification": {
+      "gacha_category": "int32",
+      "is_daily_or_free_gacha_remaining": "bool",
+      "latest_gacha_start_at": "google.protobuf.Timestamp",
+      "executable_gacha_ids": "[]int32"
+    },
+    "blend.model.GachaRate": {
+      "gacha_rate_id": "int32",
+      "cards": "[]blend.model.GachaCard"
+    },
+    "blend.model.GachaRateSet": {
+      "gacha_rate_set_id": "int32",
+      "wish_list_character_count": "int32",
+      "wish_list_memoria_count": "int32",
+      "wish_list_character_skin_count": "int32",
+      "rows": "[]blend.model.GachaRate",
+      "summaries": "[]blend.model.GachaRateSummary"
+    },
+    "blend.model.GachaRateSummary": {
+      "card_type": "int32",
+      "rarity": "int32"
+    },
+    "blend.model.GachaWishListSelectedHistory": {
+      "step": "int32",
+      "character_ids": "[]int32",
+      "memoria_ids": "[]int32",
+      "character_skin_ids": "[]int32"
+    },
+    "blend.model.GachaWishListState": {
+      "gacha_id": "int32",
+      "character_ids": "[]int32",
+      "memoria_ids": "[]int32",
+      "character_skin_ids": "[]int32",
+      "selected_histories": "[]blend.model.GachaWishListSelectedHistory"
+    },
+    "blend.model.GrowboardRate": {
+      "hp": "int32",
+      "speed": "int32",
+      "attack": "int32",
+      "magic": "int32",
+      "defense": "int32",
+      "mental": "int32"
+    },
+    "blend.model.GrowboardRoleRate": {
+      "role": "int32",
+      "rate": "blend.model.GrowboardRate"
+    },
+    "blend.model.GrowthPackState": {
+      "growth_pack_id": "int32"
+    },
+    "blend.model.GrowthPackStepState": {
+      "growth_pack_step_id": "int32",
+      "is_received": "bool",
+      "is_premium_received": "bool"
+    },
+    "blend.model.Home": {
+      "home_id": "int32",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.HouseBuildingCountRewardState": {
+      "house_building_id": "int32",
+      "count": "int32"
+    },
+    "blend.model.HouseBuildingPresetHistoryState": {
+      "level": "int32",
+      "product": "int32",
+      "type": "google.protobuf.Int32Value"
+    },
+    "blend.model.HouseBuildingPresetState": {
+      "type": "google.protobuf.Int32Value",
+      "product": "int32"
+    },
+    "blend.model.HouseBuildingShopTrendBonus": {
+      "rewards": "[]blend.model.Reward",
+      "tool_index": "int32"
+    },
+    "blend.model.HouseBuildingState": {
+      "house_building_id": "int32",
+      "level": "int32",
+      "reward_received_at": "google.protobuf.Timestamp",
+      "rental_tools": "[]blend.model.Resource",
+      "rental_end_at": "google.protobuf.Timestamp",
+      "laps": "google.protobuf.Int32Value",
+      "reset_at": "google.protobuf.Timestamp",
+      "preset_states": "[]blend.model.HouseBuildingPresetState",
+      "investigation_record_ids": "[]int32",
+      "preset_history_states": "[]blend.model.HouseBuildingPresetHistoryState"
+    },
+    "blend.model.IllustratedBookRewardState": {
+      "illustrated_book_reward_id": "int32",
+      "reward_type": "int32",
+      "count": "int32",
+      "is_new": "bool"
+    },
+    "blend.model.InvitationMissionState": {
+      "invitation_id": "int32",
+      "invitation_mission_id": "int32",
+      "received_count": "int32"
+    },
+    "blend.model.Item": {
+      "item_id": "int32",
+      "quantity": "int32",
+      "total_quantity": "int32"
+    },
+    "blend.model.ItemChallenge": {
+      "item_challenge_id": "int32",
+      "high_score": "int32",
+      "received_score": "int32"
+    },
+    "blend.model.KeyTask": {
+      "condition_id": "int32",
+      "count": "int32"
+    },
+    "blend.model.LegendChallengeRank": {
+      "episode_id": "google.protobuf.Int64Value",
+      "current_rank": "google.protobuf.Int32Value",
+      "next_rank_range_id": "google.protobuf.Int32Value",
+      "border_total_score": "google.protobuf.Int64Value",
+      "best_total_score": "google.protobuf.Int64Value"
+    },
+    "blend.model.LoginBonus": {
+      "login_bonus_id": "int32",
+      "day": "int32",
+      "regular_day_id": "google.protobuf.Int32Value",
+      "regular_step": "int32"
+    },
+    "blend.model.Mail": {
+      "entity_id": "int32",
+      "mail_type": "int32",
+      "mail_params": "blend.model.MailParams",
+      "rewards": "[]blend.model.Resource",
+      "created_at": "google.protobuf.Timestamp",
+      "opened_at": "google.protobuf.Timestamp",
+      "end_at": "google.protobuf.Timestamp",
+      "is_important": "bool"
+    },
+    "blend.model.MailList": {
+      "unopened": "[]blend.model.Mail",
+      "opened": "[]blend.model.Mail",
+      "bulk_mails": "[]blend.model.BulkMail"
+    },
+    "blend.model.MailParams": {
+      "mail_template_id": "google.protobuf.Int32Value",
+      "login_bonus_id": "google.protobuf.Int32Value",
+      "bulk_mail_id": "google.protobuf.Int32Value",
+      "invitation_mission_id": "google.protobuf.Int32Value",
+      "quest_id": "google.protobuf.Int32Value",
+      "episode_id": "google.protobuf.Int32Value",
+      "growth_pack_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.MasterData": {
+      "shop_products": "[]blend.model.ShopProduct",
+      "shop_product_limited_discounts": "[]blend.model.ShopProductLimitedDiscount"
+    },
+    "blend.model.Memoria": {
+      "entity_id": "int32",
+      "memoria_id": "int32",
+      "limit_break": "int32",
+      "exp": "int32",
+      "is_locked": "bool",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.Mission": {
+      "mission_id": "int32",
+      "count": "int32",
+      "received_step_count": "int32",
+      "reset_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.MissionBattleRewardState": {
+      "mission_battle_quest_id": "int32",
+      "received_step_count": "int32"
+    },
+    "blend.model.MissionCountRewardState": {
+      "category": "int32",
+      "received_step_count": "int32",
+      "reset_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.MissionEventTabRewardState": {
+      "event_tab_id": "int32",
+      "received_step_count": "int32"
+    },
+    "blend.model.ModTimelineState": {
+      "mod_timeline_id": "int32",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.MultiMission": {
+      "multi_mission_id": "int32",
+      "count": "int32",
+      "received_step": "int32"
+    },
+    "blend.model.MultiMissionCount": {
+      "multi_mission_id": "int32",
+      "count": "int64"
+    },
+    "blend.model.MultiMissionNotification": {
+      "multi_mission_counts": "[]blend.model.MultiMissionCount"
+    },
+    "blend.model.NewExpedition": {
+      "number": "int32",
+      "expedition_id": "int32",
+      "character_ids": "[]int32"
+    },
+    "blend.model.NewsNotification": {
+      "updated_at": "google.protobuf.Timestamp",
+      "important_updated_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.Notifications": {
+      "gachas": "[]blend.model.GachaNotification",
+      "mail": "google.protobuf.BoolValue",
+      "multi_mission": "blend.model.MultiMissionNotification",
+      "news": "blend.model.NewsNotification",
+      "random_shops": "[]blend.model.RandomShopNotification"
+    },
+    "blend.model.Party": {
+      "party_type": "int32",
+      "number": "int32",
+      "battle_tool_entity_ids": "[]int32",
+      "leader_position": "int32"
+    },
+    "blend.model.PartyMember": {
+      "party_type": "int32",
+      "number": "int32",
+      "position": "int32",
+      "character_id": "google.protobuf.Int32Value",
+      "slot1_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot2_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot3_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "memoria_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.PartyMemberWithEquipment": {
+      "character_id": "google.protobuf.Int32Value",
+      "slot1_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot2_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot3_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "memoria_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.PresentState": {
+      "present_id": "int32",
+      "character_id": "int32",
+      "closeness": "int32",
+      "friendship_point": "int32",
+      "total_friendship_point": "int32",
+      "received_closeness_rewards": "int32"
+    },
+    "blend.model.PurchaseStep": {
+      "store_product_id": "google.protobuf.Int32Value",
+      "reward_set_id": "google.protobuf.Int32Value",
+      "costs": "[]blend.model.Resource",
+      "daily_pass_id": "google.protobuf.Int32Value",
+      "gacha_id": "google.protobuf.Int32Value",
+      "is_serial_code_exchange_product": "bool"
+    },
+    "blend.model.QuestClearedParty": {
+      "quest_id": "int32",
+      "score_rank": "google.protobuf.Int32Value",
+      "party_members": "[]blend.model.QuestClearedPartyMember",
+      "battle_tools": "[]blend.model.QuestClearedPartyBattleTool",
+      "calculated_at": "google.protobuf.Timestamp",
+      "leader_position": "int32"
+    },
+    "blend.model.QuestClearedPartyBattleTool": {
+      "id": "int32",
+      "traits": "[]blend.model.TraitParams"
+    },
+    "blend.model.QuestClearedPartyCharacter": {
+      "id": "int32",
+      "rarity": "int32",
+      "exp": "int32",
+      "growboard_current_page": "int32",
+      "growboard_ex_current_page": "int32",
+      "growboard_neo_current_page": "int32"
+    },
+    "blend.model.QuestClearedPartyEquipmentTool": {
+      "id": "int32",
+      "traits": "[]blend.model.TraitParams"
+    },
+    "blend.model.QuestClearedPartyMember": {
+      "character": "blend.model.QuestClearedPartyCharacter",
+      "equipment_tools": "[]blend.model.QuestClearedPartyEquipmentTool",
+      "memoria": "blend.model.QuestClearedPartyMemoria"
+    },
+    "blend.model.QuestClearedPartyMemoria": {
+      "id": "int32",
+      "limit_break": "int32",
+      "exp": "int32"
+    },
+    "blend.model.QuestResult": {
+      "rewards": "[]blend.model.Reward",
+      "first_clear_rewards": "[]blend.model.Reward",
+      "mission_battle_rewards": "[]blend.model.Reward",
+      "score_detail": "blend.model.BattleScoreDetail",
+      "score_result": "blend.model.BattleScoreResult",
+      "mission_result": "blend.model.BattleMissionResult",
+      "damage_contest_result": "blend.model.BattleDamageContestResult",
+      "legend_challenge_result": "blend.model.BattleLegendChallengeResult"
+    },
+    "blend.model.QuestSkipResult": {
+      "rewards_per_clear": "[]blend.model.RewardList",
+      "rewards": "[]blend.model.Reward",
+      "score_result": "blend.model.BattleScoreResult"
+    },
+    "blend.model.QuestState": {
+      "quest_id": "int32",
+      "clear_count": "int32",
+      "score_rank": "int32",
+      "first_reward_received_score_rank": "int32",
+      "cleared_battle_mission_ids": "[]int32",
+      "high_score_detail": "blend.model.BattleScoreDetail",
+      "min_total_turn": "int32"
+    },
+    "blend.model.RandomShopNotification": {
+      "shop_id": "int32",
+      "refresh_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.RandomShopPurchaseState": {
+      "shop_product_id": "int32",
+      "count": "int32"
+    },
+    "blend.model.RandomShopState": {
+      "shop_id": "int32",
+      "refresh_count": "int32",
+      "refresh_at": "google.protobuf.Timestamp",
+      "purchase_states": "[]blend.model.RandomShopPurchaseState"
+    },
+    "blend.model.Recipe": {
+      "recipe_id": "int32",
+      "received_at": "google.protobuf.Timestamp",
+      "last_character_ids": "[]int32",
+      "last_ingredient_id": "google.protobuf.Int32Value",
+      "last_trait_stimulator_ids": "[]int32",
+      "is_favorite": "bool"
+    },
+    "blend.model.RecipeCountRewardReceive": {
+      "recipe_plan_id": "int32",
+      "indices": "[]int32"
+    },
+    "blend.model.RecipeCountRewardState": {
+      "recipe_plan_id": "int32",
+      "index": "int32"
+    },
+    "blend.model.RentalParty": {
+      "party_type": "int32",
+      "fixed_party_id": "int32",
+      "battle_tool_entity_ids": "[]int32"
+    },
+    "blend.model.RentalPartyMember": {
+      "party_type": "int32",
+      "fixed_party_id": "int32",
+      "character_id": "int32",
+      "slot1_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot2_equipment_tool_entity_id": "google.protobuf.Int32Value",
+      "slot3_equipment_tool_entity_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.ResearchGroup": {
+      "group_id": "int32",
+      "level": "int32"
+    },
+    "blend.model.Resource": {
+      "type": "int32",
+      "id": "int32",
+      "quantity": "int32",
+      "resource_params": "blend.model.ResourceParams"
+    },
+    "blend.model.ResourceEntities": {
+      "equipment_tool_entity_ids": "[]int32",
+      "battle_tool_entity_ids": "[]int32",
+      "memoria_entity_ids": "[]int32"
+    },
+    "blend.model.ResourceParams": {
+      "level": "google.protobuf.Int32Value",
+      "rank": "google.protobuf.Int32Value",
+      "traits": "[]blend.model.TraitParams",
+      "skin": "google.protobuf.Int32Value"
+    },
+    "blend.model.Resources": {
+      "battle_tools": "[]blend.model.BattleTool",
+      "battle_tool_trait_stimulators": "[]blend.model.BattleToolTraitStimulator",
+      "box_gacha_states": "[]blend.model.BoxGachaState",
+      "chara_homes": "[]blend.model.CharaHome",
+      "chara_home_motions": "[]blend.model.CharaHomeMotion",
+      "characters": "[]blend.model.Character",
+      "character_pieces": "[]blend.model.CharacterPiece",
+      "character_skill_records": "[]blend.model.CharacterSkillRecord",
+      "character_skins": "[]blend.model.CharacterSkin",
+      "character_story_states": "[]blend.model.CharacterStoryState",
+      "communication_states": "[]blend.model.CommunicationState",
+      "daily_pass_states": "[]blend.model.DailyPassState",
+      "emblems": "[]blend.model.Emblem",
+      "episode_states": "[]blend.model.EpisodeState",
+      "equipment_presets": "[]blend.model.EquipmentPreset",
+      "equipment_tools": "[]blend.model.EquipmentTool",
+      "equipment_tool_trait_stimulators": "[]blend.model.EquipmentToolTraitStimulator",
+      "expedition_states": "[]blend.model.ExpeditionState",
+      "exploration_progresses": "[]blend.model.ExplorationProgress",
+      "gacha_battle_states": "[]blend.model.GachaBattleState",
+      "growboard_role_rates": "[]blend.model.GrowboardRoleRate",
+      "growth_pack_states": "[]blend.model.GrowthPackState",
+      "growth_pack_step_states": "[]blend.model.GrowthPackStepState",
+      "homes": "[]blend.model.Home",
+      "house_building_count_reward_states": "[]blend.model.HouseBuildingCountRewardState",
+      "house_building_states": "[]blend.model.HouseBuildingState",
+      "illustrated_book_reward_states": "[]blend.model.IllustratedBookRewardState",
+      "item_challenges": "[]blend.model.ItemChallenge",
+      "items": "[]blend.model.Item",
+      "memorias": "[]blend.model.Memoria",
+      "missions": "[]blend.model.Mission",
+      "mission_battle_reward_states": "[]blend.model.MissionBattleRewardState",
+      "mission_count_reward_states": "[]blend.model.MissionCountRewardState",
+      "mission_event_tab_reward_states": "[]blend.model.MissionEventTabRewardState",
+      "mod_timeline_states": "[]blend.model.ModTimelineState",
+      "multi_missions": "[]blend.model.MultiMission",
+      "notifications": "blend.model.Notifications",
+      "parties": "[]blend.model.Party",
+      "party_members": "[]blend.model.PartyMember",
+      "chara_home_backgrounds": "[]blend.model.CharaHomeBackground",
+      "present_states": "[]blend.model.PresentState",
+      "quest_states": "[]blend.model.QuestState",
+      "recipes": "[]blend.model.Recipe",
+      "recipe_count_reward_states": "[]blend.model.RecipeCountRewardState",
+      "rental_parties": "[]blend.model.RentalParty",
+      "rental_party_members": "[]blend.model.RentalPartyMember",
+      "research_groups": "[]blend.model.ResearchGroup",
+      "revived_events": "[]blend.model.RevivedEvent",
+      "ships": "[]blend.model.Ship",
+      "ship_parties": "[]blend.model.ShipParty",
+      "ship_tools": "[]blend.model.ShipTool",
+      "shop_first_purchase_bonus_state": "blend.model.ShopFirstPurchaseBonusState",
+      "shop_piece_exchange_states": "[]blend.model.ShopPieceExchangeState",
+      "shop_product_states": "[]blend.model.ShopProductState",
+      "solo_raid_states": "[]blend.model.SoloRaidState",
+      "special_offer_states": "[]blend.model.SpecialOfferState",
+      "status": "blend.model.Status",
+      "street_states": "[]blend.model.StreetState",
+      "total_battle_panel_states": "[]blend.model.TotalBattlePanelState",
+      "total_battle_states": "[]blend.model.TotalBattleState",
+      "total_task_counts": "[]blend.model.TotalTaskCount",
+      "wallet": "blend.model.Wallet"
+    },
+    "blend.model.ResultItem": {
+      "id": "int32",
+      "quantity": "int32",
+      "is_rare": "bool"
+    },
+    "blend.model.RevivedEvent": {
+      "event_id": "int32"
+    },
+    "blend.model.Reward": {
+      "type": "int32",
+      "id": "int32",
+      "quantity": "int32",
+      "entity_id": "int32",
+      "resource_params": "blend.model.ResourceParams",
+      "is_new": "bool",
+      "is_bonus": "bool",
+      "is_mission": "bool",
+      "is_special_offer": "bool",
+      "bonus_rate": "int32",
+      "overflowed": "bool",
+      "sent_as_mail": "bool",
+      "old_value": "int32",
+      "other_rewards": "[]blend.model.Resource"
+    },
+    "blend.model.RewardList": {
+      "rewards": "[]blend.model.Reward"
+    },
+    "blend.model.Ship": {
+      "ship_id": "int32",
+      "exp": "int32",
+      "rank": "int32",
+      "party_number": "int32"
+    },
+    "blend.model.ShipParty": {
+      "number": "int32",
+      "character_ids": "[]int32",
+      "main_memoria_entity_id": "google.protobuf.Int32Value",
+      "sub_memoria_entity_ids": "[]int32",
+      "ship_tool_entity_ids": "[]int32"
+    },
+    "blend.model.ShipTool": {
+      "entity_id": "int32",
+      "tool_id": "int32",
+      "exp": "int32",
+      "rank": "int32",
+      "received_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.ShipToolResultRecord": {
+      "ship_tool_id": "int32",
+      "used_count": "int32",
+      "total_dealt_damage": "int64"
+    },
+    "blend.model.ShopFirstPurchaseBonusState": {
+      "is_received": "bool"
+    },
+    "blend.model.ShopGemList": {
+      "shop_products": "[]blend.model.ShopProduct",
+      "store_products": "[]blend.model.StoreProduct",
+      "shop_wheel_products": "[]blend.model.ShopWheelProduct"
+    },
+    "blend.model.ShopPieceExchangeState": {
+      "character_id": "int32",
+      "purchased_count": "int32"
+    },
+    "blend.model.ShopProduct": {
+      "id": "int32",
+      "shop_id": "int32",
+      "recommendation_shop_id": "google.protobuf.Int32Value",
+      "limit_count": "int32",
+      "is_banner_disp_cost": "bool",
+      "still_path_hash": "int64",
+      "background_image_path_hash": "int64",
+      "full_surface_still_path_hash": "int64",
+      "overwrite_label_type": "google.protobuf.Int32Value",
+      "priority": "int32",
+      "recommendation_priority": "int32",
+      "start_at": "google.protobuf.Timestamp",
+      "end_at": "google.protobuf.Timestamp",
+      "purchase_steps": "[]blend.model.PurchaseStep",
+      "reset_cycle": "google.protobuf.Int32Value",
+      "reset_period": "int32",
+      "key_quest_id": "google.protobuf.Int32Value",
+      "key_guide_mission_step_id": "google.protobuf.Int32Value",
+      "key_tasks": "[]blend.model.KeyTask",
+      "purchase_period_minutes": "google.protobuf.Int32Value",
+      "release_banner_path_hash": "int64"
+    },
+    "blend.model.ShopProductLimitedDiscount": {
+      "id": "int32",
+      "shop_product_id": "int32",
+      "costs": "[]blend.model.Resource",
+      "start_at": "google.protobuf.Timestamp",
+      "end_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.ShopProductState": {
+      "purchased_count": "int32",
+      "shop_product_id": "int32",
+      "next_reset_at": "google.protobuf.Timestamp",
+      "end_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.ShopWheelProduct": {
+      "count": "int32",
+      "rewards": "[]blend.model.Resource",
+      "shop_wheel_id": "int32"
+    },
+    "blend.model.SoloRaidEnemyState": {
+      "member_id": "int32",
+      "enemy_id": "int32",
+      "initial_hp": "int32",
+      "hp": "int32",
+      "initial_break_gauge": "int32",
+      "break_gauge": "int32",
+      "break_gauge_number": "int32"
+    },
+    "blend.model.SoloRaidState": {
+      "quest_id": "int32",
+      "entered_at": "google.protobuf.Timestamp",
+      "used_character_ids": "[]int32",
+      "enemy_states": "[]blend.model.SoloRaidEnemyState"
+    },
+    "blend.model.SpecialOfferState": {
+      "special_offer_id": "int32",
+      "expires_at": "google.protobuf.Timestamp",
+      "last_free_stamina_recovered_at": "google.protobuf.Timestamp",
+      "free_stamina_recovered_count": "int32"
+    },
+    "blend.model.Status": {
+      "exp": "int32",
+      "rank": "int32",
+      "cole": "int32",
+      "mana_when_updated": "int32",
+      "mana_updated_at": "google.protobuf.Timestamp",
+      "stamina_when_updated": "int32",
+      "stamina_purchased_count": "int32",
+      "stamina_updated_at": "google.protobuf.Timestamp",
+      "last_main_story_quest_id": "int32",
+      "tutorial_step": "int32",
+      "growboard_max_page": "int32",
+      "party_max_battle_tool_count": "int32",
+      "dishes_when_updated": "int32",
+      "dish_idleness": "int32",
+      "dishes_updated_at": "google.protobuf.Timestamp",
+      "minimum_character_level": "int32",
+      "spare_stamina_acc_seconds": "int32",
+      "expedition_max_count": "int32",
+      "synthesis_rental_count": "int32",
+      "synthesis_rental_count_updated_at": "google.protobuf.Timestamp"
+    },
+    "blend.model.StoreProduct": {
+      "id": "int32",
+      "money_amount": "int32",
+      "free_amount": "int32",
+      "price": "google.protobuf.DoubleValue"
+    },
+    "blend.model.StoreProductPrice": {
+      "id": "int32",
+      "price": "float",
+      "money_amount": "int32",
+      "free_amount": "int32"
+    },
+    "blend.model.StreetState": {
+      "quest_id": "int32",
+      "phase": "int32",
+      "trigger_indices": "[]int32",
+      "played_talk_ids": "[]int32"
+    },
+    "blend.model.SynthesisCombinationRank": {
+      "character1_id": "int32",
+      "character2_id": "int32",
+      "ingredient_id": "google.protobuf.Int32Value"
+    },
+    "blend.model.SynthesisCombinationRanking": {
+      "calculated_at": "google.protobuf.Timestamp",
+      "ranks": "[]blend.model.SynthesisCombinationRank"
+    },
+    "blend.model.Title": {
+      "id": "int32"
+    },
+    "blend.model.ToolEntity": {
+      "type": "int32",
+      "entity_id": "int32"
+    },
+    "blend.model.TotalBattlePanelState": {
+      "total_battle_panel_id": "int32",
+      "total_battle_id": "int32",
+      "character_ids": "[]int32"
+    },
+    "blend.model.TotalBattleState": {
+      "total_battle_id": "int32",
+      "best_achieved_line_count": "int32",
+      "drama_achieved_line_count": "int32"
+    },
+    "blend.model.TotalTaskCount": {
+      "condition_id": "int32",
+      "count": "int32"
+    },
+    "blend.model.TraitParams": {
+      "id": "int32",
+      "rank": "int32"
+    },
+    "blend.model.Wallet": {
+      "free": "int32",
+      "paid": "int32",
+      "ktstore_paid": "int32"
+    },
+    "google.protobuf.Empty": {}
+  },
+  "enums": {
+    "blend.enum.battle_action_type.BattleActionType": {
+      "member": 0,
+      "battle_tool": 1,
+      "battle_tool_mix": 2,
+      "ship_tool": 3
+    },
+    "blend.enum.battle_attack_mode.BattleAttackMode": {
+      "skill": 0,
+      "battle_tool": 1,
+      "start_auto": 5,
+      "stop_auto": 3,
+      "skip": 4,
+      "tutorial_max_party_gauge": 6,
+      "active_skill": 7,
+      "battle_tool_mix": 8,
+      "ship_tool": 9
+    },
+    "blend.enum.battle_auto_type.BattleAutoType": {
+      "none": 0,
+      "normal": 1,
+      "full": 2
+    },
+    "blend.enum.battle_break_type.BattleBreakType": {
+      "none": 0,
+      "small": 1,
+      "large": 2
+    },
+    "blend.enum.battle_deal_state_change_result.BattleDealStateChangeResult": {
+      "noop": 0,
+      "success": 1,
+      "miss": 2,
+      "duplicated": 3,
+      "disabled": 4
+    },
+    "blend.enum.battle_member_type.BattleMemberType": {
+      "ally": 0,
+      "enemy": 1
+    },
+    "blend.enum.battle_resume_status.BattleResumeStatus": {
+      "none": 0,
+      "resumable": 1,
+      "expired": 2
+    },
+    "blend.enum.battle_skill_target_mode.BattleSkillTargetMode": {
+      "none": 0,
+      "random": 1,
+      "sniping": 2
+    },
+    "blend.enum.battle_status.BattleStatus": {
+      "in_battle": 0,
+      "won": 1,
+      "lost": 2,
+      "force_finish": 3
+    },
+    "blend.enum.battle_timeline_move_reason.BattleTimelineMoveReason": {
+      "consumed": 0,
+      "killed": 1,
+      "large_break": 2,
+      "small_break": 5,
+      "effect": 3,
+      "skill_changed": 4,
+      "extra_turn": 6,
+      "reset_enemy_ai": 7,
+      "summons_effect": 8,
+      "manipulated_turn": 9,
+      "delete_wait_turn": 10
+    },
+    "blend.enum.battle_timeline_target_turn_range.BattleTimelineTargetTurnRange": {
+      "all": 0,
+      "first": 1
+    },
+    "blend.enum.battle_timeline_unit_type.BattleTimelineUnitType": {
+      "normal": 0,
+      "extra_turn": 1
+    },
+    "blend.enum.exploration_route_type.ExplorationRouteType": {
+      "gathering": 0,
+      "battle": 1,
+      "talk": 2
+    }
+  }
+}

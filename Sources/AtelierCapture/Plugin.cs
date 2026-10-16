@@ -39,6 +39,9 @@ public sealed class Plugin : BasePlugin
     public override void Load()
     {
         Log = base.Log;
+        var privacy = CapturePrivacy.Load(
+            Path.Combine(Paths.ConfigPath, "AtelierCapture.Privacy.json")
+        );
         operational = new OperationalStatus(message => Log.LogWarning(message));
         var pluginPath = typeof(Plugin).Assembly.Location;
         using var assembly = File.OpenRead(pluginPath);
@@ -52,6 +55,7 @@ public sealed class Plugin : BasePlugin
                 ?.InformationalVersion,
             assembly_sha256 = Convert.ToHexString(SHA256.HashData(assembly)),
             identity_self_reported = true,
+            privacy = privacy.Metadata,
             observation_contract = "complete_supported_gameplay_with_explicit_read_failures",
             durability = new
             {
@@ -71,7 +75,9 @@ public sealed class Plugin : BasePlugin
             Path.Combine(Path.GetDirectoryName(pluginPath)!, "Captures"),
             metadata,
             CaptureStatus,
-            operational.Report
+            operational.Report,
+            null,
+            privacy
         );
         control = new CaptureControl(Writer.RunId, CurrentStatus, Writer.Abort, operational);
         diagnostics = new DiagnosticBridge(
