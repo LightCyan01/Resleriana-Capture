@@ -44,7 +44,7 @@ internal sealed class UpdateFiles
 
     internal UpdateFiles(string root)
     {
-        Root = System.IO.Path.TrimEndingDirectorySeparator(System.IO.Path.GetFullPath(root));
+        Root = GamePath.Canonical(root);
         State = Resolve("BepInEx/capture-update");
     }
 
@@ -78,13 +78,13 @@ internal sealed class UpdateFiles
             current = System.IO.Path.GetDirectoryName(current)
         )
         {
+            if (string.Equals(current, Root, StringComparison.OrdinalIgnoreCase))
+                return;
             if (
                 (File.Exists(current) || Directory.Exists(current))
                 && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0
             )
                 throw new InvalidDataException("Update paths must not be links or junctions.");
-            if (string.Equals(current, Root, StringComparison.OrdinalIgnoreCase))
-                return;
         }
         throw new InvalidDataException("Update path is outside game directory.");
     }

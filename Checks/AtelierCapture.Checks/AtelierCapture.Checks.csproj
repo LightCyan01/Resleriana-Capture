@@ -11,12 +11,14 @@
       >$(MSBuildThisFileDirectory)..\..\work\build\stage\BepInEx\core</RuntimeDirectory>
     <ReferenceDirectory Condition="'$(ReferenceDirectory)' == ''"
       >$(MSBuildThisFileDirectory)..\..\work\build\dependencies</ReferenceDirectory>
+    <UpdaterDirectory Condition="'$(UpdaterDirectory)' == ''"
+      >$(RuntimeDirectory)\..\..\dotnet</UpdaterDirectory>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Sources\AtelierCapture\AtelierCapture.csproj" />
     <Reference
       Include="AtelierCapture.Update"
-      HintPath="$(RuntimeDirectory)\..\..\dotnet\AtelierCapture.Update.dll"
+      HintPath="$(UpdaterDirectory)\AtelierCapture.Update.dll"
     />
     <Reference Include="BepInEx.Core" HintPath="$(RuntimeDirectory)\BepInEx.Core.dll" />
     <Reference

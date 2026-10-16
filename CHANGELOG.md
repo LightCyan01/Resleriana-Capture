@@ -3,6 +3,9 @@
 ## 1.4.0
 
 - Add automatic capture updates from stable releases, installed after the game exits.
+- Offer a separate manual package with no updater components.
+- Verify automatic updates with a maintainer release signature before processing their payloads.
+- Support game installations accessed through junctions or symbolic links.
 - Recover interrupted plugin updates before recording starts, with verified rollback copies.
 - Keep BepInEx, runtime, localization and existing captures outside automatic update payloads.
 - Rewrite the recorder with improved API, Battle and Atelier capture.

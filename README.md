@@ -8,7 +8,7 @@ The Steam JP client, version 2.16.0.
 
 ## Install
 
-1. Close the game. Download `Resleriana-Capture-vX.Y.Z-win-x64.zip` from the Assets of the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest).
+1. Close the game. Download a full package from the Assets of the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest): `Resleriana-Capture-vX.Y.Z-win-x64.zip` includes automatic capture updates; `Resleriana-Capture-vX.Y.Z-manual-win-x64.zip` omits the updater and requires manual updates. Both record the same data.
 2. Open the game folder, the one that contains `AtelierResleriana.exe`. If it already has a `dotnet` or `BepInEx/core` folder, move it somewhere outside the game folder. The plugin checks the hashes of these files, so old and new copies can't be mixed.
 3. Extract the ZIP into the game folder. Keep your existing captures, custom localization files and other plugins. If you already have files in `BepInEx/config`, keep yours and update them as described in [Upgrading an existing setup](#upgrading-an-existing-setup). Make sure the game folder has only one `AtelierCapture.dll`.
 4. Launch the game through Steam. Recording starts on its own. The first launch can take a few minutes to set up.
@@ -83,11 +83,16 @@ Aborting marks the run incomplete and keeps the data already saved. It can't sav
 
 ## Automatic capture updates
 
+This section applies to the package with automatic updates. The manual package
+contains no updater helper or patcher and makes no automatic-update checks.
+
 The updater checks for newer stable releases in the background, at most once per hour. Compatible updates download while you play and install after the game process exits. The current session keeps its original recorder version. A crash or forced close also releases the updater to install; if the updater is interrupted, the next launch finishes recovery before capture starts.
 
-Automatic updates replace only the capture plugin, its native companion and their compatibility certificate. A release that changes BepInEx, the updater or the embedded runtime requires the full installer. Existing captures and recording recovery folders are preserved. Downloads that fail validation leave the installed recorder in place.
+Automatic updates replace only the capture plugin, its native companion and their compatibility certificate. Changes to the loader, BepInEx and its dependencies, the updater, the embedded runtime, Unity libraries, `capture-control.ps1` or the bundled translation require the full installer. Existing captures and recording recovery folders are preserved. Downloads that fail validation leave the installed recorder in place.
 
-Automatic updates are enabled by default, including in source builds. Updates come from `LightCyan01/Resleriana-Capture`. If you modify the capture plugin, a compatible newer official release can replace your changes.
+Automatic-update packages must carry a valid release signature. The updater contains only the public verification key; the private signing key stays with the maintainer, outside the repository and GitHub. A GitHub release or matching download checksum alone cannot authorize an update. This signature does not encrypt captures or change their contents. The first installation of this signed updater requires the full installer.
+
+Automatic updates are enabled by default in the automatic package, including ordinary source builds. Updates come from `LightCyan01/Resleriana-Capture`. If you modify the capture plugin, a compatible newer official release can replace your changes. Use the manual package or build with `--manual-only` to omit the updater.
 
 To disable updates and keep your custom build, create or edit `BepInEx/config/AtelierCapture.Updater.cfg` before starting the game:
 
@@ -97,6 +102,23 @@ Enabled = false
 ```
 
 Set `Enabled = true` to enable official updates again. Recovery of an already interrupted installation still runs. Releases with the same version number do not update automatically.
+
+### Switching to the manual package
+
+Finish any interrupted update with the automatic package first. Then close the
+game and wait for `AtelierCapture.Update.exe` to exit. Move these updater files
+outside the game folder before installing the manual ZIP:
+
+- `BepInEx/patchers/AtelierCapture.Updater.dll`
+- `dotnet/AtelierCapture.Update.exe`
+- `dotnet/AtelierCapture.Update.dll`
+- `dotnet/AtelierCapture.Update.deps.json`
+- `dotnet/AtelierCapture.Update.runtimeconfig.json`
+- `dotnet/hostfxr.dll`
+
+Keep captures, configuration and `BepInEx/capture-update` recovery files. The manual
+plugin refuses to start if an unfinished transaction or old updater patcher
+remains. Changing back to automatic updates also requires the full package.
 
 ## How recording works
 

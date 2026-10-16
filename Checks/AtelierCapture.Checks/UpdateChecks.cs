@@ -14,23 +14,17 @@ namespace AtelierCapture.Checks;
 internal static class UpdateChecks
 {
     private static int assertions;
-    private static string product = "";
-    private static string native = "";
     private static string workspace = "";
 
     internal static void Run()
     {
         workspace = FindRoot();
-        product = Path.Combine(workspace, "work/build/stage/BepInEx/plugins/AtelierCapture.dll");
-        native = Path.Combine(
-            workspace,
-            "work/build/stage/BepInEx/plugins/AtelierCapture.Native.dll"
-        );
         using (var area = new Area())
         {
             PackageValidation(area);
             TransactionCases(area);
             LockingAndGate(area);
+            JunctionRoots(area);
             ReleaseCases().GetAwaiter().GetResult();
             HelperLifecycle(area);
         }
@@ -40,14 +34,64 @@ internal static class UpdateChecks
     internal static void RunHost()
     {
         workspace = FindRoot();
-        product = Path.Combine(workspace, "work/build/stage/BepInEx/plugins/AtelierCapture.dll");
-        native = Path.Combine(
-            workspace,
-            "work/build/stage/BepInEx/plugins/AtelierCapture.Native.dll"
-        );
         using (var area = new Area())
             HelperLifecycle(area);
         Console.WriteLine($"UPDATE HOST CHECKS PASSED: {assertions} assertions");
+    }
+
+    internal static void RunVariant()
+    {
+        workspace = FindRoot();
+        var stage =
+            Environment.GetEnvironmentVariable("ATELIER_CAPTURE_CHECK_STAGE")
+            ?? Path.Combine(workspace, "work/build/stage");
+        using var certificate = JsonDocument.Parse(
+            File.ReadAllBytes(Path.Combine(stage, UpdateFiles.Certificate))
+        );
+        var compiledMode = (bool)
+            typeof(Plugin)
+                .Assembly.GetType("AtelierCapture.BuildInfo", true)!
+                .GetField("AutomaticUpdates", BindingFlags.NonPublic | BindingFlags.Static)!
+                .GetRawConstantValue()!;
+        Check(
+            certificate.RootElement.GetProperty("update_mode").GetString()
+                == (compiledMode ? "automatic" : "manual"),
+            "shipping plugin and certificate agree on mode"
+        );
+        using var area = new Area();
+        var root = area.New();
+        var files = new UpdateFiles(root);
+        files.Initialize();
+        AppContext.SetData(UpdateFiles.GateKey, null);
+        RuntimeCompatibility.RequireUpdateGate(root, false);
+        Check(true, "manual capture starts without updater admission");
+        Throws(
+            () => RuntimeCompatibility.RequireUpdateGate(root, true),
+            "automatic capture still requires updater admission"
+        );
+        if (!compiledMode)
+            RuntimeCompatibility.RequireUpdateGate(root, compiledMode);
+        File.WriteAllText(files.Journal, "unfinished update");
+        Throws(
+            () => RuntimeCompatibility.RequireUpdateGate(root, false),
+            "manual capture rejects unfinished update"
+        );
+        Throws(
+            () => RuntimeCompatibility.RequireUpdateGate(root, true),
+            "automatic capture rejects unfinished update"
+        );
+        File.Delete(files.Journal);
+        var patcher = files.Resolve("BepInEx/patchers/AtelierCapture.Updater.dll");
+        Directory.CreateDirectory(Path.GetDirectoryName(patcher)!);
+        File.WriteAllText(patcher, "old updater");
+        Throws(
+            () => RuntimeCompatibility.RequireUpdateGate(root, false),
+            "manual capture refuses leftover automatic patcher"
+        );
+        File.Delete(patcher);
+        RuntimeCompatibility.RequireUpdateGate(root, false);
+        Check(true, "manual admission succeeds after removing old updater");
+        Console.WriteLine("UPDATE VARIANT CHECKS PASSED");
     }
 
     internal static void RunPackage(string root, string archive)
@@ -99,6 +143,115 @@ internal static class UpdateChecks
         }
         var valid = File.ReadAllBytes(files.Ready);
         foreach (
+            var mode in new[]
+            {
+                "missing",
+                "empty",
+                "short",
+                "long",
+                "changed",
+                "wrong-key",
+                "manifest-whitespace",
+            }
+        )
+        {
+            File.WriteAllBytes(files.Ready, valid);
+            using (var zip = ZipFile.Open(files.Ready, ZipArchiveMode.Update))
+            {
+                var signature = zip.GetEntry("update.sig")!;
+                if (mode == "manifest-whitespace")
+                {
+                    byte[] bytes;
+                    var entry = zip.GetEntry("update.json")!;
+                    using (var input = entry.Open())
+                    using (var output = new MemoryStream())
+                    {
+                        input.CopyTo(output);
+                        bytes = output.ToArray();
+                    }
+                    entry.Delete();
+                    Write(zip, "update.json", [.. bytes, (byte)' ']);
+                }
+                else
+                {
+                    signature.Delete();
+                    if (mode != "missing")
+                    {
+                        var bytes = new byte[
+                            mode == "empty" ? 0
+                            : mode == "short" ? 63
+                            : mode == "long" ? 65
+                            : 64
+                        ];
+                        if (mode == "wrong-key")
+                        {
+                            using var wrongKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+                            using var input = zip.GetEntry("update.json")!.Open();
+                            bytes = wrongKey.SignData(
+                                input,
+                                HashAlgorithmName.SHA256,
+                                DSASignatureFormat.IeeeP1363FixedFieldConcatenation
+                            );
+                        }
+                        Write(zip, "update.sig", bytes);
+                    }
+                }
+            }
+            Throws(
+                () =>
+                {
+                    using var ignored = new UpdatePackage(files.Ready);
+                },
+                "signature rejects " + mode
+            );
+        }
+        File.Copy(
+            Path.Combine(
+                workspace,
+                "Checks/AtelierCapture.Checks/Fixtures/signed-invalid-contract.zip"
+            ),
+            files.Ready,
+            true
+        );
+        try
+        {
+            using var ignored = new UpdatePackage(files.Ready);
+            Check(false, "signed invalid contract rejected");
+        }
+        catch (InvalidDataException error)
+        {
+            Check(
+                error.Message == "Unsupported update contract.",
+                "valid signature reaches contract validation"
+            );
+        }
+        File.WriteAllBytes(files.Ready, valid);
+        var signingInput = files.Resolve("BepInEx/capture-update/signing-input.json");
+        var signingOutput = files.Resolve("BepInEx/capture-update/signing-output.sig");
+        var wrongKeyPath = files.Resolve("BepInEx/capture-update/temporary-test-key.pem");
+        File.WriteAllText(signingInput, "{}");
+        File.WriteAllText(signingOutput, "previous-signature");
+        using (var wrongKey = ECDsa.Create(ECCurve.NamedCurves.nistP256))
+            File.WriteAllText(wrongKeyPath, wrongKey.ExportPkcs8PrivateKeyPem());
+        Throws(
+            () => UpdateSignature.Sign(signingInput, signingOutput, wrongKeyPath),
+            "signer refuses a different release key"
+        );
+        Throws(
+            () =>
+                UpdateSignature.Sign(
+                    signingInput,
+                    signingOutput,
+                    Path.Combine(workspace, "Sources/AtelierCapture.Update/update-public.pem")
+                ),
+            "public key cannot sign releases"
+        );
+        Check(
+            File.ReadAllText(signingOutput) == "previous-signature",
+            "failed signing preserves previous signature"
+        );
+        File.Delete(wrongKeyPath);
+        foreach (
             var name in new[]
             {
                 "../escape.dll",
@@ -149,6 +302,7 @@ internal static class UpdateChecks
                 j["files"]![0]!["size"] = size - 1;
             }
         );
+        File.WriteAllBytes(files.Ready, valid);
         var forged = File.ReadAllBytes(files.Ready);
         var forgedSize = false;
         for (var index = 0; index + 46 < forged.Length; index++)
@@ -228,6 +382,22 @@ internal static class UpdateChecks
             Throws(() => package.CheckInstalled(files), "incompatible base contract");
         }
         File.WriteAllBytes(certificatePath, certificate);
+        var installedPlugin = files.Resolve(UpdateFiles.Targets[0]);
+        var originalPlugin = File.ReadAllBytes(installedPlugin);
+        File.Delete(installedPlugin);
+        using (var package = new UpdatePackage(files.Ready))
+            Throws(
+                () => package.CheckInstalled(files),
+                "removed plugin refuses automatic installation"
+            );
+        using (new UpdateTransaction(files).Enter())
+            Check(
+                !new UpdateTransaction(files).TryApplyReady(_ => { }),
+                "staged update cannot reinstall removed plugin"
+            );
+        Check(!File.Exists(installedPlugin), "removed plugin remains absent");
+        File.WriteAllBytes(installedPlugin, originalPlugin);
+        File.WriteAllBytes(files.Ready, valid);
         using (var zip = ZipFile.Open(files.Ready, ZipArchiveMode.Update))
         {
             zip.GetEntry(UpdateFiles.Targets[0])!.Delete();
@@ -248,6 +418,21 @@ internal static class UpdateChecks
 
     private static void TransactionCases(Area area)
     {
+        {
+            var files = Fixture(area.New());
+            using (var child = StartChild("--update-crash-child", files.Root, "after_replace_0"))
+                Check(
+                    child.WaitForExit(5000) && child.ExitCode == 73,
+                    "removed-plugin recovery interruption exercised"
+                );
+            var plugin = files.Resolve(UpdateFiles.Targets[0]);
+            File.Delete(plugin);
+            Throws(
+                new UpdateTransaction(files).Recover,
+                "recovery refuses a deliberately removed plugin"
+            );
+            Check(!File.Exists(plugin), "recovery never resurrects removed recorder");
+        }
         foreach (
             var stop in new[]
             {
@@ -527,6 +712,117 @@ internal static class UpdateChecks
         Directory.Delete(linked);
     }
 
+    private static void JunctionRoots(Area area)
+    {
+        var files = Fixture(area.New());
+        var alias = area.New();
+        var ancestor = area.New();
+        Junction(alias, files.Root);
+        Junction(ancestor, Path.GetDirectoryName(files.Root)!);
+        try
+        {
+            var aliases = new[] { alias, Path.Combine(ancestor, Path.GetFileName(files.Root)) };
+            foreach (var path in aliases)
+            {
+                var same = new UpdateFiles(path);
+                Check(
+                    same.Root == files.Root && same.State == files.State,
+                    "junction spellings share physical identity"
+                );
+                AppContext.SetData(UpdateFiles.GateKey, files.Root);
+                RuntimeCompatibility.RequireUpdateGate(path);
+                using (var child = StartChild("--update-lock-child", path, "hold"))
+                {
+                    WaitFile(files.Resolve("BepInEx/capture-update/child-ready"), child);
+                    try
+                    {
+                        Throws(
+                            () => new UpdateTransaction(files).Enter(20).Dispose(),
+                            "aliases share cross-process mutex"
+                        );
+                        Throws(
+                            () => new UpdateTransaction(same).GameLease(true).Dispose(),
+                            "aliases share game lease"
+                        );
+                    }
+                    finally
+                    {
+                        child.Kill();
+                        Check(child.WaitForExit(5000), "alias stand-in exited");
+                        File.Delete(files.Resolve("BepInEx/capture-update/child-ready"));
+                    }
+                }
+            }
+            var before = Targets(files);
+            using (var child = StartChild("--update-crash-child", alias, "after_replace_0"))
+                Check(
+                    child.WaitForExit(5000) && child.ExitCode == 73,
+                    "junction interrupted replacement exercised"
+                );
+            var transaction = new UpdateTransaction(new UpdateFiles(aliases[1]));
+            using (transaction.Enter())
+            using (transaction.GameLease(true))
+                transaction.Recover();
+            Check(
+                before.SequenceEqual(Targets(files)),
+                "physical/alias recovery restores originals"
+            );
+            File.Copy(
+                Path.Combine(workspace, "Checks/AtelierCapture.Checks/Fixtures/signed-update.zip"),
+                files.Ready,
+                true
+            );
+            using (transaction.Enter())
+            using (transaction.GameLease(true))
+                Check(transaction.ApplyReady(), "junction signed stage applies");
+            Check(
+                File.ReadAllText(files.Resolve("BepInEx/plugins/Captures/Official/sentinel.zip"))
+                    == "capture-preserved",
+                "junction update preserves capture"
+            );
+            Check(
+                File.ReadAllText(files.Resolve("BepInEx/config/user.cfg")) == "config-preserved",
+                "junction update preserves configuration"
+            );
+            var linked = Path.Combine(files.Root, "BepInEx/plugins/linked");
+            Junction(linked, area.New());
+            try
+            {
+                Throws(
+                    () =>
+                        new UpdateFiles(alias).Resolve("BepInEx/plugins/linked/AtelierCapture.dll"),
+                    "descendant links remain forbidden through root alias"
+                );
+            }
+            finally
+            {
+                Directory.Delete(linked);
+            }
+        }
+        finally
+        {
+            AppContext.SetData(UpdateFiles.GateKey, null);
+            Directory.Delete(alias);
+            Directory.Delete(ancestor);
+        }
+    }
+
+    private static void Junction(string link, string target)
+    {
+        if (Directory.Exists(link))
+            Directory.Delete(link);
+        using var process = Process.Start(
+            new ProcessStartInfo("cmd.exe")
+            {
+                Arguments = $"/c mklink /J \"{link}\" \"{target}\"",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+            }
+        )!;
+        Check(process.WaitForExit(5000) && process.ExitCode == 0, "disposable junction created");
+    }
+
     private static async Task ReleaseCases()
     {
         var hash = Convert.ToHexStringLower(SHA256.HashData("zip"u8));
@@ -781,21 +1077,45 @@ internal static class UpdateChecks
             runtimePack
         ]!.DeepClone();
         File.WriteAllText(dependenciesPath, dependencies.ToJsonString());
-        foreach (var mode in new[] { "normal", "forced", "helper-killed", "two-games" })
+        foreach (
+            var mode in new[]
+            {
+                "normal",
+                "forced",
+                "helper-killed",
+                "two-games",
+                "junction",
+                "junction-disabled",
+            }
+        )
         {
             files = Fixture(root);
+            File.Delete(files.Resolve("BepInEx/capture-update/startup-apply"));
+            File.Delete(files.Resolve("BepInEx/config/AtelierCapture.Updater.cfg"));
+            File.Delete(files.Resolve("BepInEx/capture-update/status.json"));
+            var launchRoot = root;
+            if (mode.StartsWith("junction", StringComparison.Ordinal))
+            {
+                launchRoot = area.New();
+                Junction(launchRoot, root);
+            }
+            if (mode == "junction-disabled")
+                File.WriteAllText(
+                    files.Resolve("BepInEx/config/AtelierCapture.Updater.cfg"),
+                    "[Updates]\nEnabled = false\n"
+                );
             var signalName = "Local\\CaptureUpdateFixture" + Guid.NewGuid().ToString("N");
             using var signal = new EventWaitHandle(false, EventResetMode.ManualReset, signalName);
             var ready = files.Resolve("BepInEx/capture-update/fixture-ready");
             if (File.Exists(ready))
                 File.Delete(ready);
-            var start = new ProcessStartInfo(Path.Combine(root, "AtelierResleriana.exe"))
+            var start = new ProcessStartInfo(Path.Combine(launchRoot, "AtelierResleriana.exe"))
             {
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardError = true,
             };
-            foreach (var arg in new[] { "--update-game-child", root, signalName })
+            foreach (var arg in new[] { "--update-game-child", launchRoot, signalName })
                 start.ArgumentList.Add(arg);
             start.Environment["DOTNET_ROOT"] = Path.Combine(root, "nonexistent-dotnet");
             start.Environment["DOTNET_MULTILEVEL_LOOKUP"] = "0";
@@ -816,7 +1136,7 @@ internal static class UpdateChecks
                     );
                 Check(File.Exists(ready), "stand-in reached startup gate");
                 var helperStart = new ProcessStartInfo(
-                    files.Resolve("dotnet/AtelierCapture.Update.exe")
+                    Path.Combine(launchRoot, "dotnet/AtelierCapture.Update.exe")
                 )
                 {
                     UseShellExecute = false,
@@ -834,25 +1154,34 @@ internal static class UpdateChecks
                 helperStart.Environment["DOTNET_ROOT"] = Path.Combine(root, "nonexistent-dotnet");
                 helperStart.Environment["DOTNET_MULTILEVEL_LOOKUP"] = "0";
                 helper = Process.Start(helperStart)!;
-                var watch = Stopwatch.StartNew();
-                var helperLock = files.Resolve("BepInEx/capture-update/helper.lock");
-                while (
-                    !File.Exists(helperLock)
-                    && !helper.HasExited
-                    && watch.ElapsedMilliseconds < 5000
-                )
-                    Thread.Sleep(20);
-                Check(
-                    !helper.HasExited && File.Exists(helperLock),
-                    "external helper reached parent wait"
-                );
+                if (mode == "junction-disabled")
+                {
+                    Check(
+                        helper.WaitForExit(5000) && helper.ExitCode == 0,
+                        "disabled helper exits without checking or applying"
+                    );
+                    Throws(
+                        () => new UpdateTransaction(files).GameLease(true).Dispose(),
+                        "disabled junction startup retains its game lease"
+                    );
+                    Check(
+                        ReadVersion(files) == "1.3.9" && File.Exists(files.Ready),
+                        "disabled junction capture preserves recorder and staged package"
+                    );
+                    signal.Set();
+                    Check(child.WaitForExit(5000), "disabled junction stand-in exits");
+                    continue;
+                }
+                WaitForParent(helper, files);
                 Check(ReadVersion(files) == "1.3.9", "active game retains old recorder");
                 if (mode == "helper-killed")
                 {
                     helper.Kill();
                     Check(helper.WaitForExit(5000), "forced helper exit releases ownership");
                     helper.Dispose();
+                    File.Delete(files.Resolve("BepInEx/capture-update/status.json"));
                     helper = Process.Start(helperStart)!;
+                    WaitForParent(helper, files);
                 }
                 if (mode == "two-games")
                 {
@@ -872,9 +1201,18 @@ internal static class UpdateChecks
                 else
                     signal.Set();
                 Check(child.WaitForExit(5000), "stand-in game exits");
+                var helperExited = helper.WaitForExit(10000);
+                var statusPath = files.Resolve("BepInEx/capture-update/status.json");
                 Check(
-                    helper.WaitForExit(10000) && helper.ExitCode == 0,
-                    "actual helper exits cleanly after " + mode
+                    helperExited && helper.ExitCode == 0,
+                    "actual helper exits cleanly after "
+                        + mode
+                        + ": "
+                        + (
+                            File.Exists(statusPath)
+                                ? File.ReadAllText(statusPath)
+                                : "no helper status"
+                        )
                 );
                 if (secondChild is not null)
                 {
@@ -909,7 +1247,8 @@ internal static class UpdateChecks
                     }
                 }
                 Check(
-                    ReadVersion(files) == "1.4.0" && !File.Exists(files.Journal),
+                    ReadVersion(files) == (mode == "junction-disabled" ? "1.3.9" : "1.4.0")
+                        && !File.Exists(files.Journal),
                     "external helper leaves verified complete set"
                 );
                 Check(
@@ -945,12 +1284,44 @@ internal static class UpdateChecks
                     }
                     helper.Dispose();
                 }
+                DrainHelpers(files);
+                if (launchRoot != root)
+                    Directory.Delete(launchRoot);
             }
         }
+    }
+
+    private static void WaitForParent(Process helper, UpdateFiles files)
+    {
+        var timer = Stopwatch.StartNew();
+        var status = files.Resolve("BepInEx/capture-update/status.json");
+        while (!helper.HasExited && timer.ElapsedMilliseconds < 5000)
+        {
+            if (
+                File.Exists(status)
+                && File.ReadAllText(status)
+                    .Contains("waiting for the game to exit.", StringComparison.Ordinal)
+            )
+            {
+                Check(true, "external helper verified parent and reached exit wait");
+                return;
+            }
+            Thread.Sleep(20);
+        }
+        Check(
+            false,
+            "external helper did not reach parent wait: "
+                + (File.Exists(status) ? File.ReadAllText(status) : "no status")
+        );
+    }
+
+    private static void DrainHelpers(UpdateFiles files)
+    {
         foreach (var process in Process.GetProcessesByName("AtelierCapture.Update"))
         {
             using (process)
             {
+                var exited = true;
                 try
                 {
                     if (
@@ -961,18 +1332,15 @@ internal static class UpdateChecks
                         )
                     )
                         continue;
-                    var exited = process.WaitForExit(5000);
+                    exited = process.WaitForExit(5000);
                     if (!exited)
                     {
                         process.Kill();
                         process.WaitForExit(5000);
                     }
-                    Check(
-                        exited,
-                        "startup-launched disposable helper finishes before fixture cleanup"
-                    );
                 }
                 catch (InvalidOperationException) when (process.HasExited) { }
+                Check(exited, "startup-launched disposable helper finishes before fixture cleanup");
             }
         }
     }
@@ -988,9 +1356,10 @@ internal static class UpdateChecks
         );
         UpdateHost.BeforePluginLoad(
             root,
-            File.Exists(files.Resolve("BepInEx/capture-update/startup-apply")),
+            File.Exists(files.Resolve("BepInEx/capture-update/startup-apply")) || !files.Enabled(),
             _ => { }
         );
+        RuntimeCompatibility.RequireUpdateGate(root);
         GC.Collect();
         GC.WaitForPendingFinalizers();
         GC.Collect();
@@ -1057,6 +1426,7 @@ internal static class UpdateChecks
                 schema = 1,
                 runtime_major = 10,
                 runtime_version = "10.0.13",
+                update_mode = "automatic",
                 capture_version = v,
                 recovery_contract = UpdateFiles.RecoveryContract,
                 supported_client = new { game_version = "2.16.0" },
@@ -1069,37 +1439,11 @@ internal static class UpdateChecks
             .Append(UpdateFiles.Stamp("dotnet/base.dll", files.Resolve("dotnet/base.dll")))
             .ToArray();
         files.Write(files.Resolve(UpdateFiles.Certificate), Certificate(version, before));
-        var after = new[]
-        {
-            UpdateFiles.Stamp(UpdateFiles.Targets[0], product),
-            UpdateFiles.Stamp(UpdateFiles.Targets[1], native),
-            before[2],
-        };
-        var certificate = JsonSerializer.SerializeToUtf8Bytes(
-            Certificate("1.4.0", after),
-            UpdateFiles.Json
+        File.Copy(
+            Path.Combine(workspace, "Checks/AtelierCapture.Checks/Fixtures/signed-update.zip"),
+            files.Ready,
+            true
         );
-        var manifest = new UpdateManifest(
-            1,
-            "1.4.0",
-            UpdateFiles.RecoveryContract,
-            [
-                after[0],
-                after[1],
-                new(
-                    UpdateFiles.Certificate,
-                    certificate.Length,
-                    Convert.ToHexStringLower(SHA256.HashData(certificate))
-                ),
-            ]
-        );
-        if (File.Exists(files.Ready))
-            File.Delete(files.Ready);
-        using var zip = ZipFile.Open(files.Ready, ZipArchiveMode.Create);
-        Write(zip, "update.json", JsonSerializer.SerializeToUtf8Bytes(manifest, UpdateFiles.Json));
-        Write(zip, UpdateFiles.Certificate, certificate);
-        Write(zip, UpdateFiles.Targets[0], File.ReadAllBytes(product));
-        Write(zip, UpdateFiles.Targets[1], File.ReadAllBytes(native));
         return files;
     }
 
@@ -1236,4 +1580,9 @@ internal static class UpdateChecks
 internal static class UpdateHostChecks
 {
     internal static void Run() => UpdateChecks.RunHost();
+}
+
+internal static class UpdateVariantChecks
+{
+    internal static void Run() => UpdateChecks.RunVariant();
 }

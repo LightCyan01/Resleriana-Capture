@@ -20,7 +20,7 @@ internal static class BuildChecks
     internal static void Run()
     {
         var root = FindRoot();
-        var runtime = root + "/work/build/stage/BepInEx/core";
+        var runtime = Path.Combine(Stage(root), "BepInEx/core");
         var interop = Assembly.LoadFrom(Path.Combine(runtime, "Il2CppInterop.Runtime.dll"));
         var scanType = interop.GetType("Il2CppInterop.Runtime.MemoryUtils", true)!;
         var scan = scanType.GetMethod(
@@ -143,10 +143,7 @@ internal static class BuildChecks
     private static unsafe void NativeForwarding(string root)
     {
         var path = Path.Combine(root, "work/build/native");
-        var staged = Path.Combine(
-            root,
-            "work/build/stage/BepInEx/plugins/AtelierCapture.Native.dll"
-        );
+        var staged = Path.Combine(Stage(root), "BepInEx/plugins/AtelierCapture.Native.dll");
         Check(
             File.Exists(staged)
                 && SHA256
@@ -165,9 +162,7 @@ internal static class BuildChecks
         var scramble = Marshal.GetDelegateForFunctionPointer<ScrambleThreadState>(
             NativeLibrary.GetExport(fixture, "fixture_scramble_thread_state")
         );
-        var dobby = NativeLibrary.Load(
-            Path.Combine(root, "work/build/stage/BepInEx/core/dobby.dll")
-        );
+        var dobby = NativeLibrary.Load(Path.Combine(Stage(root), "BepInEx/core/dobby.dll"));
         var catalogFunction = Marshal.GetDelegateForFunctionPointer<NativeCatalog>(
             NativeLibrary.GetExport(bridge, "capture_catalog")
         );
@@ -308,9 +303,7 @@ internal static class BuildChecks
         var fixture = NativeLibrary.Load(
             Path.Combine(path, "AtelierCapture.Native.RaceChecks.dll")
         );
-        var dobby = NativeLibrary.Load(
-            Path.Combine(root, "work/build/stage/BepInEx/core/dobby.dll")
-        );
+        var dobby = NativeLibrary.Load(Path.Combine(Stage(root), "BepInEx/core/dobby.dll"));
         NativeFixtureObserver observer = _ => { };
         var run = Marshal.GetDelegateForFunctionPointer<NativeFixture>(
             NativeLibrary.GetExport(fixture, "fixture_run")
@@ -1051,7 +1044,7 @@ internal static class BuildChecks
                 && project.Contains("<Version>1.4.0</Version>", StringComparison.Ordinal),
             "schema 5 candidate identity"
         );
-        var stage = Path.Combine(root, "work/build/stage");
+        var stage = Stage(root);
         var missingDependencies = new List<string>();
         foreach (var path in Directory.EnumerateFiles(Path.Combine(stage, "BepInEx/core"), "*.dll"))
         {
@@ -1137,6 +1130,10 @@ internal static class BuildChecks
             "manual Windows verification"
         );
     }
+
+    private static string Stage(string root) =>
+        Environment.GetEnvironmentVariable("ATELIER_CAPTURE_CHECK_STAGE")
+        ?? Path.Combine(root, "work/build/stage");
 
     private static string FindRoot()
     {

@@ -17,6 +17,7 @@ internal static class Program
         "DiagnosticChecks",
         "JsonCaptureChecks",
         "UpdateChecks",
+        "UpdateVariantChecks",
     ];
 
     private static int Main(string[] args)

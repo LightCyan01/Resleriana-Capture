@@ -57,18 +57,28 @@ internal sealed class RuntimeCompatibility
         }
     }
 
-    internal static void RequireUpdateGate(string gameRoot)
+    internal static void RequireUpdateGate(string gameRoot, bool automatic = true)
     {
-        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(gameRoot));
+        var root = GamePath.Canonical(gameRoot);
         if (
-            !string.Equals(
-                AppContext.GetData("AtelierCapture.UpdateReady") as string,
-                root,
-                StringComparison.OrdinalIgnoreCase
+            (
+                automatic
+                && !string.Equals(
+                    AppContext.GetData("AtelierCapture.UpdateReady") as string,
+                    root,
+                    StringComparison.OrdinalIgnoreCase
+                )
             ) || File.Exists(Path.Combine(root, "BepInEx/capture-update/transaction.json"))
         )
             throw new InvalidOperationException(
                 "Capture update recovery did not finish. Capture has not started; see BepInEx/capture-update/status.json and LogOutput.log."
+            );
+        if (
+            !automatic
+            && File.Exists(Path.Combine(root, "BepInEx/patchers/AtelierCapture.Updater.dll"))
+        )
+            throw new InvalidOperationException(
+                "The manual capture package requires removing the old automatic updater first. See the switching instructions in README.md."
             );
     }
 
@@ -77,6 +87,7 @@ internal sealed class RuntimeCompatibility
         var result = new RuntimeCompatibility();
         try
         {
+            gameRoot = GamePath.Canonical(gameRoot);
             if (
                 !OperatingSystem.IsWindows()
                 || RuntimeInformation.ProcessArchitecture != Architecture.X64
@@ -84,6 +95,11 @@ internal sealed class RuntimeCompatibility
                 throw new RuntimeCompatibilityException("windows_x64_required");
             using var certificate = JsonDocument.Parse(File.ReadAllBytes(certificatePath));
             var data = certificate.RootElement;
+            if (
+                !data.TryGetProperty("update_mode", out var updateMode)
+                || updateMode.GetString() != (BuildInfo.AutomaticUpdates ? "automatic" : "manual")
+            )
+                throw new RuntimeCompatibilityException("capture_update_mode");
             if (
                 data.GetProperty("schema").GetInt32() != 1
                 || data.GetProperty("runtime_major").GetInt32() != 10
@@ -146,7 +162,7 @@ internal sealed class RuntimeCompatibility
                         or "Il2CppInterop.HarmonySupport"
                         or "0Harmony"
                 )
-                    if (!verifiedPaths.Contains(Path.GetFullPath(assembly.Location)))
+                    if (!verifiedPaths.Contains(GamePath.Canonical(assembly.Location)))
                         throw new RuntimeCompatibilityException(
                             "loaded_runtime_outside_certificate"
                         );
@@ -160,7 +176,8 @@ internal sealed class RuntimeCompatibility
                     )
                 ?? throw new RuntimeCompatibilityException("native_module_not_loaded");
             if (
-                !Path.GetFullPath(module.FileName)
+                !GamePath
+                    .Canonical(module.FileName)
                     .Equals(
                         Path.GetFullPath(Path.Combine(gameRoot, "GameAssembly.dll")),
                         StringComparison.OrdinalIgnoreCase
@@ -169,7 +186,7 @@ internal sealed class RuntimeCompatibility
                 throw new RuntimeCompatibilityException("native_module_path");
             result.nativeBase = module.BaseAddress.ToInt64();
             result.interopDirectory =
-                Path.GetFullPath(Path.Combine(gameRoot, "BepInEx", "interop"))
+                GamePath.Canonical(Path.Combine(gameRoot, "BepInEx", "interop"))
                 + Path.DirectorySeparatorChar;
             result.ApiVerified = true;
         }
@@ -389,30 +406,30 @@ internal sealed class RuntimeCompatibility
         if (!ApiVerified)
             throw new RuntimeCompatibilityException("runtime_not_verified");
         var assembly = type.Assembly;
-        var path =
+        var loadedPath =
             assembly.IsDynamic || string.IsNullOrEmpty(assembly.Location)
                 ? ""
                 : Path.GetFullPath(assembly.Location);
+        if (interopIdentities.ContainsKey(loadedPath))
+            return;
+        var path = loadedPath.Length == 0 ? "" : GamePath.Canonical(loadedPath);
         if (
             interopDirectory is null
             || !path.StartsWith(interopDirectory, StringComparison.OrdinalIgnoreCase)
         )
             throw new RuntimeCompatibilityException("native_owner_outside_game_interop");
-        if (!interopIdentities.ContainsKey(path))
-        {
-            using var input = File.OpenRead(path);
-            interopIdentities.TryAdd(
+        using var input = File.OpenRead(path);
+        interopIdentities.TryAdd(
+            loadedPath,
+            new
+            {
+                assembly = assembly.FullName,
                 path,
-                new
-                {
-                    assembly = assembly.FullName,
-                    path,
-                    sha256 = Convert.ToHexString(SHA256.HashData(input)),
-                    size = input.Length,
-                    provenance = "generated_in_installed_game_observed_module_identity_native_class_or_method_checked_separately",
-                }
-            );
-        }
+                sha256 = Convert.ToHexString(SHA256.HashData(input)),
+                size = input.Length,
+                provenance = "generated_in_installed_game_observed_module_identity_native_class_or_method_checked_separately",
+            }
+        );
     }
 
     private void ValidatePointer(MethodBase method, long rva)

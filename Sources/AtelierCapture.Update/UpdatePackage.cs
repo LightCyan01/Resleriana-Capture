@@ -24,6 +24,7 @@ internal sealed class UpdatePackage : IDisposable
             {
                 var allowed = UpdateFiles
                     .Targets.Append("update.json")
+                    .Append("update.sig")
                     .ToHashSet(StringComparer.Ordinal);
                 if (zip.Entries.Count != allowed.Count)
                     throw new InvalidDataException("Unexpected update ZIP entries.");
@@ -40,11 +41,16 @@ internal sealed class UpdatePackage : IDisposable
                     )
                         throw new InvalidDataException("Unsafe update ZIP entry.");
                 }
+                var manifestBytes = ReadMetadata("update.json");
+                var signatureEntry = zip.GetEntry("update.sig")!;
+                if (signatureEntry.Length != 64)
+                    throw new InvalidDataException(
+                        "Update signature must contain exactly 64 bytes."
+                    );
+                UpdateSignature.Verify(manifestBytes, ReadMetadata("update.sig"));
                 Manifest =
-                    JsonSerializer.Deserialize<UpdateManifest>(
-                        ReadMetadata("update.json"),
-                        UpdateFiles.Json
-                    ) ?? throw new InvalidDataException("Missing update manifest.");
+                    JsonSerializer.Deserialize<UpdateManifest>(manifestBytes, UpdateFiles.Json)
+                    ?? throw new InvalidDataException("Missing update manifest.");
                 if (
                     Manifest.Schema != 1
                     || Manifest.RecoveryContract != UpdateFiles.RecoveryContract
@@ -69,6 +75,7 @@ internal sealed class UpdatePackage : IDisposable
                 Certificate = certificate.RootElement.Clone();
                 if (
                     Certificate.GetProperty("capture_version").GetString() != Manifest.Version
+                    || Certificate.GetProperty("update_mode").GetString() != "automatic"
                     || Certificate.GetProperty("recovery_contract").GetString()
                         != Manifest.RecoveryContract
                 )
@@ -145,6 +152,7 @@ internal sealed class UpdatePackage : IDisposable
                 "schema",
                 "runtime_major",
                 "runtime_version",
+                "update_mode",
                 "recovery_contract",
                 "supported_client",
                 "configuration_contract",

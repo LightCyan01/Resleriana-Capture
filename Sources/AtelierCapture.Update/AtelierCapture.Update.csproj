@@ -14,4 +14,7 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="update-public.pem" LogicalName="AtelierCapture.Update.PublicKey" />
+  </ItemGroup>
 </Project>

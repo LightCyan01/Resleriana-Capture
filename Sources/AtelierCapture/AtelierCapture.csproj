@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Version>1.4.0</Version>
+    <CaptureAutoUpdates Condition="'$(CaptureAutoUpdates)' == ''">true</CaptureAutoUpdates>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -18,6 +19,7 @@
       >$(MSBuildProjectDirectory)=/_/AtelierCapture</PathMap>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../AtelierCapture.Update/GamePath.cs" Link="Runtime/GamePath.cs" />
     <Reference
       Include="BepInEx.Core"
       HintPath="$(RuntimeDirectory)\BepInEx.Core.dll"
@@ -57,7 +59,7 @@
       File="$(IntermediateOutputPath)CaptureVersion.g.cs"
       Overwrite="true"
       WriteOnlyWhenDifferent="true"
-      Lines="namespace AtelierCapture%3B internal static class BuildInfo { internal const string Version = &quot;$(Version)&quot;%3B }"
+      Lines="namespace AtelierCapture%3B internal static class BuildInfo { internal const string Version = &quot;$(Version)&quot;%3B internal const bool AutomaticUpdates = $(CaptureAutoUpdates)%3B }"
     />
   </Target>
   <Target Name="RequireReferences" BeforeTargets="ResolveReferences">

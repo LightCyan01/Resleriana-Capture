@@ -75,6 +75,19 @@ public static class UpdateHost
             Console.WriteLine("AtelierCapture.Update 1.0.0 / " + Environment.Version);
             return 0;
         }
+        if (args is ["--sign", var manifest, var signature, var key])
+        {
+            try
+            {
+                UpdateSignature.Sign(manifest, signature, key);
+                return 0;
+            }
+            catch (Exception error)
+            {
+                Console.Error.WriteLine("Update signing failed (" + error.GetType().Name + ").");
+                return 1;
+            }
+        }
         if (
             args.Length != 3
             || args[0] != "--watch"
@@ -102,7 +115,7 @@ public static class UpdateHost
                 if (
                     parent.StartTime.ToUniversalTime().Ticks != ticks
                     || !string.Equals(
-                        parent.MainModule?.FileName,
+                        GamePath.Canonical(parent.MainModule?.FileName ?? ""),
                         files.Resolve("AtelierResleriana.exe"),
                         StringComparison.OrdinalIgnoreCase
                     )
@@ -112,6 +125,8 @@ public static class UpdateHost
             catch (ArgumentException) { }
             using (parent)
             {
+                if (!files.Enabled())
+                    return 0;
                 try
                 {
                     Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.BelowNormal;
@@ -120,6 +135,10 @@ public static class UpdateHost
                 await CheckForUpdate(files);
                 if (!File.Exists(files.Ready))
                     return 0;
+                files.Write(
+                    files.Resolve("BepInEx/capture-update/status.json"),
+                    new { status = "Update ready; waiting for the game to exit." }
+                );
                 if (parent is not null)
                     await parent.WaitForExitAsync();
             }

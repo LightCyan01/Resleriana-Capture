@@ -38,7 +38,7 @@ public sealed class Plugin : BasePlugin
 
     public override void Load()
     {
-        RuntimeCompatibility.RequireUpdateGate(Paths.GameRootPath);
+        RuntimeCompatibility.RequireUpdateGate(Paths.GameRootPath, BuildInfo.AutomaticUpdates);
         Log = base.Log;
         operational = new OperationalStatus(message => Log.LogWarning(message));
         var pluginPath = typeof(Plugin).Assembly.Location;
@@ -47,6 +47,7 @@ public sealed class Plugin : BasePlugin
         {
             plugin = "atelier.capture",
             version = BuildInfo.Version,
+            update_mode = BuildInfo.AutomaticUpdates ? "automatic" : "manual",
             supported_client = "2.16.0",
             informational_version = typeof(Plugin)
                 .Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
