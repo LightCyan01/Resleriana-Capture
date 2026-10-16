@@ -150,6 +150,9 @@ internal sealed class WarningAggregation(DiagnosticFamily family = DiagnosticFam
             state.Last = last;
             staged = stagedTotal;
             PublishStatus();
+            // Deferred saves finish after the console sink runs; the disk log still keeps every repeat.
+            if (repeated && family == DiagnosticFamily.Warning)
+                suppressConsole();
             return () =>
             {
                 lock (gate)
@@ -165,8 +168,6 @@ internal sealed class WarningAggregation(DiagnosticFamily family = DiagnosticFam
                         PublishStatus();
                     }
                 }
-                if (repeated && family == DiagnosticFamily.Warning)
-                    suppressConsole();
             };
         }
     }

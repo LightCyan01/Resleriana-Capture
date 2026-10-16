@@ -107,7 +107,8 @@ internal sealed partial class SessionWriter : IDisposable
         worker.Start();
     }
 
-    internal IDisposable BeginObservation()
+    // A deferred outer observation is queued without waiting; AfterSave actions report its save.
+    internal IDisposable BeginObservation(bool deferred = false)
     {
         if (Environment.CurrentManagedThreadId == worker.ManagedThreadId)
             throw new InvalidOperationException(
@@ -129,7 +130,10 @@ internal sealed partial class SessionWriter : IDisposable
         {
             Monitor.Enter(copier);
             ThrowIfAborted();
-            var current = new Observation(Environment.CurrentManagedThreadId);
+            var current = new Observation(Environment.CurrentManagedThreadId)
+            {
+                Deferred = deferred,
+            };
             observation.Value = current;
             return new Scope(this, current);
         }
@@ -140,6 +144,26 @@ internal sealed partial class SessionWriter : IDisposable
             FinishObservation();
             throw;
         }
+    }
+
+    // Runs on the writer thread after the current observation is durable; never after a failed save.
+    internal void AfterSave(Action action) =>
+        (
+            (
+                observation.Value
+                ?? throw new InvalidOperationException("Capture save action has no observation.")
+            ).OnSaved ??= []
+        ).Add(action);
+
+    // Lets shutdown summaries see every deferred save action that already ran.
+    internal void WaitForQueued()
+    {
+        lock (admission)
+            while (retained.Count != 0)
+            {
+                ThrowIfAborted();
+                Monitor.Wait(admission);
+            }
     }
 
     internal void Emit(
@@ -289,6 +313,7 @@ internal sealed partial class SessionWriter : IDisposable
                             + sources[ProcessSource].Logs[DiagnosticsStream]!.ExtractedBytes * 4
                         )
                     );
+                batch.OnSaved = current.OnSaved;
                 lock (admission)
                 {
                     while (
@@ -318,6 +343,11 @@ internal sealed partial class SessionWriter : IDisposable
         }
         if (!transferred)
             return;
+        if (current.Deferred)
+        {
+            FinishObservation();
+            return;
+        }
         try
         {
             // WaitAsync adds a pool continuation; durable callbacks must wake directly.
@@ -455,14 +485,42 @@ internal sealed partial class SessionWriter : IDisposable
                         recoveryPassComplete = RecoverNextArchive(inactive);
                     continue;
                 }
-                foreach (var group in batch.Entries.GroupBy(entry => entry.Source))
-                    CommitRecords(sources[group.Key], group.ToArray(), true);
+                // Everything already queued shares one commit: one flush per touched file covers it all.
+                var group = new List<Batch> { batch };
+                while (queue.TryTake(out var next))
+                    group.Add(next);
+                foreach (
+                    var entries in group
+                        .SelectMany(item => item.Entries)
+                        .GroupBy(entry => entry.Source)
+                )
+                    CommitRecords(
+                        sources[entries.Key],
+                        entries.ToArray(),
+                        group.Count(item => item.Entries.Any(entry => entry.Source == entries.Key))
+                    );
                 Retry(
                     "acknowledgement",
                     () => hooks?.Before?.Invoke(StorageAction.Acknowledge, root, sequence)
                 );
-                Release(batch);
-                batch.Saved.TrySetResult(true);
+                foreach (var item in group)
+                {
+                    foreach (var action in item.OnSaved ?? [])
+                    {
+                        try
+                        {
+                            action();
+                        }
+                        catch (Exception error)
+                        {
+                            Report(
+                                $"Capture save action failed ({error.GetType().Name}); its status counts lag the saved records."
+                            );
+                        }
+                    }
+                    Release(item);
+                    item.Saved.TrySetResult(true);
+                }
             }
             foreach (var source in sources.Where(source => source.Initialized))
             {
@@ -494,7 +552,7 @@ internal sealed partial class SessionWriter : IDisposable
                             }
                         ),
                     ],
-                    false
+                    0
                 );
                 source.NormalClosed = true;
             }
@@ -623,7 +681,7 @@ internal sealed partial class SessionWriter : IDisposable
                 record.Bytes.Dispose();
     }
 
-    private void CommitRecords(Source source, Entry[] entries, bool countBatch)
+    private void CommitRecords(Source source, Entry[] entries, int batches)
     {
         var committedEvents = checked(
             source.Events + entries.LongCount(entry => entry.Data is EncodedRecord)
@@ -711,7 +769,7 @@ internal sealed partial class SessionWriter : IDisposable
                             source
                                 .Logs.Select((log, i) => log!.CandidateStamp(members[i]))
                                 .ToArray(),
-                            checked(source.CommittedBatches + (countBatch ? 1 : 0))
+                            checked(source.CommittedBatches + batches)
                         );
                         checkpointBytes ??= StorageCheckpoint.Encode(checkpoint);
                         WriteCheckpoint(source, checkpoint, checkpointBytes);
@@ -942,7 +1000,7 @@ internal sealed partial class SessionWriter : IDisposable
                     }
                 ),
             ],
-            false
+            0
         );
         process.Frozen = true;
         process.NormalClosed = true;
@@ -1303,6 +1361,8 @@ internal sealed partial class SessionWriter : IDisposable
         internal readonly int Thread = thread;
         internal int Depth = 1;
         internal long Bytes;
+        internal bool Deferred;
+        internal List<Action>? OnSaved;
         internal readonly List<Entry> Entries = [];
     }
 
@@ -1323,6 +1383,7 @@ internal sealed partial class SessionWriter : IDisposable
     {
         internal readonly Entry[] Entries = entries;
         internal readonly long Bytes = bytes;
+        internal List<Action>? OnSaved;
         internal readonly TaskCompletionSource<bool> Saved = new(
             TaskCreationOptions.RunContinuationsAsynchronously
         );

@@ -23,6 +23,7 @@ internal static class WarningAggregationChecks
         DistinctMessagesAndSeverity();
         ActualLoggerDelivery();
         ConcurrentWarnings();
+        DeferredWarningsShareOneCommit();
         OutOfOrderCommitCallbacks();
         BootstrapWarningTransfer();
         PartialCopyCommit();
@@ -302,10 +303,7 @@ internal static class WarningAggregationChecks
         fixture.Log(full);
         fixture.Origin = "Unknown";
         fixture.Log(full);
-        Require(
-            !first.SuppressConsole && repeat.SuppressConsole,
-            "Only a durable repeat is suppressed."
-        );
+        Require(!first.SuppressConsole && repeat.SuppressConsole, "Only a repeat is suppressed.");
         fixture.Stop();
         var rows = fixture.ReadRows();
         var anchors = rows.Where(row => Kind(row) == "runtime_log").ToArray();
@@ -470,6 +468,71 @@ internal static class WarningAggregationChecks
                     .GetProperty("occurrences")
                     .GetInt64() == 64,
             "Concurrent callback counts reconstruct exactly without lost increments."
+        );
+    }
+
+    private static void DeferredWarningsShareOneCommit()
+    {
+        using var entered = new ManualResetEventSlim();
+        using var release = new ManualResetEventSlim();
+        var acknowledgements = 0;
+        using var fixture = new Fixture(
+            new StorageHooks
+            {
+                Before = (action, _, _) =>
+                {
+                    if (
+                        action != StorageAction.Acknowledge
+                        || Interlocked.Increment(ref acknowledgements) != 1
+                    )
+                        return;
+                    entered.Set();
+                    release.Wait();
+                },
+            }
+        );
+        (long Generation, long Batches) Committed()
+        {
+            var official = JsonSerializer
+                .SerializeToElement(fixture.Writer.GetStatus())
+                .GetProperty("sources")
+                .EnumerateArray()
+                .Single(source => source.GetProperty("environment").GetString() == "Official");
+            return (
+                official.GetProperty("committed_generation").GetInt64(),
+                official.GetProperty("committed_batches").GetInt64()
+            );
+        }
+        try
+        {
+            fixture.Log("grouped warning");
+            Require(
+                entered.Wait(TimeSpan.FromSeconds(5)),
+                "The first deferred warning reaches the held ACK without blocking its caller."
+            );
+            var before = Committed();
+            for (var i = 0; i < 10; i++)
+                fixture.Log("grouped warning");
+            release.Set();
+            fixture.Writer.WaitForQueued();
+            var after = Committed();
+            Require(
+                after.Batches - before.Batches == 10 && after.Generation - before.Generation == 1,
+                "Ten queued warnings share one durable commit and still count as ten batches."
+            );
+        }
+        finally
+        {
+            release.Set();
+        }
+        fixture.Stop();
+        var rows = fixture.ReadRows();
+        Require(
+            rows.Count(row => Kind(row) == "runtime_warning_repeat") == 10
+                && Data(rows.Single(row => Kind(row) == "runtime_warning_summary"))
+                    .GetProperty("occurrences")
+                    .GetInt64() == 11,
+            "Grouped warning repeats keep every saved occurrence."
         );
     }
 
@@ -864,7 +927,7 @@ internal static class WarningAggregationChecks
                             && args.Level == LogLevel.Error
                             && !args.SuppressConsole
                         ),
-                "Actual Bep logger acknowledges repeated warning before ordinary sinks while preserving original source and all errors."
+                "Actual Bep logger suppresses the repeated warning before ordinary sinks while preserving original source and all errors."
             );
         }
         finally
@@ -911,8 +974,8 @@ internal static class WarningAggregationChecks
                         fixture.Bridge.LogEvent(source, repeat);
                         fixture.Log("different nested warning");
                         Require(
-                            !repeat.SuppressConsole,
-                            "A nested repeat cannot suppress console before its outer durable acknowledgement."
+                            repeat.SuppressConsole == !knownError,
+                            "A nested warning repeat is hidden from the console when staged; errors stay visible."
                         );
                     }
                 )
@@ -928,9 +991,8 @@ internal static class WarningAggregationChecks
                         knownError ? "error_aggregation" : "warning_aggregation"
                     )
                     .GetProperty("occurrences_durable")
-                    .GetInt64() == 0
-                    && !repeat.SuppressConsole,
-                "Held outer ACK cannot publish durable counts or console suppression prematurely."
+                    .GetInt64() == 0,
+                "Held outer ACK cannot publish durable counts prematurely."
             );
             release.Set();
             task.WaitAsync(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
@@ -1138,6 +1200,7 @@ internal static class WarningAggregationChecks
         var level = knownError ? LogLevel.Error : LogLevel.Warning;
         var summaryKind = knownError ? "runtime_error_summary" : "runtime_warning_summary";
         fixture.Log(message, level, source);
+        fixture.Writer.WaitForQueued();
         var repeat = new LogEventArgs(message, level, source);
         Task? log = null,
             stop = null;
@@ -1146,7 +1209,11 @@ internal static class WarningAggregationChecks
             log = Task.Run(() => fixture.Bridge.LogEvent(source, repeat));
             Require(
                 entered.Wait(TimeSpan.FromSeconds(5)),
-                "Repeated warning waits at durable ACK."
+                "The queued repeat reaches the held durable ACK."
+            );
+            Require(
+                log.Wait(TimeSpan.FromSeconds(5)),
+                "A deferred repeat does not block its logger callback on the held ACK."
             );
             stop = Task.Run(() => Plugin.StopDiagnosticCapture(fixture.Bridge));
             Require(
@@ -1164,8 +1231,8 @@ internal static class WarningAggregationChecks
                 "Diagnostic stop seals admission before drain."
             );
             Require(
-                !stop.IsCompleted && !repeat.SuppressConsole,
-                "Stop waits for admitted repeat ACK."
+                !stop.IsCompleted && repeat.SuppressConsole == !knownError,
+                "Stop waits for the queued repeat to be saved."
             );
             var after = fixture.Log(message, level, source);
             Require(
@@ -1214,6 +1281,7 @@ internal static class WarningAggregationChecks
         var message = knownError ? MaterialNre.StandardMessage : "warning before abort";
         var level = knownError ? LogLevel.Error : LogLevel.Warning;
         fixture.Log(message, level, source);
+        fixture.Writer.WaitForQueued();
         Volatile.Write(ref fail, true);
         var repeat = new LogEventArgs(message, level, source);
         var task = Task.Run(() => fixture.Bridge.LogEvent(source, repeat));
@@ -1221,8 +1289,8 @@ internal static class WarningAggregationChecks
         {
             Require(blocked.Wait(TimeSpan.FromSeconds(5)), "Repeat ACK failure is observed.");
             Require(
-                !repeat.SuppressConsole,
-                "A failed/unconfirmed repeat never suppresses console."
+                task.Wait(TimeSpan.FromSeconds(5)) && repeat.SuppressConsole == !knownError,
+                "A deferred repeat returns before its failed save; errors stay console-visible."
             );
             fixture.Writer.Abort("Synthetic warning repeat forced abort.");
             task.WaitAsync(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
@@ -1233,9 +1301,8 @@ internal static class WarningAggregationChecks
             Require(
                 warnings.GetProperty("occurrences_durable").GetInt64() == 1
                     && warnings.GetProperty("pending_occurrences").GetInt64() == 1
-                    && status.RootElement.GetProperty("capture_failures").GetInt64() == 1
-                    && !repeat.SuppressConsole,
-                "Abort leaves the unacknowledged increment pending and capture explicitly incomplete."
+                    && !warnings.GetProperty("complete").GetBoolean(),
+                "Abort leaves the unsaved increment pending and its aggregation explicitly incomplete."
             );
         }
         finally
@@ -1313,7 +1380,8 @@ internal static class WarningAggregationChecks
                         },
                         committed: () => commit?.Invoke(),
                         partialCommitted: () => commit?.Invoke(),
-                        diagnostic: true
+                        diagnostic: true,
+                        deferred: true
                     );
                 },
                 record =>
@@ -1332,7 +1400,8 @@ internal static class WarningAggregationChecks
                         },
                         committed: () => commit?.Invoke(),
                         partialCommitted: () => commit?.Invoke(),
-                        diagnostic: true
+                        diagnostic: true,
+                        deferred: true
                     );
                 }
             );

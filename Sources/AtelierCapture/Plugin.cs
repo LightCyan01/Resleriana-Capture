@@ -91,7 +91,8 @@ public sealed class Plugin : BasePlugin
                     },
                     committed: () => committed?.Invoke(),
                     partialCommitted: () => committed?.Invoke(),
-                    diagnostic: true
+                    diagnostic: true,
+                    deferred: true
                 );
             },
             record =>
@@ -110,7 +111,8 @@ public sealed class Plugin : BasePlugin
                     },
                     committed: () => committed?.Invoke(),
                     partialCommitted: () => committed?.Invoke(),
-                    diagnostic: true
+                    diagnostic: true,
+                    deferred: true
                 );
             }
         );
@@ -310,6 +312,9 @@ public sealed class Plugin : BasePlugin
         {
             var boundary = bridge?.Stop() ?? DateTimeOffset.UtcNow;
             if (bridge is not null)
+            {
+                // Deferred warnings count only once saved; summaries must include every queued one.
+                Writer.WaitForQueued();
                 using (Writer.BeginObservation())
                 {
                     foreach (var summary in bridge.WarningSummaries())
@@ -317,6 +322,7 @@ public sealed class Plugin : BasePlugin
                     foreach (var summary in bridge.ErrorSummaries())
                         EmitDiagnostic("runtime_error_summary", summary, summary.origin);
                 }
+            }
             Writer.EmitBootstrap(
                 "log_capture_stop",
                 new
@@ -442,20 +448,22 @@ public sealed class Plugin : BasePlugin
         Action copy,
         Action? committed = null,
         Action? partialCommitted = null,
-        bool diagnostic = false
+        bool diagnostic = false,
+        bool deferred = false
     )
     {
         var outer = observationDepth == 0;
         if (outer)
             Lifetime.Enter(diagnostic);
         observationDepth++;
+        deferred &= outer;
         try
         {
             if (outer)
                 afterCommit = [];
-            var copied = true;
-            using (var batch = Writer.BeginObservation())
+            using (var batch = Writer.BeginObservation(deferred))
             {
+                var copied = true;
                 try
                 {
                     copy();
@@ -465,11 +473,17 @@ public sealed class Plugin : BasePlugin
                     copied = false;
                     ReportFailure(kind, error);
                 }
+                var completed = copied ? committed : partialCommitted;
+                if (completed is not null)
+                    afterCommit!.Add(completed);
+                // Registered before the batch is queued so the writer cannot save it first.
+                if (deferred)
+                {
+                    var saved = afterCommit!;
+                    Writer.AfterSave(() => saved.ForEach(action => action()));
+                }
             }
-            var completed = copied ? committed : partialCommitted;
-            if (completed is not null)
-                afterCommit!.Add(completed);
-            if (outer)
+            if (outer && !deferred)
                 for (var index = 0; index < afterCommit!.Count; index++)
                 {
                     try
