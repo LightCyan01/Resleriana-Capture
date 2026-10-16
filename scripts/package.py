@@ -195,7 +195,8 @@ def main():
         suffix = "-manual" if update_mode == "manual" else ""
         args.output.mkdir(parents=True, exist_ok=True)
         update_path = package_update(args.stage, args.output, version, args.signing_key)
-        archive_path = args.output / f"Resleriana-Capture-v{version}{suffix}-win-x64.zip"
+        installer_suffix = "-AutoUpdater" if update_mode == "automatic" else ""
+        archive_path = args.output / f"Resleriana-Capture-v{version}-win-x64{installer_suffix}.zip"
         with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
             for name in files:
                 archive.write(args.stage / name, name)

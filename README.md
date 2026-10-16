@@ -8,7 +8,7 @@ The Steam JP client, version 2.16.0.
 
 ## Install
 
-1. Close the game. Download a full package from the Assets of the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest): `Resleriana-Capture-vX.Y.Z-win-x64.zip` includes automatic capture updates; `Resleriana-Capture-vX.Y.Z-manual-win-x64.zip` omits the updater and requires manual updates. Both record the same data.
+1. Close the game. Download a full package from the Assets of the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest): `Resleriana-Capture-vX.Y.Z-win-x64.zip` omits the updater and requires manual updates; `Resleriana-Capture-vX.Y.Z-win-x64-AutoUpdater.zip` includes automatic capture updates. Both record the same data.
 2. Open the game folder, the one that contains `AtelierResleriana.exe`. If it already has a `dotnet` or `BepInEx/core` folder, move it somewhere outside the game folder. The plugin checks the hashes of these files, so old and new copies can't be mixed.
 3. Extract the ZIP into the game folder. Keep your existing captures, custom localization files and other plugins. If you already have files in `BepInEx/config`, keep yours and update them as described in [Upgrading an existing setup](#upgrading-an-existing-setup). Make sure the game folder has only one `AtelierCapture.dll`.
 4. Launch the game through Steam. Recording starts on its own. The first launch can take a few minutes to set up.
@@ -150,7 +150,7 @@ cd Resleriana-Capture
 py scripts/build.py
 ```
 
-This builds the modified BepInEx runtime, HarmonySupport, the native forwarding layer and the capture plugin, then writes `work/release/Resleriana-Capture-vX.Y.Z-win-x64.zip`. The first build needs an internet connection to download checksum-pinned public dependencies. Later builds can use `--offline`. You don't need the game installed to build.
+This builds the modified BepInEx runtime, HarmonySupport, the native forwarding layer and the capture plugin, then writes `work/release/Resleriana-Capture-vX.Y.Z-win-x64-AutoUpdater.zip`. Add `--manual-only` to build `work/release-manual/Resleriana-Capture-vX.Y.Z-win-x64.zip` without the updater. The first build needs an internet connection to download checksum-pinned public dependencies. Later builds can use `--offline`. You don't need the game installed to build.
 
 Install the result as described under [Install](#install). After editing the source, run `py scripts/build.py` again.
 

@@ -120,10 +120,10 @@ Actions. Source builds and verification do not need it. A new trusted key or a
 change to any pinned base component requires a full manual installation.
 
 When publishing the stable `vX.Y.Z` release, upload
-`Resleriana-Capture-vX.Y.Z-win-x64.zip` and
+`Resleriana-Capture-vX.Y.Z-win-x64-AutoUpdater.zip` and
 `Resleriana-Capture-vX.Y.Z-update-win-x64.zip`, plus `release-manifest.json` and
 `SHA256SUMS.txt` from the signed automatic package output. Also upload
-`Resleriana-Capture-vX.Y.Z-manual-win-x64.zip`, `release-manifest-manual.json` and
+`Resleriana-Capture-vX.Y.Z-win-x64.zip`, `release-manifest-manual.json` and
 `SHA256SUMS-manual.txt` from the manual output to that same release. Use
 `release-notes.md` for its description. Without the update ZIP, existing
 automatic installations receive no automatic update. Manual packages never
