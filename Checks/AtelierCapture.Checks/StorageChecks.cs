@@ -259,7 +259,7 @@ internal static class StorageChecks
         var folder = Folder(root, "Official");
         var checkpoint = Directory
             .GetFiles(folder, "session-state.*.json")
-            .Select(path => StorageCheckpoint.Decode(File.ReadAllBytes(path)))
+            .Select(path => StorageCheckpoint.Decode(ReadShared(path)))
             .MaxBy(value => value.Generation)!;
         var source = checkpoint.Streams[3];
         Check(
