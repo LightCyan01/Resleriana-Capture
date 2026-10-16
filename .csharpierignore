@@ -1,0 +1,6 @@
+Sources/BepInEx/**
+Sources/Il2CppInterop/**
+**/bin/**
+**/obj/**
+work/**
+.work/**

@@ -2,327 +2,747 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using AtelierCapture.Archive;
+using AtelierCapture.Storage;
 
 namespace AtelierCapture;
 
 internal static class CaptureArchive
 {
-    private static readonly string[] Names = { "api.jsonl.gz", "combat.jsonl.gz", "raw-bodies.jsonl.gz", "diagnostics.jsonl.gz" };
     private static readonly UTF8Encoding Utf8 = new(false, true);
+    private const int MetadataLimit = 1024 * 1024;
 
     internal static bool Pack(string folder, bool recovered)
     {
-        var destination = Path.ChangeExtension(folder, ".zip");
-        if (File.Exists(destination)) return VerifyCompleted(folder, destination);
-        if (!Names.All(name => File.Exists(Path.Combine(folder, name)))) return false;
-        var checkpoints = ReadCheckpoints(folder);
-        var checkpointHash = checkpoints is null ? null : Convert.ToHexString(SHA256.HashData(ReadCheckpointBytes(folder)));
-        var summary = ReadDiagnostics(Path.Combine(folder, Names[3]), checkpoints?.GetValueOrDefault(Names[3]));
-        var start = summary.Start;
-        var schema = start.GetProperty("schema").GetInt32();
-        if (schema >= 4 && checkpoints is null) throw new InvalidDataException("Capture checkpoint is missing.");
-        var uncertain = checkpoints is null;
-        var discarded = checkpoints?.Sum(pair => checked(new FileInfo(Path.Combine(folder, pair.Key)).Length - pair.Value.Bytes)) ?? 0;
-        recovered |= uncertain || discarded != 0;
-        var entries = new List<object>();
-        var temporary = destination + ".partial";
-        using (var file = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
-        using (var zip = new ZipArchive(file, ZipArchiveMode.Create))
-        {
-            var buffer = new byte[65536];
-            foreach (var name in Names)
-            {
-                var entryName = Path.GetFileNameWithoutExtension(name);
-                using var entry = zip.CreateEntry(entryName, CompressionLevel.Optimal).Open();
-                using var input = new CheckedInput(Path.Combine(folder, name), checkpoints?.GetValueOrDefault(name));
-                using var gzip = new GZipStream(input, CompressionMode.Decompress, true);
-                using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-                long bytes = 0, records = 0;
-                var last = -1;
-                int count;
-                while ((count = gzip.Read(buffer, 0, buffer.Length)) != 0)
-                {
-                    Write(buffer.AsSpan(0, count));
-                    last = buffer[count - 1];
-                }
-                input.Verify();
-                if (bytes != 0 && last != '\n') throw new InvalidDataException("Capture stream ends inside a record.");
-                if (recovered && name == Names[3])
-                    Write(Utf8.GetBytes(JsonSerializer.Serialize(new
-                    {
-                        kind = "session_recovered", schema, run_id = start.GetProperty("run_id").GetString(),
-                        utc = DateTimeOffset.UtcNow, shutdown_complete = false,
-                        recovery_uncertain = uncertain, discarded_compressed_bytes = discarded
-                    }) + "\n"));
-                entries.Add(new { name = entryName, sha256 = Convert.ToHexString(hash.GetHashAndReset()), bytes, records });
+        using var verified = PackVerified(folder, recovered);
+        return verified is not null;
+    }
 
-                void Write(ReadOnlySpan<byte> data)
-                {
-                    entry.Write(data);
-                    hash.AppendData(data);
-                    bytes = checked(bytes + data.Length);
-                    int newline;
-                    while ((newline = data.IndexOf((byte)'\n')) >= 0)
-                    {
-                        records++;
-                        data = data[(newline + 1)..];
-                    }
-                }
-            }
-            using var manifest = zip.CreateEntry("manifest.json", CompressionLevel.Optimal).Open();
-            JsonSerializer.Serialize(manifest, new
+    internal static VerifiedCapture? PackVerified(string folder, bool recovered)
+    {
+        using var lease = new FileStream(
+            Path.Combine(folder, "session.lock"),
+            FileMode.OpenOrCreate,
+            FileAccess.Write,
+            FileShare.None
+        );
+        return PackLeased(folder, recovered);
+    }
+
+    private static VerifiedCapture? PackLeased(string folder, bool recovered)
+    {
+        var checkpoint = ReadCheckpoint(folder);
+        if (checkpoint is null || checkpoint.Environment == "Unknown")
+            return null;
+        var destination = Path.ChangeExtension(folder, ".zip");
+        if (File.Exists(destination))
+        {
+            var existing = OpenArchive(destination);
+            try
             {
-                format = "resleriana-capture", manifest_version = 1, schema,
-                run_id = start.GetProperty("run_id").GetString(), environment = start.GetProperty("environment").GetString(),
-                started_utc = start.GetProperty("utc"), ended_utc = summary.End?.GetProperty("utc"),
-                stopwatch_frequency = start.TryGetProperty("stopwatch_frequency", out var frequency) ? (JsonElement?)frequency : null,
-                contains_sensitive_raw_data = start.TryGetProperty("contains_sensitive_raw_data", out var sensitive) ? (bool?)sensitive.GetBoolean() : null,
-                metadata = start.GetProperty("metadata"),
-                recovered, shutdown_complete = !recovered && summary.End is not null,
-                checkpoint_verified = checkpoints is not null, checkpoint_sha256 = checkpointHash, recovery_uncertain = uncertain,
-                discarded_compressed_bytes = discarded, dropped_events = summary.Dropped,
-                observer_errors = summary.End is not null && summary.FinalErrors is not null ? summary.FinalErrors : summary.Errors,
-                observer_error_samples = summary.ErrorSamples,
-                observer_errors_truncated = (summary.End is null || summary.FinalErrors is null) && summary.ErrorsTruncated,
-                observer_error_samples_truncated = summary.ErrorsTruncated,
-                capture_status = summary.Status, capture_status_truncated = summary.StatusTruncated,
-                integrity = "sha256", authenticity = "unverified", entries
-            });
+                var verified = VerifyCompleted(folder, existing, checkpoint, null);
+                return Proof(existing, destination, checkpoint, verified, false, 0);
+            }
+            catch
+            {
+                existing.Dispose();
+                throw;
+            }
+        }
+        if (!StorageCheckpoint.FileNames.All(name => File.Exists(Path.Combine(folder, name))))
+            return null;
+        var start = ReadStart(folder, checkpoint);
+        var schema = (int)RecordProjection.Integer(start.Get("schema"));
+        using var counts = new ArchiveCounts(folder);
+        counts.SetIdentity(checkpoint.RunId, checkpoint.Environment, schema);
+        var tails = checkpoint
+            .Streams.Select(value => new
+            {
+                name = value.Name,
+                bytes = checked(
+                    new FileInfo(Path.Combine(folder, value.Name)).Length - value.Bytes
+                ),
+            })
+            .ToArray();
+        if (tails.Any(value => value.bytes < 0))
+            throw new InvalidDataException("Capture committed prefix is truncated.");
+        var retainedTailBytes = tails.Select(value => value.bytes).SumChecked();
+        var abort = ReadAbort(folder, checkpoint);
+        recovered |= retainedTailBytes != 0 || abort is not null;
+        var temporary = destination + ".partial";
+        if (File.Exists(temporary))
+            temporary = destination + "." + Guid.NewGuid().ToString("N") + ".partial";
+        var entries = new List<VerifiedArchiveEntry>();
+        long sourceBytesExpanded = 0;
+        JsonElement countSummary;
+        using (
+            var file = new FileStream(
+                temporary,
+                FileMode.CreateNew,
+                FileAccess.ReadWrite,
+                FileShare.None,
+                65536
+            )
+        )
+        {
+            using (var zip = new ZipArchive(file, ZipArchiveMode.Create, true))
+            {
+                for (var i = 0; i < ArchiveCounts.Names.Length; i++)
+                {
+                    var stamp = checkpoint.Streams[i];
+                    using var target = zip.CreateEntry(
+                            ArchiveCounts.Names[i],
+                            CompressionLevel.Optimal
+                        )
+                        .Open();
+                    using var input = new GzipPrefix(
+                        Path.Combine(folder, stamp.Name),
+                        stamp.Bytes,
+                        stamp.Sha256
+                    );
+                    using var compress = new OverlappedWrite(target);
+                    using var gzip = new GZipStream(input, CompressionMode.Decompress, true);
+                    using var facts = new StreamFacts(gzip, compress);
+                    using (var reader = new RecordReader(facts))
+                        while (reader.Read() is { } record)
+                            counts.Add(i, record);
+                    input.Verify();
+                    if (
+                        facts.Records != counts.RecordCount(i)
+                        || stamp.Records is { } committedRecords
+                            && (
+                                facts.Records != committedRecords
+                                || facts.Bytes != stamp.ExtractedBytes
+                            )
+                    )
+                        throw new InvalidDataException(
+                            "Capture committed extracted counts differ."
+                        );
+                    sourceBytesExpanded = checked(sourceBytesExpanded + facts.Bytes);
+                    if (i == 3 && (recovered || counts.End is null))
+                    {
+                        recovered = true;
+                        var marker =
+                            JsonSerializer.Serialize(
+                                new
+                                {
+                                    kind = "session_recovered",
+                                    schema,
+                                    run_id = checkpoint.RunId,
+                                    environment = checkpoint.Environment,
+                                    utc = DateTimeOffset.UtcNow,
+                                    shutdown_complete = false,
+                                    recovery_uncertain = false,
+                                    retained_provisional_compressed_bytes = ArchiveCounts.Text(
+                                        retainedTailBytes
+                                    ),
+                                    discarded_compressed_bytes = 0,
+                                    abort,
+                                }
+                            ) + "\n";
+                        var markerBytes = Utf8.GetBytes(marker);
+                        using var markerStream = new MemoryStream(markerBytes);
+                        using var markerReader = new RecordReader(markerStream);
+                        counts.Add(i, markerReader.Read()!);
+                        facts.Append(markerBytes);
+                    }
+                    compress.Complete();
+                    entries.Add(
+                        new VerifiedArchiveEntry(
+                            ArchiveCounts.Names[i],
+                            facts.Sha256,
+                            facts.Bytes,
+                            facts.Records
+                        )
+                    );
+                }
+                countSummary = JsonSerializer.SerializeToElement(counts.Summary());
+                using var manifest = zip.CreateEntry("manifest.json", CompressionLevel.Optimal)
+                    .Open();
+                JsonSerializer.Serialize(
+                    manifest,
+                    new
+                    {
+                        format = "resleriana-capture",
+                        manifest_version = 1,
+                        schema,
+                        run_id = checkpoint.RunId,
+                        environment = checkpoint.Environment,
+                        started_utc = start.Get("utc"),
+                        ended_utc = counts.End?.Get("utc"),
+                        stopwatch_frequency = RecordProjection.Integer(
+                            start.Get("stopwatch_frequency"),
+                            true
+                        ),
+                        contains_sensitive_raw_data = start.Get("contains_sensitive_raw_data")
+                            == "true",
+                        metadata = start.Metadata,
+                        recovered,
+                        shutdown_complete = !recovered
+                            && counts.End is not null
+                            && counts.End.Get("shutdown_complete") != "false",
+                        checkpoint_verified = true,
+                        checkpoint_sha256 = checkpoint.Hash,
+                        checkpoint_generation = checkpoint.Generation,
+                        committed_batches = checkpoint.CommittedBatches is { } batches
+                            ? ArchiveCounts.Text(batches)
+                            : null,
+                        recovery_uncertain = false,
+                        discarded_compressed_bytes = 0,
+                        retained_provisional_compressed_bytes = ArchiveCounts.Text(
+                            retainedTailBytes
+                        ),
+                        retained_provisional_tails = tails,
+                        abort,
+                        dropped_events = counts.Dropped,
+                        capture_status = counts.Status,
+                        capture_status_truncated = counts.StatusTruncated,
+                        observer_errors = counts.End is not null && counts.FinalErrors is not null
+                            ? counts.FinalErrors
+                            : counts.Errors,
+                        observer_error_samples = counts.ErrorSamples,
+                        observer_errors_truncated = (
+                            counts.End is null || counts.FinalErrors is null
+                        ) && counts.ErrorsTruncated,
+                        observer_error_samples_truncated = counts.ErrorsTruncated,
+                        integrity = "sha256",
+                        authenticity = "unverified",
+                        count_summary = countSummary,
+                        warning_summary = counts.WarningSummary,
+                        error_summary = counts.ErrorSummary,
+                        entries = entries.Select(entry => new
+                        {
+                            name = entry.Name,
+                            sha256 = entry.Sha256,
+                            bytes = entry.Bytes,
+                            records = entry.Records,
+                        }),
+                    }
+                );
+            }
+            file.Flush(true);
+        }
+        Verification verification;
+        string candidateHash;
+        using (var candidate = OpenArchive(temporary))
+        {
+            var fresh =
+                !recovered && schema == 5 && checkpoint.Generation is not null
+                    ? new FreshFacts(entries.ToArray(), countSummary)
+                    : null;
+            verification = VerifyCompleted(folder, candidate, checkpoint, fresh);
+            candidateHash = ArchiveHash(candidate);
         }
         File.Move(temporary, destination);
-        return true;
-    }
-
-    private static bool VerifyCompleted(string folder, string destination)
-    {
-        if (!File.Exists(Path.Combine(folder, "session-state.json"))) return false;
-        var checkpointBytes = ReadCheckpointBytes(folder);
-        using var checkpoint = JsonDocument.Parse(checkpointBytes, new JsonDocumentOptions { MaxDepth = 8 });
-        var state = checkpoint.RootElement;
-        if (state.GetProperty("schema").GetInt32() != 1
-            || !state.TryGetProperty("run_id", out var run) || !state.TryGetProperty("environment", out var environment)) return false;
-        using var zip = ZipFile.OpenRead(destination);
-        var expected = Names.Select(Path.GetFileNameWithoutExtension).Append("manifest.json").ToArray();
-        if (zip.Entries.Count != expected.Length || expected.Any(name => zip.Entries.Count(entry => entry.FullName == name) != 1))
-            throw new InvalidDataException("Capture ZIP contains unexpected or duplicate entries.");
-        var manifestEntry = zip.GetEntry("manifest.json")!;
-        using var manifestStream = manifestEntry.Open();
-        using var manifest = JsonDocument.Parse(ReadMetadata(manifestStream, manifestEntry.Length, 1024 * 1024), new JsonDocumentOptions { MaxDepth = 32 });
-        var data = manifest.RootElement;
-        if (!data.TryGetProperty("checkpoint_sha256", out var checkpointHash)) return false;
-        if (data.GetProperty("format").GetString() != "resleriana-capture"
-            || data.GetProperty("manifest_version").GetInt32() != 1 || data.GetProperty("schema").GetInt32() != 4
-            || data.GetProperty("run_id").GetString() != run.GetString() || data.GetProperty("environment").GetString() != environment.GetString()
-            || checkpointHash.GetString() != Convert.ToHexString(SHA256.HashData(checkpointBytes))
-            || !data.GetProperty("checkpoint_verified").GetBoolean() || data.GetProperty("recovery_uncertain").GetBoolean()
-            || !(data.GetProperty("shutdown_complete").GetBoolean() || data.GetProperty("recovered").GetBoolean()))
-            throw new InvalidDataException("Capture ZIP does not match the retained session.");
-        var entries = data.GetProperty("entries").EnumerateArray().ToArray();
-        if (entries.Length != Names.Length || expected.Take(Names.Length).Any(name => entries.Count(entry => entry.GetProperty("name").GetString() == name) != 1))
-            throw new InvalidDataException("Capture manifest omits or duplicates a stream.");
-        var buffer = new byte[65536];
-        foreach (var entry in entries)
+        var final = OpenArchive(destination);
+        try
         {
-            var stored = zip.GetEntry(entry.GetProperty("name").GetString()!)!;
-            if (stored.Length != entry.GetProperty("bytes").GetInt64()) throw new InvalidDataException("Capture ZIP stream length differs.");
-            using var input = stored.Open();
-            using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-            long records = 0, bytes = 0;
-            int count;
-            while ((count = input.Read(buffer, 0, buffer.Length)) != 0)
-            {
-                hash.AppendData(buffer, 0, count);
-                bytes = checked(bytes + count);
-                var remaining = buffer.AsSpan(0, count);
-                int newline;
-                while ((newline = remaining.IndexOf((byte)'\n')) >= 0) { records++; remaining = remaining[(newline + 1)..]; }
-            }
-            if (bytes != stored.Length || records != entry.GetProperty("records").GetInt64()
-                || entry.GetProperty("sha256").GetString() != Convert.ToHexString(hash.GetHashAndReset()))
-                throw new InvalidDataException("Capture ZIP stream integrity differs.");
+            if (
+                ArchiveHash(final) != candidateHash
+                || ReadCheckpoint(folder)?.Hash != checkpoint.Hash
+            )
+                throw new InvalidDataException("Capture identity changed during ZIP publication.");
+            return Proof(final, destination, checkpoint, verification, true, sourceBytesExpanded);
         }
-        return true;
+        catch
+        {
+            final.Dispose();
+            throw;
+        }
     }
 
-    private static byte[] ReadCheckpointBytes(string folder)
+    private static FileStream OpenArchive(string path) =>
+        new(path, FileMode.Open, FileAccess.Read, FileShare.Read, 65536);
+
+    private static string ArchiveHash(FileStream archive)
     {
-        using var input = File.OpenRead(Path.Combine(folder, "session-state.json"));
-        return ReadMetadata(input, input.Length, 65536);
+        archive.Position = 0;
+        return Convert.ToHexString(SHA256.HashData(archive));
+    }
+
+    private static VerifiedCapture Proof(
+        FileStream archive,
+        string destination,
+        Checkpoint checkpoint,
+        Verification verified,
+        bool newlyCreated,
+        long buildSourceBytes
+    ) =>
+        new(
+            archive,
+            destination,
+            checkpoint.RunId,
+            checkpoint.Environment,
+            checkpoint.Hash,
+            checkpoint.Generation,
+            checkpoint.Generation is null
+                ? []
+                : checkpoint
+                    .Streams.Select(stamp => new StorageStreamStamp(
+                        stamp.Name,
+                        stamp.Bytes,
+                        stamp.Sha256,
+                        stamp.Records!.Value,
+                        stamp.ExtractedBytes!.Value
+                    ))
+                    .ToArray(),
+            verified.Entries,
+            newlyCreated,
+            verified.NormalShutdown,
+            verified.Recovered,
+            verified.Aborted,
+            verified.TailBytes,
+            verified.BootstrapOwnership,
+            checked(buildSourceBytes + verified.SourceBytesExpanded),
+            verified.ZipBytesExpanded
+        );
+
+    private static JsonElement? ReadAbort(string folder, Checkpoint checkpoint)
+    {
+        var path = Path.Combine(folder, "abort.json");
+        if (!File.Exists(path))
+            return null;
+        using var document = JsonDocument.Parse(ReadMetadataFile(path, MetadataLimit));
+        var abort = document.RootElement;
+        if (
+            abort.GetProperty("run_id").GetString() != checkpoint.RunId
+            || abort.GetProperty("environment").GetString() != checkpoint.Environment
+        )
+            throw new InvalidDataException("Capture abort metadata belongs to another session.");
+        return abort.Clone();
+    }
+
+    private static RecordProjection ReadStart(string folder, Checkpoint checkpoint)
+    {
+        var stamp = checkpoint.Streams[3];
+        using var input = new GzipPrefix(
+            Path.Combine(folder, stamp.Name),
+            stamp.Bytes,
+            stamp.Sha256
+        );
+        using var gzip = new GZipStream(input, CompressionMode.Decompress);
+        using var reader = new RecordReader(gzip);
+        var start = reader.Read();
+        if (
+            start is null
+            || start.Get("kind") != "session_start"
+            || start.Get("run_id") != checkpoint.RunId
+            || start.Get("environment") != checkpoint.Environment
+        )
+            throw new InvalidDataException("Capture session start differs from its commit vector.");
+        return start;
+    }
+
+    private static Verification VerifyCompleted(
+        string folder,
+        FileStream archive,
+        Checkpoint checkpoint,
+        FreshFacts? fresh
+    )
+    {
+        archive.Position = 0;
+        using var zip = new ZipArchive(archive, ZipArchiveMode.Read, true);
+        ZipLayout.Verify(archive, zip);
+        var expectedNames = ArchiveCounts.Names.Append("manifest.json").ToArray();
+        if (
+            zip.Entries.Count != 5
+            || expectedNames.Any(name => zip.Entries.Count(entry => entry.FullName == name) != 1)
+        )
+            throw new InvalidDataException("Capture ZIP contains duplicate or unexpected entries.");
+        var manifestEntry = zip.GetEntry("manifest.json")!;
+        using var manifestInput = manifestEntry.Open();
+        using var manifestFacts = new StreamFacts(manifestInput);
+        using var manifest = JsonDocument.Parse(
+            ReadMetadata(manifestFacts, manifestEntry.Length, MetadataLimit)
+        );
+        if (manifestFacts.Crc32 != manifestEntry.Crc32)
+            throw new InvalidDataException("Capture ZIP manifest CRC differs.");
+        var data = manifest.RootElement;
+        var schema = data.GetProperty("schema").GetInt32();
+        if (
+            data.GetProperty("format").GetString() != "resleriana-capture"
+            || data.GetProperty("manifest_version").GetInt32() != 1
+            || schema is not (4 or 5)
+            || data.GetProperty("run_id").GetString() != checkpoint.RunId
+            || data.GetProperty("environment").GetString() != checkpoint.Environment
+            || data.GetProperty("integrity").GetString() != "sha256"
+            || data.GetProperty("authenticity").GetString() != "unverified"
+            || data.GetProperty("checkpoint_sha256").GetString() != checkpoint.Hash
+            || !data.GetProperty("checkpoint_verified").GetBoolean()
+            || data.GetProperty("recovery_uncertain").GetBoolean()
+        )
+            throw new InvalidDataException(
+                "Capture ZIP does not match its retained commit vector."
+            );
+        var entries = data.GetProperty("entries").EnumerateArray().ToArray();
+        if (
+            entries.Length != 4
+            || ArchiveCounts.Names.Any(name =>
+                entries.Count(entry => entry.GetProperty("name").GetString() == name) != 1
+            )
+        )
+            throw new InvalidDataException("Capture manifest has duplicate or missing streams.");
+        var countContract = data.TryGetProperty("count_summary", out var countClaim)
+            ? countClaim.GetProperty("version").GetInt32()
+            : 1;
+        using var counts = new ArchiveCounts(folder, countContract);
+        counts.SetIdentity(checkpoint.RunId, checkpoint.Environment, schema);
+        var actualEntries = new VerifiedArchiveEntry[4];
+        for (var i = 0; i < ArchiveCounts.Names.Length; i++)
+        {
+            var name = ArchiveCounts.Names[i];
+            var stored = zip.GetEntry(name)!;
+            var claim = entries.Single(entry => entry.GetProperty("name").GetString() == name);
+            using var input = stored.Open();
+            using var facts = new StreamFacts(input);
+            using (var reader = new RecordReader(facts))
+                while (reader.Read() is { } record)
+                    counts.Add(i, record);
+            if (
+                facts.Bytes != stored.Length
+                || facts.Bytes != claim.GetProperty("bytes").GetInt64()
+                || facts.Records != claim.GetProperty("records").GetInt64()
+                || facts.Records != counts.RecordCount(i)
+                || facts.Sha256 != claim.GetProperty("sha256").GetString()
+                || facts.Crc32 != stored.Crc32
+            )
+                throw new InvalidDataException("Capture ZIP extracted stream integrity differs.");
+            actualEntries[i] = new VerifiedArchiveEntry(
+                name,
+                facts.Sha256,
+                facts.Bytes,
+                facts.Records
+            );
+            if (fresh is not null && actualEntries[i] != fresh.Entries[i])
+                throw new InvalidDataException(
+                    "Capture fresh ZIP differs from its verified source stream."
+                );
+        }
+        var recounted = JsonSerializer.SerializeToElement(counts.Summary());
+        if (fresh is not null && !JsonElement.DeepEquals(fresh.Summary, recounted))
+            throw new InvalidDataException(
+                "Capture fresh ZIP summary differs from its source recount."
+            );
+        if (
+            data.TryGetProperty("count_summary", out var summary)
+            && !JsonElement.DeepEquals(summary, recounted)
+        )
+            throw new InvalidDataException(
+                "Capture ZIP readable counts differ from independently recounted records."
+            );
+        if (schema == 5 && !data.TryGetProperty("count_summary", out _))
+            throw new InvalidDataException("Capture schema 5 omits its readable counts.");
+        var warningSummary = JsonSerializer.SerializeToElement(counts.WarningSummary);
+        if (
+            data.TryGetProperty("warning_summary", out var savedWarnings)
+                ? !JsonElement.DeepEquals(savedWarnings, warningSummary)
+                : counts.WarningSummary is not null
+        )
+            throw new InvalidDataException(
+                "Capture warning summary differs from saved diagnostic occurrences."
+            );
+        var errorSummary = JsonSerializer.SerializeToElement(counts.ErrorSummary);
+        if (
+            data.TryGetProperty("error_summary", out var savedErrors)
+                ? !JsonElement.DeepEquals(savedErrors, errorSummary)
+                : counts.ErrorSummary is not null
+        )
+            throw new InvalidDataException(
+                "Capture error summary differs from saved diagnostic occurrences."
+            );
+        var recovered = data.GetProperty("recovered").GetBoolean();
+        var expectedShutdown =
+            !recovered && counts.End is not null && counts.End.Get("shutdown_complete") != "false";
+        if (
+            data.GetProperty("shutdown_complete").GetBoolean() != expectedShutdown
+            || counts.Recovered != recovered
+            || !JsonElement.DeepEquals(
+                data.GetProperty("capture_status"),
+                JsonSerializer.SerializeToElement(counts.Status)
+            )
+            || data.GetProperty("capture_status_truncated").GetBoolean() != counts.StatusTruncated
+        )
+            throw new InvalidDataException(
+                "Capture ZIP completeness/status metadata differs from records."
+            );
+        long actualTail = 0;
+        if (data.TryGetProperty("retained_provisional_compressed_bytes", out var retained))
+        {
+            var actualTails = checkpoint
+                .Streams.Select(stamp => new
+                {
+                    name = stamp.Name,
+                    bytes = checked(
+                        new FileInfo(Path.Combine(folder, stamp.Name)).Length - stamp.Bytes
+                    ),
+                })
+                .ToArray();
+            actualTail = actualTails.Select(value => value.bytes).SumChecked();
+            if (actualTail != RecordProjection.Integer(retained.GetString()))
+                throw new InvalidDataException(
+                    "Capture ZIP provisional-tail accounting differs from retained originals."
+                );
+            if (
+                !JsonElement.DeepEquals(
+                    data.GetProperty("retained_provisional_tails"),
+                    JsonSerializer.SerializeToElement(actualTails)
+                )
+            )
+                throw new InvalidDataException(
+                    "Capture ZIP per-file provisional-tail accounting differs."
+                );
+        }
+        if (
+            counts.Start?.Metadata is not { } metadata
+            || !JsonElement.DeepEquals(data.GetProperty("metadata"), metadata)
+            || data.GetProperty("started_utc").GetString() != counts.Start.Get("utc")
+            || (
+                data.GetProperty("ended_utc").ValueKind == JsonValueKind.Null
+                    ? null
+                    : data.GetProperty("ended_utc").GetString()
+            ) != counts.End?.Get("utc")
+        )
+            throw new InvalidDataException("Capture ZIP producer/session metadata differs.");
+        if (
+            data.GetProperty("stopwatch_frequency").GetInt64()
+                != RecordProjection.Integer(counts.Start.Get("stopwatch_frequency"), true)
+            || data.GetProperty("contains_sensitive_raw_data").GetBoolean()
+                != (counts.Start.Get("contains_sensitive_raw_data") == "true")
+        )
+            throw new InvalidDataException("Capture ZIP clock/raw-data metadata differs.");
+        if (
+            checkpoint.Generation is { } generation
+            && data.GetProperty("checkpoint_generation").GetInt64() != generation
+        )
+            throw new InvalidDataException("Capture ZIP checkpoint generation differs.");
+        if (
+            checkpoint.CommittedBatches is { } batches
+            && data.GetProperty("committed_batches").GetString() != ArchiveCounts.Text(batches)
+        )
+            throw new InvalidDataException("Capture ZIP committed batch count differs.");
+        if (
+            data.TryGetProperty("abort", out var recordedAbort)
+            && !JsonElement.DeepEquals(
+                recordedAbort,
+                JsonSerializer.SerializeToElement(ReadAbort(folder, checkpoint))
+            )
+        )
+            throw new InvalidDataException(
+                "Capture ZIP abort metadata differs from retained originals."
+            );
+        var comparedSourceBytes = fresh is null
+            ? VerifySources(folder, zip, checkpoint, recovered)
+            : 0;
+        var zipBytesExpanded = actualEntries.Select(entry => entry.Bytes).SumChecked();
+        if (fresh is null)
+            zipBytesExpanded = checked(zipBytesExpanded * 2);
+        return new Verification(
+            actualEntries,
+            expectedShutdown && counts.End?.Get("shutdown_complete") == "true",
+            recovered,
+            ReadAbort(folder, checkpoint) is not null,
+            actualTail,
+            counts.BootstrapOwnership,
+            comparedSourceBytes,
+            zipBytesExpanded
+        );
+    }
+
+    private static long VerifySources(
+        string folder,
+        ZipArchive zip,
+        Checkpoint checkpoint,
+        bool recovered
+    )
+    {
+        var buffer = new byte[65536];
+        var saved = new byte[65536];
+        long sourceBytes = 0;
+        for (var i = 0; i < ArchiveCounts.Names.Length; i++)
+        {
+            var stamp = checkpoint.Streams[i];
+            using var compressed = new GzipPrefix(
+                Path.Combine(folder, stamp.Name),
+                stamp.Bytes,
+                stamp.Sha256
+            );
+            using var gzip = new GZipStream(compressed, CompressionMode.Decompress, true);
+            using var facts = new StreamFacts(gzip);
+            using var archived = zip.GetEntry(ArchiveCounts.Names[i])!.Open();
+            int count;
+            while ((count = facts.Read(buffer)) != 0)
+            {
+                archived.ReadExactly(saved.AsSpan(0, count));
+                if (!buffer.AsSpan(0, count).SequenceEqual(saved.AsSpan(0, count)))
+                    throw new InvalidDataException(
+                        "Capture ZIP differs from its retained original prefix."
+                    );
+            }
+            compressed.Verify();
+            sourceBytes = checked(sourceBytes + facts.Bytes);
+            if (
+                stamp.Records is { } expectedRecords
+                && (facts.Records != expectedRecords || facts.Bytes != stamp.ExtractedBytes)
+            )
+                throw new InvalidDataException(
+                    "Capture source prefix differs from its commit counts."
+                );
+            if (i != 3 || !recovered)
+            {
+                if (archived.ReadByte() != -1)
+                    throw new InvalidDataException("Capture ZIP has unaccounted extra records.");
+            }
+            else
+            {
+                using var reader = new RecordReader(archived);
+                var marker = reader.Read();
+                if (marker?.Get("kind") != "session_recovered" || reader.Read() is not null)
+                    throw new InvalidDataException("Capture ZIP recovery suffix differs.");
+            }
+        }
+        return sourceBytes;
+    }
+
+    private static Checkpoint? ReadCheckpoint(string folder)
+    {
+        var candidates = new List<Checkpoint>();
+        var anySlot = false;
+        foreach (var slot in new[] { "session-state.0.json", "session-state.1.json" })
+        {
+            var path = Path.Combine(folder, slot);
+            if (!File.Exists(path))
+                continue;
+            anySlot = true;
+            try
+            {
+                var bytes = ReadMetadataFile(path, StorageCheckpoint.MaximumBytes);
+                var payload = StorageCheckpoint.Decode(bytes);
+                candidates.Add(
+                    new Checkpoint(
+                        payload.RunId,
+                        payload.Environment,
+                        Convert.ToHexString(SHA256.HashData(bytes)),
+                        payload.Generation,
+                        payload.CommittedBatches,
+                        payload
+                            .Streams.Select(value => new Prefix(
+                                value.Name,
+                                value.Bytes,
+                                value.Sha256,
+                                value.Records,
+                                value.ExtractedBytes
+                            ))
+                            .ToArray()
+                    )
+                );
+            }
+            catch (Exception exception)
+                when (exception
+                        is JsonException
+                            or InvalidDataException
+                            or FormatException
+                            or OverflowException
+                ) { }
+        }
+        if (candidates.Count != 0)
+        {
+            if (
+                candidates.Select(value => (value.RunId, value.Environment)).Distinct().Count() != 1
+                || candidates
+                    .GroupBy(value => value.Generation)
+                    .Any(group => group.Select(value => value.Hash).Distinct().Count() != 1)
+            )
+                throw new InvalidDataException(
+                    "Capture commit vectors have conflicting identities/generations."
+                );
+            return candidates.MaxBy(value => value.Generation);
+        }
+        if (anySlot)
+            throw new InvalidDataException("Capture has no valid durable commit vector.");
+        var legacy = Path.Combine(folder, "session-state.json");
+        if (!File.Exists(legacy))
+            return null;
+        var original = ReadMetadataFile(legacy, StorageCheckpoint.MaximumBytes);
+        using var document = JsonDocument.Parse(original);
+        var root = document.RootElement;
+        if (root.GetProperty("schema").GetInt32() != 1)
+            throw new InvalidDataException("Unknown capture checkpoint schema.");
+        var values = root.GetProperty("files")
+            .EnumerateArray()
+            .Select(value => new Prefix(
+                value.GetProperty("name").GetString()!,
+                value.GetProperty("bytes").GetInt64(),
+                value.GetProperty("sha256").GetString()!,
+                null,
+                null
+            ))
+            .ToArray();
+        if (
+            values.Length != 4
+            || StorageCheckpoint.FileNames.Any(name =>
+                values.Count(value => value.Name == name) != 1
+            )
+            || values.Any(value =>
+                value.Bytes < 0 || value.Sha256.Length != 64 || !value.Sha256.All(Uri.IsHexDigit)
+            )
+        )
+            throw new InvalidDataException("Legacy capture checkpoint streams are invalid.");
+        return new Checkpoint(
+            root.GetProperty("run_id").GetString()!,
+            root.GetProperty("environment").GetString()!,
+            Convert.ToHexString(SHA256.HashData(original)),
+            null,
+            null,
+            StorageCheckpoint
+                .FileNames.Select(name => values.Single(value => value.Name == name))
+                .ToArray()
+        );
+    }
+
+    private static byte[] ReadMetadataFile(string path, int limit)
+    {
+        using var file = File.OpenRead(path);
+        return ReadMetadata(file, file.Length, limit);
     }
 
     private static byte[] ReadMetadata(Stream input, long length, int limit)
     {
-        if (length < 0 || length > limit) throw new InvalidDataException("Capture metadata is too large.");
+        if (length < 0 || length > limit)
+            throw new InvalidDataException("Capture control metadata exceeds its bound.");
         var bytes = new byte[(int)length];
-        var offset = 0;
-        while (offset < bytes.Length)
-        {
-            var count = input.Read(bytes, offset, bytes.Length - offset);
-            if (count == 0) throw new InvalidDataException("Capture metadata is truncated.");
-            offset += count;
-        }
-        if (input.ReadByte() != -1) throw new InvalidDataException("Capture metadata length differs.");
+        input.ReadExactly(bytes);
+        if (input.ReadByte() != -1)
+            throw new InvalidDataException("Capture control metadata length differs.");
         return bytes;
     }
 
-    private static Dictionary<string, Checkpoint>? ReadCheckpoints(string folder)
-    {
-        var path = Path.Combine(folder, "session-state.json");
-        if (!File.Exists(path)) return null;
-        using var document = JsonDocument.Parse(ReadCheckpointBytes(folder), new JsonDocumentOptions { MaxDepth = 8 });
-        if (document.RootElement.GetProperty("schema").GetInt32() != 1) throw new InvalidDataException("Unknown capture checkpoint.");
-        var result = new Dictionary<string, Checkpoint>(StringComparer.Ordinal);
-        foreach (var value in document.RootElement.GetProperty("files").EnumerateArray())
-        {
-            var name = value.GetProperty("name").GetString()!;
-            var bytes = value.GetProperty("bytes").GetInt64();
-            var hash = value.GetProperty("sha256").GetString()!;
-            if (!Names.Contains(name) || bytes < 0 || bytes > new FileInfo(Path.Combine(folder, name)).Length
-                || hash.Length != 64 || !hash.All(Uri.IsHexDigit) || !result.TryAdd(name, new Checkpoint(bytes, hash)))
-                throw new InvalidDataException("Invalid capture checkpoint.");
-        }
-        if (result.Count != Names.Length) throw new InvalidDataException("Capture checkpoint omits a stream.");
-        return result;
-    }
+    private sealed record Prefix(
+        string Name,
+        long Bytes,
+        string Sha256,
+        long? Records,
+        long? ExtractedBytes
+    );
 
-    private static Summary ReadDiagnostics(string path, Checkpoint? checkpoint)
-    {
-        using var input = new CheckedInput(path, checkpoint);
-        using var gzip = new GZipStream(input, CompressionMode.Decompress, true);
-        using var reader = new StreamReader(gzip, Utf8, false, 65536, true);
-        var result = new Summary();
-        var line = new StringBuilder();
-        int character;
-        while ((character = reader.Read()) != -1)
-        {
-            if (character != '\n')
-            {
-                if (line.Length >= 262144) throw new InvalidDataException("Capture diagnostic record is too large.");
-                line.Append((char)character);
-                continue;
-            }
-            using var document = JsonDocument.Parse(line.ToString(), new JsonDocumentOptions { MaxDepth = 32 });
-            line.Clear();
-            var record = document.RootElement;
-            var data = record.TryGetProperty("data", out var nested) ? nested : record;
-            switch (record.GetProperty("kind").GetString())
-            {
-                case "session_start":
-                    if (result.HasStart) throw new InvalidDataException("Capture has multiple session starts.");
-                    result.Start = record.Clone();
-                    result.HasStart = true;
-                    break;
-                case "session_end":
-                    if (result.End is not null) throw new InvalidDataException("Capture has multiple session ends.");
-                    result.End = record.Clone();
-                    break;
-                case "capture_gap":
-                    var dropped = data.GetProperty("dropped_events").GetInt64();
-                    if (dropped < 0) throw new InvalidDataException("Invalid dropped event count.");
-                    result.Dropped = checked(result.Dropped + dropped);
-                    break;
-                case "observer_error":
-                    var observer = ReadText(data, "observer") ?? ReadText(data, "kind") ?? "unknown";
-                    var error = ReadText(data, "error") ?? "unknown";
-                    var key = observer + ":" + error;
-                    if (result.ErrorSamples.TryGetValue(key, out var previous)) result.ErrorSamples[key] = checked(previous + 1);
-                    else if (result.ErrorSamples.Count < 128) result.ErrorSamples.Add(key, 1);
-                    else result.ErrorsTruncated = true;
-                    if (result.Errors.TryGetValue(observer, out var observed)) result.Errors[observer] = checked(observed + 1);
-                    else if (result.Errors.Count < 128) result.Errors.Add(observer, 1);
-                    else result.ErrorsTruncated = true;
-                    break;
-                case "capture_status":
-                    if (result.Status.Count < 64) result.Status.Add(data.Clone());
-                    else result.StatusTruncated = true;
-                    if (data.TryGetProperty("observer_errors", out var totals))
-                    {
-                        var errors = new Dictionary<string, long>(StringComparer.Ordinal);
-                        foreach (var total in totals.EnumerateObject())
-                        {
-                            var occurrences = total.Value.GetInt64();
-                            if (total.Name.Length > 256 || occurrences < 0 || errors.Count >= 128 || !errors.TryAdd(total.Name, occurrences))
-                                throw new InvalidDataException("Invalid observer error summary.");
-                        }
-                        result.FinalErrors = errors;
-                    }
-                    break;
-            }
-        }
-        input.Verify();
-        if (line.Length != 0 || !result.HasStart) throw new InvalidDataException("Capture diagnostics are incomplete.");
-        if (result.End is { } end && end.GetProperty("run_id").GetString() != result.Start.GetProperty("run_id").GetString())
-            throw new InvalidDataException("Capture session IDs differ.");
-        return result;
-    }
+    private sealed record Checkpoint(
+        string RunId,
+        string Environment,
+        string Hash,
+        long? Generation,
+        long? CommittedBatches,
+        Prefix[] Streams
+    );
 
-    private static string? ReadText(JsonElement data, string name)
-    {
-        if (!data.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.String) return null;
-        var text = value.GetString();
-        if (text?.Length > 256) throw new InvalidDataException("Capture diagnostic value is too large.");
-        return text;
-    }
+    private sealed record FreshFacts(VerifiedArchiveEntry[] Entries, JsonElement Summary);
 
-    private sealed record Checkpoint(long Bytes, string Sha256);
-
-    private sealed class Summary
-    {
-        internal JsonElement Start;
-        internal JsonElement? End;
-        internal bool HasStart, ErrorsTruncated, StatusTruncated;
-        internal long Dropped;
-        internal readonly Dictionary<string, long> Errors = new(StringComparer.Ordinal);
-        internal readonly Dictionary<string, long> ErrorSamples = new(StringComparer.Ordinal);
-        internal Dictionary<string, long>? FinalErrors;
-        internal readonly List<JsonElement> Status = new();
-    }
-
-    private sealed class CheckedInput : Stream
-    {
-        private readonly FileStream file;
-        private readonly IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        private readonly Checkpoint? checkpoint;
-        private long remaining;
-
-        internal CheckedInput(string path, Checkpoint? checkpoint)
-        {
-            file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 65536);
-            this.checkpoint = checkpoint;
-            remaining = checkpoint?.Bytes ?? file.Length;
-        }
-
-        public override int Read(byte[] buffer, int offset, int count) => Read(buffer.AsSpan(offset, count));
-        public override int Read(Span<byte> buffer)
-        {
-            var count = file.Read(buffer[..(int)Math.Min(buffer.Length, remaining)]);
-            if (count == 0 && remaining != 0) throw new InvalidDataException("Capture compressed stream is truncated.");
-            remaining -= count;
-            hash.AppendData(buffer[..count]);
-            return count;
-        }
-
-        internal void Verify()
-        {
-            if (remaining != 0 || (checkpoint is not null
-                && !Convert.ToHexString(hash.GetHashAndReset()).Equals(checkpoint.Sha256, StringComparison.OrdinalIgnoreCase)))
-                throw new InvalidDataException("Capture checkpoint does not match the compressed stream.");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing) { file.Dispose(); hash.Dispose(); }
-            base.Dispose(disposing);
-        }
-
-        public override bool CanRead => true;
-        public override bool CanSeek => false;
-        public override bool CanWrite => false;
-        public override long Length => throw new NotSupportedException();
-        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-        public override void Flush() => throw new NotSupportedException();
-        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-        public override void SetLength(long value) => throw new NotSupportedException();
-        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-    }
+    private sealed record Verification(
+        VerifiedArchiveEntry[] Entries,
+        bool NormalShutdown,
+        bool Recovered,
+        bool Aborted,
+        long TailBytes,
+        BootstrapOwnership? BootstrapOwnership,
+        long SourceBytesExpanded,
+        long ZipBytesExpanded
+    );
 }

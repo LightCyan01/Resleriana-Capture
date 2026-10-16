@@ -14,6 +14,7 @@
         <RepositoryType>git</RepositoryType>
         <Copyright>Copyright © 2022 BepInEx Team</Copyright>
         <BuildDir>$(SolutionDir)bin</BuildDir>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
         <BaseIntermediateOutputPath Condition="'$(BuildArtifactsDirectory)' != ''">$(BuildArtifactsDirectory)obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
         <BaseOutputPath Condition="'$(BuildArtifactsDirectory)' != ''">$(BuildArtifactsDirectory)bin/$(MSBuildProjectName)/</BaseOutputPath>
         <PackageOutputPath>$(BuildDir)/NuGet</PackageOutputPath>

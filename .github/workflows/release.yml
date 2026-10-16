@@ -1,102 +1,36 @@
-name: Release
+name: Windows verification
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: manual-verification-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    outputs:
-      tag: ${{ steps.package.outputs.tag }}
-      asset: ${{ steps.package.outputs.asset }}
+  verify:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    env:
+      DOTNET_GENERATE_ASPNET_CERTIFICATE: "false"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch-depth: 0
           persist-credentials: false
 
-      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+      - name: Build and package the exact source
+        shell: pwsh
+        run: py scripts/build.py --source-commit '${{ github.sha }}'
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          dotnet-version: '8.0.x'
-
-      - name: Choose release version
-        id: version
-        run: python3 scripts/package.py --version-only
-
-      - name: Build and package from source
-        id: package
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: python3 scripts/build.py --workdir "$RUNNER_TEMP/build" --output "$RUNNER_TEMP/release" --version "$VERSION" --source-commit "$GITHUB_SHA"
-
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: release
-          path: ${{ runner.temp }}/release/
+          name: windows-verification
+          path: work/release/
           if-no-files-found: error
           compression-level: 0
           retention-days: 7
-
-  release:
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: write
-      attestations: write
-      artifact-metadata: write
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: release
-          path: ${{ runner.temp }}/release/
-
-      - name: Check built artifacts
-        working-directory: ${{ runner.temp }}/release/
-        run: |
-          sha256sum -c SHA256SUMS.txt
-          EXPECTED=$(jq -r '.plugin.sha256' release-manifest.json)
-          printf '%s  AtelierCapture.dll\n' "$EXPECTED" | sha256sum -c -
-
-      - name: Attest installer and capture plugin
-        id: attestation
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: |
-            ${{ runner.temp }}/release/*.zip
-            ${{ runner.temp }}/release/AtelierCapture.dll
-
-      - name: Publish release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          TAG: ${{ needs.build.outputs.tag }}
-          ASSET: ${{ needs.build.outputs.asset }}
-          ATTESTATION: ${{ steps.attestation.outputs.bundle-path }}
-        run: |
-          if gh release view "$TAG" --json isDraft --jq '.isDraft' > "$RUNNER_TEMP/is-draft" 2>/dev/null; then
-            if [ "$(cat "$RUNNER_TEMP/is-draft")" = false ]; then
-              echo "$TAG is already published."
-              exit 0
-            fi
-            gh release edit "$TAG" --target "$GITHUB_SHA" --notes-file "$RUNNER_TEMP/release/release-notes.md"
-          else
-            gh release create "$TAG" --draft --target "$GITHUB_SHA" --title "Resleriana Capture $TAG" --notes-file "$RUNNER_TEMP/release/release-notes.md"
-          fi
-          cp "$ATTESTATION" "$RUNNER_TEMP/release/attestations.json"
-          gh release upload "$TAG" "$RUNNER_TEMP/release/$ASSET" "$RUNNER_TEMP/release/SHA256SUMS.txt" "$RUNNER_TEMP/release/release-manifest.json" "$RUNNER_TEMP/release/attestations.json" --clobber
-          gh release edit "$TAG" --draft=false --latest

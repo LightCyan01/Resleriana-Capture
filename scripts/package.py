@@ -1,19 +1,25 @@
 """Choose a release version and package built install files."""
 import argparse
+import configparser
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
 import shutil
-import subprocess
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-def git(*args):
-    return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
+CONFIGURATION_VALUES = {
+    "UnityBaseLibrariesSource": "2022.3.62.zip",
+    "GlobalMetadataPath": "{GameDataPath}/il2cpp_data/Metadata/global-metadata.dat",
+    "IL2CPPInteropAssembliesPath": "{BepInEx}",
+}
+CONFIGURATION_CONTRACT = [{"path": "BepInEx/config/BepInEx.cfg", "section": "IL2CPP", "key": key, "value": value}
+                          for key, value in CONFIGURATION_VALUES.items()]
+LOCALIZATION_CONFIG = "BepInEx/config/AtelierResleriana.Plugin.Localization.cfg"
+CONFIGURATION_CONTRACT.append({"path": LOCALIZATION_CONFIG, "section": "Data", "key": "AutoUpdate", "value": "false"})
+MUTABLE_CONFIG_FILES = {"BepInEx/config/BepInEx.cfg", LOCALIZATION_CONFIG}
 
 
 def parse_version(value):
@@ -24,38 +30,93 @@ def parse_version(value):
 
 
 def release_version():
-    minimum = parse_version((ROOT / "VERSION").read_text().strip())
-    tags = [t for t in git("tag", "--list", "v*").splitlines() if re.fullmatch(r"v\d+\.\d+\.\d+", t)]
-    current = set(git("tag", "--points-at", "HEAD").splitlines())
-    existing = [parse_version(t) for t in tags if t in current]
-    if existing:
-        return max(existing)
-    if not tags:
-        return minimum
-    major, minor, patch = max(map(parse_version, tags))
-    return max(minimum, (major, minor, patch + 1))
+    return parse_version((ROOT / "VERSION").read_text().strip())
 
 
 def install_file(name):
+    if not name or "\\" in name or name.startswith("/") or ":" in name:
+        return False
     path = Path(name)
-    if name in {".doorstop_version", "doorstop_config.ini", "winhttp.dll", "README.md"}:
+    if not path.parts or any(part in {".", ".."} for part in path.parts):
+        return False
+    if name in {".doorstop_version", "doorstop_config.ini", "winhttp.dll", "README.md", "capture-control.ps1"}:
         return True
     if path.parts[0] == "Licenses":
         return path.suffix in {".txt", ".md"}
-    if path.parent.as_posix() == "dotnet":
-        return path.suffix in {".dll", ".json"} or path.name == ".version"
+    if path.parts[0] == "dotnet":
+        return path.suffix in {".dll", ".exe", ".json", ".dat"} or path.name in {".version", "LICENSE.txt", "THIRD-PARTY-NOTICES.txt"}
     if path.parent.as_posix() == "BepInEx/core":
         return path.suffix in {".dll", ".config"}
     if name == "BepInEx/plugins/Resources/LocalizationData.json":
         return True
+    if name in MUTABLE_CONFIG_FILES or name in {"BepInEx/unity-libs/2022.3.62.zip", "BepInEx/plugins/capture-runtime.json"}:
+        return True
     return path.parent.as_posix() == "BepInEx/plugins" and path.suffix == ".dll" and (
-        path.name == "AtelierCapture.dll" or path.name.startswith("AtelierResleriana.")
+        path.name in {"AtelierCapture.dll", "AtelierCapture.Native.dll"} or path.name.startswith("AtelierResleriana.")
         or path.name in {"K4os.Compression.LZ4.dll", "Universal.Common.dll"})
 
 
 def sha256(path):
     with path.open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def validate_stage(stage):
+    stage = stage.resolve()
+    required = {"winhttp.dll", "doorstop_config.ini", "capture-control.ps1", "dotnet/coreclr.dll", "dotnet/System.Private.CoreLib.dll",
+                "dotnet/System.Text.Json.dll", "dotnet/System.IO.Compression.dll",
+                "BepInEx/core/BepInEx.Core.dll", "BepInEx/core/BepInEx.Unity.IL2CPP.dll",
+                "BepInEx/core/Il2CppInterop.Runtime.dll", "BepInEx/core/Il2CppInterop.Common.dll",
+                "BepInEx/core/Il2CppInterop.HarmonySupport.dll", "BepInEx/core/0Harmony.dll",
+                "BepInEx/core/TerraFX.Interop.Windows.dll",
+                "BepInEx/plugins/AtelierCapture.dll", "BepInEx/plugins/AtelierCapture.Native.dll", "BepInEx/plugins/capture-runtime.json",
+                "BepInEx/plugins/Resources/LocalizationData.json", "BepInEx/config/BepInEx.cfg",
+                "BepInEx/unity-libs/2022.3.62.zip", LOCALIZATION_CONFIG}
+    files = []
+    for path in stage.rglob("*"):
+        if path.is_symlink() or not path.resolve().is_relative_to(stage):
+            raise ValueError(f"Install stage contains an external link: {path}")
+        if path.is_file():
+            name = path.relative_to(stage).as_posix()
+            if not install_file(name):
+                raise ValueError(f"Unexpected install file: {name}")
+            files.append(name)
+    if not required.issubset(files):
+        raise ValueError(f"Missing install files: {sorted(required - set(files))}")
+    certificate = json.loads((stage / "BepInEx/plugins/capture-runtime.json").read_text())
+    if certificate.get("schema") != 1 or certificate.get("runtime_major") != 10 or certificate.get("runtime_version") != "10.0.13":
+        raise ValueError("Install runtime certificate must identify embedded .NET 10.0.13")
+    client = certificate.get("supported_client", {})
+    for key in ("executable_sha256", "gameassembly_sha256", "metadata_sha256"):
+        if not re.fullmatch(r"[a-f0-9]{64}", client.get(key, "")):
+            raise ValueError(f"Missing supported client fingerprint: {key}")
+    covered = set()
+    for entry in certificate["runtime_files"]:
+        name = entry["path"]
+        if name in covered or not install_file(name) or name == "BepInEx/plugins/capture-runtime.json":
+            raise ValueError(f"Invalid runtime certificate path: {name}")
+        path = (stage / name).resolve()
+        if not path.is_relative_to(stage) or not path.is_file():
+            raise ValueError(f"Missing runtime certificate file: {name}")
+        if path.stat().st_size != entry["size"] or sha256(path) != entry["sha256"]:
+            raise ValueError(f"Runtime certificate file mismatch: {name}")
+        covered.add(name)
+    expected = {name for name in files if not name.startswith("Licenses/") and name not in {"README.md", "BepInEx/plugins/capture-runtime.json"} and name not in MUTABLE_CONFIG_FILES}
+    if covered != expected:
+        raise ValueError("Runtime certificate does not cover the complete installed load graph")
+    configuration = (stage / "doorstop_config.ini").read_text()
+    if "coreclr_path = dotnet\\coreclr.dll" not in configuration or "corlib_dir = dotnet" not in configuration:
+        raise ValueError("Doorstop must load the adjacent embedded runtime")
+    for path in MUTABLE_CONFIG_FILES:
+        config = configparser.ConfigParser(interpolation=None)
+        config.read(stage / path, encoding="utf-8-sig")
+        for entry in CONFIGURATION_CONTRACT:
+            if entry["path"] == path and config.get(entry["section"], entry["key"], fallback="").strip() != entry["value"]:
+                raise ValueError(f"Required offline configuration missing or changed: {path} {entry['key']}")
+    contract = certificate.get("configuration_contract")
+    if contract != CONFIGURATION_CONTRACT:
+        raise ValueError("Runtime configuration contract missing or unsupported")
+    return sorted(files)
 
 
 def main():
@@ -70,13 +131,7 @@ def main():
     if not args.version_only:
         if not args.stage or not args.output:
             parser.error("--stage and --output are required when packaging")
-        files = sorted(path.relative_to(args.stage).as_posix() for path in args.stage.rglob("*")
-                       if path.is_file() and install_file(path.relative_to(args.stage).as_posix()))
-        required = {"winhttp.dll", "doorstop_config.ini", "dotnet/coreclr.dll",
-                    "BepInEx/core/BepInEx.Unity.IL2CPP.dll", "BepInEx/core/Il2CppInterop.HarmonySupport.dll",
-                    "BepInEx/plugins/AtelierCapture.dll", "BepInEx/plugins/Resources/LocalizationData.json"}
-        if not required.issubset(files):
-            raise ValueError(f"Missing install files: {sorted(required - set(files))}")
+        files = validate_stage(args.stage)
         args.output.mkdir(parents=True, exist_ok=True)
         archive_path = args.output / f"Resleriana-Capture-v{version}-win-x64.zip"
         with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
@@ -84,18 +139,20 @@ def main():
                 archive.write(args.stage / name, name)
         plugin_path = args.stage / "BepInEx/plugins/AtelierCapture.dll"
         provenance = json.loads((args.stage.parent / "dependencies.json").read_text())
-        manifest = {"schema": 1, "version": version, "source_commit": provenance["source_commit"],
+        manifest = {"schema": 2, "version": version, "source_commit": provenance["source_commit"],
+                    "source_digest": provenance["source_digest"], "sdk": provenance["sdk"], "runtime": provenance["runtime"],
                     "archive": {"name": archive_path.name, "sha256": sha256(archive_path)},
                     "plugin": {"name": "AtelierCapture.dll", "sha256": sha256(plugin_path)},
-                    "dependencies": provenance["dependencies"]}
+                    "dependencies": provenance["dependencies"], "packages": provenance["packages"],
+                    "source_files": provenance["source_files"], "vendor_sources": provenance["vendor_sources"], "native_observer": provenance["native_observer"],
+                    "files": [{"path": name, "size": (args.stage / name).stat().st_size, "sha256": sha256(args.stage / name)} for name in files]}
         manifest_path = args.output / "release-manifest.json"
         manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
         changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         section = re.search(r"^## v?" + re.escape(version) + r"(?:[ \t]+[^\n]*)?\n(.*?)(?=^## |\Z)",
                             changelog, flags=re.MULTILINE | re.DOTALL)
-        if not section or not section[1].strip():
-            raise ValueError(f"CHANGELOG.md has no release notes for {version}")
-        (args.output / "release-notes.md").write_text(section[1].strip() + "\n", encoding="utf-8")
+        notes = section[1].strip() if section and section[1].strip() else "Local candidate; native/gameplay and hardware qualification status must be read from the delivery evidence.\n"
+        (args.output / "release-notes.md").write_text(notes + "\n", encoding="utf-8")
         (args.output / "SHA256SUMS.txt").write_text(
             "".join(f"{sha256(path)}  {path.name}\n" for path in (archive_path, manifest_path)), encoding="utf-8")
         shutil.copyfile(plugin_path, args.output / "AtelierCapture.dll")

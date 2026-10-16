@@ -1,65 +1,123 @@
 # Resleriana Capture
 
-Record API traffic and combat data from Atelier Resleriana (JP) on Steam. Includes English translation from [Localization 2.0.0](https://github.com/ongandrew/AtelierResleriana/releases/tag/2.0.0). For Windows x64, game version 2.16.0.
+Resleriana Capture records API traffic from Atelier Resleriana (JP) on Steam, and saves each play session as a ZIP on your PC. The package also includes the English translation from [Localization 2.0.0](https://github.com/ongandrew/AtelierResleriana/releases/tag/2.0.0).
 
-Built on a modified BepInEx 6.0.0-be.788 with HarmonyX 2.16.1. The custom hook fixes are in Il2CppInterop's HarmonySupport, where they handle the game's Windows x64 value-type and nullable arguments.
+## Requirements
 
-The plugin records requests and responses inside the game, plus inputs, results and state before and after hooked combat methods. Request IDs connect battle events to API traffic. Keeping both decoded data and original bodies lets researchers inspect gameplay now and decode more fields later. Log writing and compression run on a background thread.
+The Steam JP client, version 2.16.0.
 
 ## Install
 
-1. Close the game. Open the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest) and download `Resleriana-Capture-vX.Y.Z-win-x64.zip` under Assets.
-2. Extract the ZIP and copy its contents into the game folder, beside `AtelierResleriana.exe`.
-3. Launch the game through Steam. Recording starts automatically. The first launch may take a few minutes to set up.
+1. Close the game. Download `Resleriana-Capture-vX.Y.Z-win-x64.zip` from the Assets of the [latest release](https://github.com/LightCyan01/Resleriana-Capture/releases/latest).
+2. Open the game folder, the one that contains `AtelierResleriana.exe`. If it already has a `dotnet` or `BepInEx/core` folder, move it somewhere outside the game folder. The plugin checks the hashes of these files, so old and new copies can't be mixed.
+3. Extract the ZIP into the game folder. Keep your existing captures, custom localization files and other plugins. If you already have files in `BepInEx/config`, keep yours and update them as described in [Upgrading an existing setup](#upgrading-an-existing-setup). Make sure the game folder has only one `AtelierCapture.dll`.
+4. Launch the game through Steam. Recording starts on its own. The first launch can take a few minutes to set up.
+
+### Upgrading an existing setup
+
+If you kept your own `BepInEx/config/BepInEx.cfg`, check that its `[IL2CPP]` section has these values:
+
+```ini
+[IL2CPP]
+UnityBaseLibrariesSource = 2022.3.62.zip
+GlobalMetadataPath = {GameDataPath}/il2cpp_data/Metadata/global-metadata.dat
+IL2CPPInteropAssembliesPath = {BepInEx}
+```
+
+The package includes the Unity 2022.3.62 base libraries, so BepInEx doesn't download them.
+
+In `BepInEx/config/AtelierResleriana.Plugin.Localization.cfg`, set `AutoUpdate = false` under `[Data]`. This keeps the translation data at the version the package was checked with. Leave your language and other options as they are.
 
 ## Captures
 
-After closing the game, find your capture here:
+After you close the game, your capture is here:
 
 ```text
 BepInEx/plugins/Captures/Official/capture-YYYY-MM-DD_HH-mm-ss.zip
 ```
 
-Each ZIP contains four JSON Lines text files and a manifest.
+Each ZIP covers one run of the game in one environment, such as `Official`. If a file with that name already exists, the new one gets a suffix such as `-2`.
 
-| File | Information recorded |
-| --- | --- |
-| `api.jsonl` | Decoded requests and responses, routes, response codes and selected headers. Depending on what you play, this includes characters, parties, inventory, currencies, quest progress, gacha results, mail and rewards. |
-| `combat.jsonl` | Hooked battle methods and their inputs/results, unit stats, HP, damage, break, buffs/debuffs, gauges, targets and turn order. |
-| `raw-bodies.jsonl` | Original API request and response bodies stored as Base64, with byte lengths and SHA-256 hashes. These preserve data that the decoded logs may omit. |
-| `diagnostics.jsonl` | Session identifiers, timestamps, request completion states, timings, errors and capture gaps. |
-| `manifest.json` | Stream hashes, sizes and record counts, plugin/schema versions, installed and used combat hooks, recording gaps and recovery status. |
+> [!IMPORTANT]
+> Let the game close on its own. It builds and checks the ZIP while closing, and after a long session that can take a few minutes. If the game crashes or is killed, start it again and the next launch packs the saved recording. Leave any leftover working folders in place; the plugin keeps them for recovery.
 
-Let the game finish closing so it can save the ZIP. If it crashes, launch it again to recover the saved part of the recording. Leave any `.partial` folders in place until then. A capture covers the actions you played; limits or failures can leave gaps.
+Each ZIP holds four JSON Lines files and a manifest:
 
-Raw bodies keep the original bytes, including any account or session fields in them. The decoded logs redact common sensitive fields. The plugin saves locally and does not upload recordings.
+| File                | What it contains                                                                                                                                                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api.jsonl`         | Decoded requests and responses with routes, response codes and every observed header. Depending on what you play, this covers characters, parties, inventory, currencies, quest progress, gacha results, mail and rewards.         |
+| `combat.jsonl`      | Battle and Atelier method arguments, results and the game state around each call. Game state is read again at every call, and failed reads are recorded as gaps. UI and rendering internals are left out.                          |
+| `raw-bodies.jsonl`  | The original request and response bodies in Base64, with byte lengths and SHA-256 hashes. Fields the decoded logs miss are still here.                                                                                             |
+| `diagnostics.jsonl` | Session IDs, timestamps, request completion states, timings, errors and capture gaps. A warning that keeps repeating, or one of two known Unity material errors, is stored in full once and then counted.                          |
+| `manifest.json`     | Sizes, record counts and SHA-256 hashes for each file, counts per system and per route, the game client and runtime versions, and any recording gaps. Counts are readable, not encrypted, and the manifest doesn't score captures. |
+
+A capture covers only what you played. Hooks that couldn't be installed, failed reads and unclear object origins show up as gaps in the manifest and diagnostics.
+
+> [!WARNING]
+> Captures contain your account and session data. Bodies, decoded fields and headers are saved as captured, with no redaction or hashing. The plugin keeps recordings on your PC and doesn't upload them, but anyone you send a capture to can read that data.
+
+## Long sessions
+
+A capture has no size limit, and the recorder doesn't trim, sample or drop records to keep it small. Files over 4 GB are stored as ZIP64.
+
+- The recorder waits for the disk rather than dropping data, so slow storage can make the game wait.
+- If the drive fills up or fails, the game stops at the next recorded action and waits until there is space again or you abort the capture.
+- Closing takes longer as the capture grows, because the plugin compresses everything and reads it back to check it.
+- Closing needs free space for the ZIP while the working files still exist. The working files are deleted only after the ZIP checks out.
+
+### Checking or stopping a capture
+
+While the game is running, open PowerShell in the game folder and run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\capture-control.ps1 -ProcessId (Get-Process AtelierResleriana).Id -Command status
+```
+
+The reply includes the current run ID. To abort the capture, pass that ID and a reason:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\capture-control.ps1 -ProcessId (Get-Process AtelierResleriana).Id -Command abort -RunId <run ID> -Reason "<reason>"
+```
+
+Aborting marks the run incomplete and keeps the data already saved. It can't save data to a broken drive.
 
 ## How recording works
 
-The plugin observes the game's HTTP send, response decoder and completion paths. It preserves the original API bodies before decoding, so unknown fields remain available. Combat hooks copy selected native state while it is valid, then queue detached records for background writing and compression. It avoids per-frame polling. A full queue waits for the writer instead of discarding events; faster compression during play helps keep it draining. Sustained slow storage can still cause waits.
+The plugin hooks the game's HTTP send, response decoding and completion paths. It keeps each original API body before decoding, so fields the decoder doesn't know about are kept. Battle and Atelier hooks copy the state they need while it is valid and hand the records to a background writer. The plugin doesn't poll every frame.
 
-Completed gzip blocks are checkpointed during play. On exit, the writer streams them into a ZIP and calculates the manifest hashes. Recovery uses those checkpoints to exclude an unfinished crash tail. Older recordings without checkpoints are marked uncertain and their temporary files are retained.
+Each gameplay and network record is written to disk, along with a recovery checkpoint, before the game continues. Records that arrive while the disk is busy are saved together in one write. Warnings and known material errors don't wait for the disk, so a crash can lose the last few of them.
 
-The manifest checks file integrity. A modified plugin can fabricate data and recompute its hashes, so the manifest does not prove official gameplay. Release checksums and GitHub build attestations identify the published installer; they do not authenticate recordings. See [the archive format](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/AtelierCapture/FORMAT.md) for the validation contract and limits.
+When the game closes, the writer builds the ZIP, reads it back to check every file against the saved data, and only then deletes the working copies. After a crash, recovery packs everything up to the last checkpoint and leaves anything after it in the working folder. Older folders that were already packed are kept as they are.
+
+The recorder runs on a modified BepInEx 6.0.0-be.788 with HarmonyX 2.16.1. Native hooks go through a small Windows x64 forwarding layer that calls the original game method on its original object and keeps the game's own exception handling.
+
+The manifest checks that the files are intact. It can't prove that a capture came from real gameplay, because a modified plugin could fabricate data and recompute the hashes. Release checksums identify the installer, not the recordings. The [archive format](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/AtelierCapture/FORMAT.md) describes the files, the validation rules and their limits.
 
 ## Build from source
 
 Install these tools:
 
-- [Git for Windows](https://git-scm.com/install/windows).
-- [Python for Windows](https://www.python.org/downloads/windows/).
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0), Windows x64.
+- [Git for Windows](https://git-scm.com/install/windows)
+- [Python 3.11 or newer for Windows](https://www.python.org/downloads/windows/)
+- Visual Studio 2022 C++ build tools with the Windows SDK, for the native forwarding layer
 
-Open a new Command Prompt or PowerShell window in the folder where you want the source, then run:
+You don't need to install .NET. The build script downloads the version it needs.
 
-```text
+Open Command Prompt or PowerShell in the folder where you want the source, then run:
+
+```powershell
 git clone https://github.com/LightCyan01/Resleriana-Capture.git
 cd Resleriana-Capture
 py scripts/build.py
 ```
 
-The command builds the modified BepInEx runtime, HarmonySupport and capture plugin, then creates `dist/Resleriana-Capture-vX.Y.Z-win-x64.zip`. The first build needs an internet connection to download dependencies. No game installation is needed.
+This builds the modified BepInEx runtime, HarmonySupport, the native forwarding layer and the capture plugin, then writes `work/release/Resleriana-Capture-vX.Y.Z-win-x64.zip`. The first build needs an internet connection to download checksum-pinned public dependencies. Later builds can use `--offline`. You don't need the game installed to build.
 
-Extract the ZIP into the game folder as described under [Install](#install). To rebuild after editing the source, run `py scripts/build.py` again.
+Install the result as described under [Install](#install). After editing the source, run `py scripts/build.py` again.
 
-See [Sources](Sources/README.md) for individual project builds and release instructions.
+## More documentation
+
+- [Archive format](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/AtelierCapture/FORMAT.md): every file and manifest field, and how captures are validated.
+- [Source and builds](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Sources/README.md): what each source folder changes, single-project builds and releases.
+- [Changelog](https://github.com/LightCyan01/Resleriana-Capture/blob/main/CHANGELOG.md)
+- [Third-party licenses](https://github.com/LightCyan01/Resleriana-Capture/blob/main/Licenses/README.md)

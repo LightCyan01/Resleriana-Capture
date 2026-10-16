@@ -5,7 +5,13 @@
     "arity": 0,
     "role": "battle_start",
     "rva": 64433408,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SetInfoOnBattleStart"
   },
   {
     "type": "BattleServerControl",
@@ -13,7 +19,13 @@
     "arity": 0,
     "role": "wave_state",
     "rva": 64434368,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SetStateOnWaveChange"
   },
   {
     "type": "BattleServerControl",
@@ -21,7 +33,14 @@
     "arity": 0,
     "role": "action_merge",
     "rva": 64433328,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SyncAfterAction",
+    "activation_gap": "shared_native_body_unqualified"
   },
   {
     "type": "BattleServerControl",
@@ -29,7 +48,13 @@
     "arity": 1,
     "role": "state_merge",
     "rva": 64459280,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["LACKKEMGIJD"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SyncState"
   },
   {
     "type": "BattleServerControl",
@@ -37,7 +62,13 @@
     "arity": 0,
     "role": "damage_merge",
     "rva": 64465072,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SetDamageInfo"
   },
   {
     "type": "BattleServerControl",
@@ -45,7 +76,13 @@
     "arity": 0,
     "role": "action_start",
     "rva": 64435648,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SyncActionStart"
   },
   {
     "type": "BattleServerControl",
@@ -53,7 +90,13 @@
     "arity": 0,
     "role": "action_end",
     "rva": 64436480,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SyncActionEnd"
   },
   {
     "type": "BattleStateVariables",
@@ -61,7 +104,13 @@
     "arity": 1,
     "role": "wave_start",
     "rva": 68718992,
-    "async_return": true
+    "async_return": true,
+    "returns": "Cysharp.Threading.Tasks.UniTask",
+    "parameters": ["Il2CppSystem.Threading.CancellationToken"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.StartWave"
   },
   {
     "type": "BattleStateVariables",
@@ -69,7 +118,13 @@
     "arity": 2,
     "role": "skill_exec",
     "rva": 68799840,
-    "async_return": true
+    "async_return": true,
+    "returns": "Cysharp.Threading.Tasks.UniTask",
+    "parameters": ["Il2CppSystem.Threading.CancellationToken", "JCDJDPMCAPB"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.SkillExec"
   },
   {
     "type": "BattleStateVariables",
@@ -77,7 +132,21 @@
     "arity": 7,
     "role": "item_exec",
     "rva": 68709024,
-    "async_return": true
+    "async_return": true,
+    "returns": "Cysharp.Threading.Tasks.UniTask",
+    "parameters": [
+      "Il2CppSystem.Threading.CancellationToken",
+      "JCDJDPMCAPB",
+      "NHEIMMIAMJO",
+      "BJCGPLBACKM",
+      "System.String",
+      "System.Int64",
+      "System.Boolean"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.ItemSkillExec"
   },
   {
     "type": "BattleStateVariables",
@@ -85,7 +154,19 @@
     "arity": 5,
     "role": "skill_end",
     "rva": 68804560,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "System.Int32",
+      "Il2CppSystem.Collections.Generic.IList`1<FGGLBOCKLIJ>",
+      "LACKKEMGIJD",
+      "System.Boolean",
+      "System.Boolean"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.EndSkill"
   },
   {
     "type": "BattleStateVariables",
@@ -93,7 +174,18 @@
     "arity": 4,
     "role": "effect_result",
     "rva": 68824064,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "JKHFJKGHLHF",
+      "LACKKEMGIJD",
+      "System.Boolean",
+      "System.Boolean"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.SetEffectResult"
   },
   {
     "type": "BattleStateVariables",
@@ -101,7 +193,16 @@
     "arity": 2,
     "role": "state_change",
     "rva": 68714048,
-    "async_return": true
+    "async_return": true,
+    "returns": "Cysharp.Threading.Tasks.UniTask",
+    "parameters": [
+      "Il2CppSystem.Threading.CancellationToken",
+      "System.Boolean"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.PerformStateChangeResult"
   },
   {
     "type": "BattleStateVariables",
@@ -109,7 +210,13 @@
     "arity": 2,
     "role": "client_status",
     "rva": 68758832,
-    "async_return": false
+    "async_return": false,
+    "returns": "Blend.ApiSchema.Enum.BattleStatus",
+    "parameters": ["System.Int32", "System.Boolean"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.GetClientBattleStatus"
   },
   {
     "type": "BattleStateVariables",
@@ -117,7 +224,13 @@
     "arity": 1,
     "role": "burst_short_update",
     "rva": 68738640,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["NHEIMMIAMJO"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.UpdateBurstShort"
   },
   {
     "type": "BattleDamageControl",
@@ -125,7 +238,21 @@
     "arity": 7,
     "role": "damage_action_info",
     "rva": 58000864,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "System.Int32",
+      "System.Int32",
+      "System.Int32",
+      "Il2CppSystem.Collections.Generic.IList`1<FGGLBOCKLIJ>",
+      "LACKKEMGIJD",
+      "Il2CppSystem.Collections.Generic.IList`1<JKHFJKGHLHF>",
+      "Il2CppSystem.Collections.Generic.IList`1<JKHFJKGHLHF>"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.SetActionInfo"
   },
   {
     "type": "BattleDamageControl",
@@ -133,7 +260,13 @@
     "arity": 2,
     "role": "damage_step_gate",
     "rva": 58003088,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Boolean",
+    "parameters": ["BattleDamageControl+CJILPEICEJO", "System.Int32"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.DINBCPEALEM"
   },
   {
     "type": "BattleDamageControl",
@@ -141,7 +274,13 @@
     "arity": 2,
     "role": "damage_step_exec",
     "rva": 58011056,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Boolean",
+    "parameters": ["BattleDamageControl+CJILPEICEJO", "System.Int32"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.StepHitExec"
   },
   {
     "type": "BattleDamageControl",
@@ -149,7 +288,13 @@
     "arity": 2,
     "role": "damage_step_result",
     "rva": 58014560,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Boolean",
+    "parameters": ["BattleDamageControl+CJILPEICEJO", "System.Int32"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.FAKAFPEKJDJ"
   },
   {
     "type": "BattleDamageControl",
@@ -157,7 +302,17 @@
     "arity": 3,
     "role": "damage_hit_exec",
     "rva": 58028640,
-    "async_return": true
+    "async_return": true,
+    "returns": "Cysharp.Threading.Tasks.UniTask",
+    "parameters": [
+      "Il2CppSystem.Threading.CancellationToken",
+      "BattleDamageControl+CJILPEICEJO",
+      "System.Boolean"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.HitExec"
   },
   {
     "type": "Api.BattleApi",
@@ -165,7 +320,13 @@
     "arity": 1,
     "role": "finish_consumer",
     "rva": 45368720,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.BattleFinishResponse"],
+    "is_static": true,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "Api.BattleApi.OnSuccessBattleFinish"
   },
   {
     "type": "BattleTimelineMoveControl",
@@ -173,7 +334,13 @@
     "arity": 1,
     "role": "timeline_turn",
     "rva": 87160368,
-    "async_return": true
+    "async_return": true,
+    "returns": "Cysharp.Threading.Tasks.UniTask",
+    "parameters": ["Il2CppSystem.Threading.CancellationToken"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleTimelineMoveControl.StartTurnTimelineMove"
   },
   {
     "type": "BattleTimelineIcon",
@@ -181,7 +348,18 @@
     "arity": 4,
     "role": "timeline_predict",
     "rva": 87114720,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "Il2CppSystem.Nullable`1<System.Int32>",
+      "Il2CppSystem.Collections.Generic.IList`1<Blend.ApiSchema.Enum.BattleTimelineMoveReason>",
+      "System.Boolean",
+      "System.Int32"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleTimelineIcon.SetPredict"
   },
   {
     "type": "BattleUnitConditionControl",
@@ -189,7 +367,13 @@
     "arity": 2,
     "role": "condition_sync",
     "rva": 77683424,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["DACMCGLDEEH", "System.Boolean"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleUnitConditionControl.SyncConditions"
   },
   {
     "type": "BattleUnitConditionControl",
@@ -197,7 +381,13 @@
     "arity": 1,
     "role": "resident_effect",
     "rva": 77687072,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["System.Boolean"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleUnitConditionControl.UpdateResidentEffect"
   },
   {
     "type": "BattleDamageControl",
@@ -205,7 +395,16 @@
     "arity": 2,
     "role": "damage_distribution_primary",
     "rva": 58001872,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Int64",
+    "parameters": [
+      "BattleDamageControl+CJILPEICEJO",
+      "Il2CppSystem.Nullable`1<System.Int64>"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.AIMCFGLOFGB"
   },
   {
     "type": "BattleDamageControl",
@@ -213,7 +412,16 @@
     "arity": 2,
     "role": "damage_distribution_secondary",
     "rva": 58026496,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Int64",
+    "parameters": [
+      "BattleDamageControl+CJILPEICEJO",
+      "Il2CppSystem.Nullable`1<System.Int64>"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.JKHBDFALAEF"
   },
   {
     "type": "BattleDamageControl",
@@ -221,7 +429,18 @@
     "arity": 4,
     "role": "damage_distribution_flags",
     "rva": 58002752,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "Il2CppSystem.Nullable`1<System.Int64>",
+      "BattleDamageControl+CJILPEICEJO",
+      "Il2CppSystem.Nullable`1<System.Int64>",
+      "BattleDamageControl+HJFPICAALFD&"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.JGNMMPGIBOK"
   },
   {
     "type": "BattlePresenter",
@@ -229,7 +448,17 @@
     "arity": 3,
     "role": "damage_text",
     "rva": 64520672,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "Il2CppSystem.Nullable`1<System.Int64>",
+      "NHEIMMIAMJO",
+      "BattleDamageControl+HJFPICAALFD"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattlePresenter.RequestDamageText"
   },
   {
     "type": "BattleDamageControl",
@@ -237,7 +466,16 @@
     "arity": 2,
     "role": "damage_flags_burst",
     "rva": 58007200,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "Il2CppSystem.Nullable`1<System.Int32>",
+      "BattleDamageControl+HJFPICAALFD&"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.OnFlagBurstGauge"
   },
   {
     "type": "BattleDamageControl",
@@ -245,7 +483,17 @@
     "arity": 2,
     "role": "damage_flags_merge",
     "rva": 58017296,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "BattleDamageControl+HJFPICAALFD&",
+      "BattleDamageControl+HJFPICAALFD"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.OnFlag",
+    "activation_gap": "tiny_native_stub_caller_register_contract_unqualified"
   },
   {
     "type": "BattleDamageControl",
@@ -253,7 +501,16 @@
     "arity": 2,
     "role": "damage_flags_burst_merge",
     "rva": 58017312,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "Il2CppSystem.Nullable`1<System.Int32>",
+      "BattleDamageControl+HJFPICAALFD&"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.IJGGGIPFBDC"
   },
   {
     "type": "BattleEffectControl",
@@ -261,7 +518,17 @@
     "arity": 3,
     "role": "effect_damage",
     "rva": 58033632,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "BGAGJKONELB",
+      "NHEIMMIAMJO",
+      "BattleDamageControl+OLHIICNJOHA"
+    ],
+    "is_static": true,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleEffectControl.PlayDamageHitEffect"
   },
   {
     "type": "BattleEffectControl",
@@ -269,7 +536,17 @@
     "arity": 3,
     "role": "effect_result_variant",
     "rva": 58038528,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "BGAGJKONELB",
+      "NHEIMMIAMJO",
+      "BattleDamageControl+OLHIICNJOHA"
+    ],
+    "is_static": true,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleEffectControl.IJIPBDNENFG"
   },
   {
     "type": "BattleEffectControl",
@@ -277,7 +554,17 @@
     "arity": 3,
     "role": "effect_result_variant_alt",
     "rva": 58042240,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [
+      "BGAGJKONELB",
+      "NHEIMMIAMJO",
+      "BattleDamageControl+OLHIICNJOHA"
+    ],
+    "is_static": true,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleEffectControl.AOLGCJPAKAB"
   },
   {
     "type": "BattleEffectControl",
@@ -285,7 +572,13 @@
     "arity": 2,
     "role": "effect_no_result",
     "rva": 58043168,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["NHEIMMIAMJO", "BattleDamageControl+OLHIICNJOHA"],
+    "is_static": true,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleEffectControl.PlayNoEffectEffect"
   },
   {
     "type": "BattleEffectControl",
@@ -293,7 +586,13 @@
     "arity": 2,
     "role": "effect_hit_result",
     "rva": 58043264,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["NHEIMMIAMJO", "BattleDamageControl+OLHIICNJOHA"],
+    "is_static": true,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleEffectControl.PlayHitEffect"
   },
   {
     "type": "BattleEffectControl",
@@ -301,7 +600,13 @@
     "arity": 2,
     "role": "effect_break",
     "rva": 58042080,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["NHEIMMIAMJO", "BGAGJKONELB"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleEffectControl.PlayBreakEffect"
   },
   {
     "type": "BattleEffectControl",
@@ -309,7 +614,13 @@
     "arity": 2,
     "role": "effect_panel",
     "rva": 58034544,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["NHEIMMIAMJO", "BGAGJKONELB"],
+    "is_static": true,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleEffectControl.PlayPanelBuffEffect"
   },
   {
     "type": "BattleDamageControl",
@@ -317,7 +628,17 @@
     "arity": 3,
     "role": "target_damage_primary",
     "rva": 58002240,
-    "async_return": false
+    "async_return": false,
+    "returns": "NHEIMMIAMJO",
+    "parameters": [
+      "NHEIMMIAMJO",
+      "NHEIMMIAMJO",
+      "Il2CppSystem.Collections.Generic.IEnumerable`1<NHEIMMIAMJO>"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.EAPLPBPHPAI"
   },
   {
     "type": "BattleDamageControl",
@@ -325,7 +646,17 @@
     "arity": 3,
     "role": "target_damage_secondary",
     "rva": 58014048,
-    "async_return": false
+    "async_return": false,
+    "returns": "NHEIMMIAMJO",
+    "parameters": [
+      "NHEIMMIAMJO",
+      "NHEIMMIAMJO",
+      "Il2CppSystem.Collections.Generic.IEnumerable`1<NHEIMMIAMJO>"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.LNOHNOIENDH"
   },
   {
     "type": "BattleDamageControl",
@@ -333,7 +664,17 @@
     "arity": 3,
     "role": "target_damage_tertiary",
     "rva": 58020768,
-    "async_return": false
+    "async_return": false,
+    "returns": "NHEIMMIAMJO",
+    "parameters": [
+      "NHEIMMIAMJO",
+      "NHEIMMIAMJO",
+      "Il2CppSystem.Collections.Generic.IEnumerable`1<NHEIMMIAMJO>"
+    ],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleDamageControl.KILOCMIEGHL"
   },
   {
     "type": "BattleStateVariables",
@@ -341,7 +682,13 @@
     "arity": 1,
     "role": "target_main_id",
     "rva": 68709760,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Int32",
+    "parameters": ["JCDJDPMCAPB"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.GetMainTargetId"
   },
   {
     "type": "BattleStateVariables",
@@ -349,7 +696,13 @@
     "arity": 3,
     "role": "target_default",
     "rva": 68714512,
-    "async_return": false
+    "async_return": false,
+    "returns": "NHEIMMIAMJO",
+    "parameters": ["DMPCHKOKCLP", "PICAIFPFKHG", "System.Int32"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleStateVariables.GetDefaultTargetUnit"
   },
   {
     "type": "BattleServerControl",
@@ -357,7 +710,13 @@
     "arity": 0,
     "role": "item_merge",
     "rva": 64447984,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SyncAfterItemAction"
   },
   {
     "type": "BattleServerControl",
@@ -365,7 +724,13 @@
     "arity": 0,
     "role": "action_list",
     "rva": 64450848,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.SetActionInfoList"
   },
   {
     "type": "BattleServerControl",
@@ -373,7 +738,13 @@
     "arity": 4,
     "role": "resume_state",
     "rva": 64467328,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["LACKKEMGIJD", "LACKKEMGIJD", "LACKKEMGIJD", "HMIEBOKCGFE"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleServerControl.JNKDBMBJMPA"
   },
   {
     "type": "BattleCommandItemControl",
@@ -381,7 +752,13 @@
     "arity": 1,
     "role": "item_stock",
     "rva": 56392560,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["LACKKEMGIJD"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "BattleCommandItemControl.SyncItems"
   },
   {
     "type": "NHEIMMIAMJO",
@@ -389,7 +766,13 @@
     "arity": 2,
     "role": "unit_sync",
     "rva": 77502080,
-    "async_return": false
+    "async_return": false,
+    "returns": "System.Void",
+    "parameters": ["DACMCGLDEEH", "System.Boolean"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "NHEIMMIAMJO.EPMPMDMFEDN"
   },
   {
     "type": "NHEIMMIAMJO",
@@ -397,6 +780,306 @@
     "arity": 1,
     "role": "unit_damage",
     "rva": 77527760,
+    "async_return": false,
+    "returns": "System.Boolean",
+    "parameters": ["BattleDamageControl+OLHIICNJOHA"],
+    "is_static": false,
+    "system": "Battle",
+    "variant": "entry_exit",
+    "boundary": "NHEIMMIAMJO.CJIHGGKHNOA"
+  },
+  {
+    "type": "CGGKFDGOFGN",
+    "method": ".ctor",
+    "rva": 46791552,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Model.BattleHistory"],
+    "is_static": false,
+    "role": "battle_history_mapping",
+    "system": "Battle",
+    "route": "",
+    "variant": "Blend.ApiSchema.Model.BattleHistory",
+    "boundary": "CGGKFDGOFGN..ctor(Blend.ApiSchema.Model.BattleHistory)",
+    "async_return": false
+  },
+  {
+    "type": "HMIEBOKCGFE",
+    "method": ".ctor",
+    "rva": 46648544,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Model.BattleActionSetup"],
+    "is_static": false,
+    "role": "battle_setup_mapping",
+    "system": "Battle",
+    "route": "",
+    "variant": "Blend.ApiSchema.Model.BattleActionSetup",
+    "boundary": "HMIEBOKCGFE..ctor(Blend.ApiSchema.Model.BattleActionSetup)",
+    "async_return": false
+  },
+  {
+    "type": "LACKKEMGIJD",
+    "method": ".ctor",
+    "rva": 46860864,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Model.BattleState"],
+    "is_static": false,
+    "role": "battle_state_mapping",
+    "system": "Battle",
+    "route": "",
+    "variant": "Blend.ApiSchema.Model.BattleState",
+    "boundary": "LACKKEMGIJD..ctor(Blend.ApiSchema.Model.BattleState)",
+    "async_return": false
+  },
+  {
+    "type": "Api.BattleApi",
+    "method": "OnSuccessBattleRetire",
+    "rva": 45367744,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.ChangedResourcesResponse"],
+    "is_static": true,
+    "role": "battle_response_application",
+    "system": "Battle",
+    "route": "/battle/retire",
+    "variant": "/battle/retire",
+    "boundary": "Api.BattleApi.OnSuccessBattleRetire(Blend.ApiSchema.Api.ChangedResourcesResponse)",
+    "async_return": false
+  },
+  {
+    "type": "Api.BattleApi",
+    "method": "OnSuccessBattleResume",
+    "rva": 45366896,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.BattleResumeResponse"],
+    "is_static": true,
+    "role": "battle_response_application",
+    "system": "Battle",
+    "route": "/battle/resume",
+    "variant": "/battle/resume",
+    "boundary": "Api.BattleApi.OnSuccessBattleResume(Blend.ApiSchema.Api.BattleResumeResponse)",
+    "async_return": false
+  },
+  {
+    "type": "Api.QuestApi",
+    "method": "OnSuccessQuestBattleStart",
+    "rva": 46169712,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.BattleStartResponse"],
+    "is_static": true,
+    "role": "battle_response_application",
+    "system": "Battle",
+    "route": "/quest/battle/start",
+    "variant": "/quest/battle/start",
+    "boundary": "Api.QuestApi.OnSuccessQuestBattleStart(Blend.ApiSchema.Api.BattleStartResponse)",
+    "async_return": false
+  },
+  {
+    "type": "Api.QuestApi",
+    "method": "OnSuccessQuestBattleTotalBattleStart",
+    "rva": 46170880,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.BattleStartResponse"],
+    "is_static": true,
+    "role": "battle_response_application",
+    "system": "Battle",
+    "route": "/quest/battle/total_battle_start",
+    "variant": "/quest/battle/total_battle_start",
+    "boundary": "Api.QuestApi.OnSuccessQuestBattleTotalBattleStart(Blend.ApiSchema.Api.BattleStartResponse)",
+    "async_return": false
+  },
+  {
+    "type": "Api.QuestApi",
+    "method": "OnSuccessQuestBattleSoloRaidBattleStart",
+    "rva": 46172048,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.BattleStartResponse"],
+    "is_static": true,
+    "role": "battle_response_application",
+    "system": "Battle",
+    "route": "/quest/battle/solo_raid_battle_start",
+    "variant": "/quest/battle/solo_raid_battle_start",
+    "boundary": "Api.QuestApi.OnSuccessQuestBattleSoloRaidBattleStart(Blend.ApiSchema.Api.BattleStartResponse)",
+    "async_return": false
+  },
+  {
+    "type": "Api.QuestApi",
+    "method": "OnSuccessQuestBattleRentalPartyStart",
+    "rva": 46173216,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.BattleStartResponse"],
+    "is_static": true,
+    "role": "battle_response_application",
+    "system": "Battle",
+    "route": "/quest/battle/rental_party_start",
+    "variant": "/quest/battle/rental_party_start",
+    "boundary": "Api.QuestApi.OnSuccessQuestBattleRentalPartyStart(Blend.ApiSchema.Api.BattleStartResponse)",
+    "async_return": false
+  },
+  {
+    "type": "Api.ExplorationApi",
+    "method": "OnSuccessExplorationBattleStart",
+    "rva": 45646832,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.BattleStartResponse"],
+    "is_static": true,
+    "role": "battle_response_application",
+    "system": "Battle",
+    "route": "/exploration/battle_start",
+    "variant": "/exploration/battle_start",
+    "boundary": "Api.ExplorationApi.OnSuccessExplorationBattleStart(Blend.ApiSchema.Api.BattleStartResponse)",
+    "async_return": false
+  },
+  {
+    "type": "Api.GachaApi",
+    "method": "OnSuccessGachaBattleStart",
+    "rva": 45700480,
+    "returns": "System.Void",
+    "parameters": ["Blend.ApiSchema.Api.BattleStartResponse"],
+    "is_static": true,
+    "role": "battle_response_application",
+    "system": "Battle",
+    "route": "/gacha/battle_start",
+    "variant": "/gacha/battle_start",
+    "boundary": "Api.GachaApi.OnSuccessGachaBattleStart(Blend.ApiSchema.Api.BattleStartResponse)",
+    "async_return": false
+  },
+  {
+    "type": "Api.BattleApi+_RequestBattleAttackWithError_d__17",
+    "method": "MoveNext",
+    "rva": 45380240,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/battle/attack",
+    "variant": "/battle/attack",
+    "boundary": "Api.BattleApi+_RequestBattleAttackWithError_d__17.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.BattleApi+_RequestBattleFinishWithError_d__29",
+    "method": "MoveNext",
+    "rva": 45385600,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/battle/finish",
+    "variant": "/battle/finish",
+    "boundary": "Api.BattleApi+_RequestBattleFinishWithError_d__29.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.BattleApi+_RequestBattleResumeWithError_d__21",
+    "method": "MoveNext",
+    "rva": 45391360,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/battle/resume",
+    "variant": "/battle/resume",
+    "boundary": "Api.BattleApi+_RequestBattleResumeWithError_d__21.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.BattleApi+_RequestBattleRetireWithError_d__25",
+    "method": "MoveNext",
+    "rva": 45396528,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/battle/retire",
+    "variant": "/battle/retire",
+    "boundary": "Api.BattleApi+_RequestBattleRetireWithError_d__25.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.QuestApi+_RequestQuestBattleStartWithError_d__1",
+    "method": "MoveNext",
+    "rva": 46243792,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/quest/battle/start",
+    "variant": "/quest/battle/start",
+    "boundary": "Api.QuestApi+_RequestQuestBattleStartWithError_d__1.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.QuestApi+_RequestQuestBattleRentalPartyStartWithError_d__13",
+    "method": "MoveNext",
+    "rva": 46231072,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/quest/battle/rental_party_start",
+    "variant": "/quest/battle/rental_party_start",
+    "boundary": "Api.QuestApi+_RequestQuestBattleRentalPartyStartWithError_d__13.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.QuestApi+_RequestQuestBattleSoloRaidBattleStartWithError_d__9",
+    "method": "MoveNext",
+    "rva": 46237760,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/quest/battle/solo_raid_battle_start",
+    "variant": "/quest/battle/solo_raid_battle_start",
+    "boundary": "Api.QuestApi+_RequestQuestBattleSoloRaidBattleStartWithError_d__9.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.QuestApi+_RequestQuestBattleTotalBattleStartWithError_d__5",
+    "method": "MoveNext",
+    "rva": 46249760,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/quest/battle/total_battle_start",
+    "variant": "/quest/battle/total_battle_start",
+    "boundary": "Api.QuestApi+_RequestQuestBattleTotalBattleStartWithError_d__5.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.ExplorationApi+_RequestExplorationBattleStartWithError_d__20",
+    "method": "MoveNext",
+    "rva": 45652880,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/exploration/battle_start",
+    "variant": "/exploration/battle_start",
+    "boundary": "Api.ExplorationApi+_RequestExplorationBattleStartWithError_d__20.MoveNext()",
+    "async_return": false
+  },
+  {
+    "type": "Api.GachaApi+_RequestGachaBattleStartWithError_d__24",
+    "method": "MoveNext",
+    "rva": 45708672,
+    "returns": "System.Void",
+    "parameters": [],
+    "is_static": false,
+    "role": "battle_request_continuation",
+    "system": "Battle",
+    "route": "/gacha/battle_start",
+    "variant": "/gacha/battle_start",
+    "boundary": "Api.GachaApi+_RequestGachaBattleStartWithError_d__24.MoveNext()",
     "async_return": false
   }
 ]

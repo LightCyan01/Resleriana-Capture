@@ -1,321 +1,645 @@
-using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO.Compression;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json.Nodes;
-using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 namespace AtelierCapture;
 
-internal static class Network
+internal static partial class Network
 {
-    private sealed record Request(long Id, string Route, bool Private, long Started)
-    {
-        internal int RawResponseWritten, ResponseWritten, Completed;
-    }
-    private sealed record RawBody(long request_id, string route, string direction, string stage, byte[] body)
-    {
-        public int bytes => body.Length;
-        public string sha256 => Convert.ToHexString(SHA256.HashData(body));
-    }
-    internal const int BodyLimit = 32 * 1024 * 1024;
-    private static readonly ConcurrentDictionary<IntPtr, Request> Requests = new();
-    private static readonly ConcurrentDictionary<string, byte> ApiOrigins = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Dictionary<string, (object Parser, MethodInfo Parse)> Parsers = new();
-    private static readonly object ParserGate = new();
-    private static readonly string[] SafeHeaders = { "content-type", "content-length", "content-encoding", "x-content-encoding",
-        "x-client-version", "x-master-data-version", "x-asset-version", "x-platform", "retry-after", "date" };
-    private static Dictionary<string, string[]> routes = null!;
-    private static long requestId, battleRequestId;
-    private static int environment = -1;
-    private static int battleEnvironment = -1;
+    private static readonly object Sync = new();
+    private static readonly RequestLedger Ledger = new();
+    private static readonly NativeObjectContexts Objects = new();
+    private static readonly Dictionary<long, Descriptor> Descriptors = new();
+    private static readonly Dictionary<long, Descriptor> RequestDescriptors = new();
+    private static readonly Dictionary<string, (object Parser, MethodInfo Parse)> Parsers = new(
+        StringComparer.Ordinal
+    );
+    private static Dictionary<string, string[]> routes = new(StringComparer.Ordinal);
+    private static NativeApiBindings? bindings;
+    private static bool installed;
+    private static NetworkStatus status = new(0, false);
+    private static int sweepCountdown = 64;
 
-    internal static bool? IsPrivate => Volatile.Read(ref battleEnvironment) is var battle && battle >= 0
-        ? battle == 1
-        : Volatile.Read(ref environment) is var e && e >= 0 ? e == 1 : null;
-    internal static long BattleRequestId => Interlocked.Read(ref battleRequestId);
+    [ThreadStatic]
+    private static NetworkContext? current;
 
-    internal static void Install(Harmony harmony)
+    internal static NetworkContext? CurrentContext => current;
+
+    internal static NetworkContext? ContextFor(object? value)
+    {
+        lock (Sync)
+            return Objects.Context(value);
+    }
+
+    internal static long ObjectIdentity(object value)
+    {
+        lock (Sync)
+            return Objects.Token(value);
+    }
+
+    internal static NativeEnvironmentProof? EnvironmentProofFor(object? value)
+    {
+        lock (Sync)
+            return Objects.Environment(value);
+    }
+
+    internal static (NetworkContext? Context, NativeEnvironmentProof? Environment) BindingFor(
+        object? value
+    )
+    {
+        lock (Sync)
+            return Objects.Lookup(value);
+    }
+
+    internal static NativeBindingState BindingStateFor(object value)
+    {
+        lock (Sync)
+            return Objects.State(value);
+    }
+
+    internal static void InvalidateOperation(object value)
+    {
+        lock (Sync)
+            Objects.InvalidateOperation(value);
+    }
+
+    // Gaps write records, which can take the writer's copier lock; never hold Sync across them.
+    internal static void BindContext(
+        object value,
+        NetworkContext context,
+        string qualifiedEdge = "native_object_context"
+    )
+    {
+        bool ambiguous;
+        lock (Sync)
+            ambiguous = Objects.Bind(value, context, qualifiedEdge);
+        if (ambiguous)
+            ContextAmbiguous(value, context);
+    }
+
+    internal static void BindEnvironment(object value, bool? environment, string qualifiedEdge)
+    {
+        if (string.IsNullOrWhiteSpace(qualifiedEdge))
+            throw new InvalidDataException(
+                "Native environment proof requires its qualified application edge."
+            );
+        bool ambiguous;
+        lock (Sync)
+            ambiguous = Objects.BindEnvironment(value, environment, qualifiedEdge);
+        if (ambiguous)
+            EnvironmentAmbiguous(value, qualifiedEdge);
+    }
+
+    // One lock for the read and the bind, so the parent's binding cannot change in between.
+    internal static void InheritBinding(object parent, object child, string qualifiedEdge)
+    {
+        NetworkContext? context;
+        bool ambiguous;
+        lock (Sync)
+        {
+            (context, var environment) = Objects.Lookup(parent);
+            ambiguous = context is not null
+                ? Objects.Bind(child, context, qualifiedEdge)
+                : environment is not null
+                    && Objects.BindEnvironment(child, environment.IsPrivate, qualifiedEdge);
+        }
+        if (!ambiguous)
+            return;
+        if (context is not null)
+            ContextAmbiguous(child, context);
+        else
+            EnvironmentAmbiguous(child, qualifiedEdge);
+    }
+
+    private static void ContextAmbiguous(object value, NetworkContext context) =>
+        Gap(
+            context,
+            "native_object_context_ambiguous",
+            new { object_type = value.GetType().FullName }
+        );
+
+    private static void EnvironmentAmbiguous(object value, string qualifiedEdge) =>
+        Gap(
+            null,
+            "native_object_environment_ambiguous",
+            new { object_type = value.GetType().FullName, qualified_edge = qualifiedEdge }
+        );
+
+    internal static IDisposable PushContext(NetworkContext? context) => new ContextScope(context);
+
+    internal static object CaptureStatus()
+    {
+        var snapshot = Volatile.Read(ref status);
+        var closed = PassiveNativeHook.IsClosed;
+        return snapshot with
+        {
+            binding_complete = snapshot.binding_complete && !closed,
+            native_observers_closed = closed,
+        };
+    }
+
+    private static void PublishStatus() =>
+        Volatile.Write(ref status, new NetworkStatus(Ledger.ActiveCount, installed));
+
+    internal static void ReleaseObjects()
+    {
+        lock (Sync)
+        {
+            Objects.Clear();
+            Descriptors.Clear();
+            RequestDescriptors.Clear();
+            Parsers.Clear();
+        }
+    }
+
+    internal static void Install()
     {
         routes = Plugin.ReadResource<Dictionary<string, string[]>>("Routes.json");
-        foreach (var name in routes.Values.SelectMany(x => x).Distinct())
-            _ = Plugin.ResolveType(name);
-        var requestType = Plugin.ResolveType("BestHTTP.HTTPRequest");
-        Plugin.Patch(harmony, AccessTools.Method(requestType, "Send", Type.EmptyTypes),
-            typeof(Network), nameof(Send), null, nameof(SendFailed), Priority.Last);
-        Plugin.Patch(harmony, AccessTools.Method(requestType, "Dispose", Type.EmptyTypes),
-            typeof(Network), nameof(Completed), null);
-        Plugin.Patch(harmony, AccessTools.PropertySetter(requestType, "State"),
-            typeof(Network), null, nameof(StateChanged));
-        var decoder = Plugin.ResolveType("PMLKMPHGENK").GetMethod("AMIKMFABIFK", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-            ?? throw new MissingMethodException("PMLKMPHGENK.AMIKMFABIFK");
-        Plugin.Patch(harmony, decoder, typeof(Network), nameof(Decoding), nameof(Decoded), nameof(DecodeFailed));
+        bindings = new NativeApiBindings();
+        bindings.Install();
+        Plugin.Writer.EmitBootstrap("api_capture_incomplete", MaterializationBoundary());
+        installed = true;
+        PublishStatus();
     }
 
-    private static bool Select(dynamic request, out string path, out bool isPrivate)
+    internal static object MaterializationBoundary() =>
+        new
+        {
+            complete = false,
+            capture_status = "incomplete",
+            reason = "shared_native_body_unqualified",
+            scope = "assignment_stage_only",
+            unsupported = new[]
+            {
+                new
+                {
+                    owner = "BestHTTP.HTTPRequest.set_RawData",
+                    rva = "0x8C8F40",
+                    native_aliases = 659,
+                    method_definition_aliases = 617,
+                    constructed_generic_aliases = 42,
+                    method_definition_assemblies = 43,
+                    stage = "native_raw_data_assignment",
+                },
+                new
+                {
+                    owner = "BestHTTP.HTTPResponse.set_Data",
+                    rva = "0x8C9060",
+                    native_aliases = 135,
+                    method_definition_aliases = 118,
+                    constructed_generic_aliases = 17,
+                    method_definition_assemblies = 21,
+                    stage = "native_data_assignment",
+                },
+            },
+            preserved = new[]
+            {
+                "original_immutable_native_descriptor",
+                "request_entity_at_Send",
+                "original_GetEntityBody_result",
+                "original_response_at_callback",
+                "original_response_before_Dispose",
+                "native_decoder_result_at_original_return",
+                "native_parse_input_at_original_MergeFrom",
+                "native_parse_applied_at_original_success_known_fields",
+            },
+            qualification = "unique_consumer_entity_bytes_are_observed_separately_from_unsupported_assignment_history",
+        };
+
+    private static void Observe(string kind, Action<List<Action>> copy)
     {
-        path = "";
-        isPrivate = false;
-        if (!Uri.TryCreate((string?)request.Uri?.ToString(), UriKind.Absolute, out var uri)) return false;
-        path = uri.AbsolutePath;
-        var official = uri.Host.Equals("game.resleriana.jp", StringComparison.OrdinalIgnoreCase)
-            || uri.Host.EndsWith(".resleriana.jp", StringComparison.OrdinalIgnoreCase);
-        if (routes.ContainsKey(path) || path == "/status") ApiOrigins.TryAdd(uri.GetLeftPart(UriPartial.Authority), 0);
-        if (!ApiOrigins.ContainsKey(uri.GetLeftPart(UriPartial.Authority)) && uri.Host != "game.resleriana.jp") return false;
-        isPrivate = !official;
+        var committed = new List<Action>();
+        Plugin.Observe(
+            kind,
+            () =>
+            {
+                lock (Sync)
+                {
+                    if (--sweepCountdown == 0)
+                    {
+                        foreach (var token in Objects.Sweep())
+                        {
+                            Ledger.Release(token);
+                            Descriptors.Remove(token);
+                            RequestDescriptors.Remove(token);
+                        }
+                        sweepCountdown = 64;
+                    }
+                    try
+                    {
+                        copy(committed);
+                    }
+                    finally
+                    {
+                        PublishStatus();
+                    }
+                }
+            },
+            Commit,
+            Commit
+        );
+        void Commit()
+        {
+            lock (Sync)
+            {
+                try
+                {
+                    CommitStagedActions(committed);
+                }
+                finally
+                {
+                    PublishStatus();
+                }
+            }
+        }
+    }
+
+    internal static void CommitStagedActions(IEnumerable<Action> actions)
+    {
+        List<Exception>? failures = null;
+        foreach (var action in actions)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception error)
+            {
+                (failures ??= []).Add(error);
+            }
+        }
+        if (failures is not null)
+            throw new AggregateException("Network staged-record state commit failed.", failures);
+    }
+
+    private static void BeginNativeCallback(out IDisposable? __state) =>
+        __state = Plugin.BeginNativeCallback();
+
+    private static void EndNativeCallback(
+        IDisposable? __state,
+        bool __nativeFault,
+        MethodBase __originalMethod
+    )
+    {
+        try
+        {
+            if (__nativeFault && __state is not null)
+                Observe(
+                    "native_api_fault",
+                    _ =>
+                        Gap(
+                            CurrentContext,
+                            "native_original_threw",
+                            new
+                            {
+                                owner = __originalMethod.DeclaringType?.FullName,
+                                method = __originalMethod.Name,
+                                signature = __originalMethod.ToString(),
+                            }
+                        )
+                );
+        }
+        finally
+        {
+            __state?.Dispose();
+        }
+    }
+
+    private static RequestLedger.Attempt? FindResponse(object response)
+    {
+        var responseToken = Objects.Token(response);
+        var existing = Ledger.Response(responseToken);
+        if (existing is not null)
+            return existing;
+        var owner = (object?)((dynamic)response).baseRequest;
+        if (owner is null)
+            return null;
+        var attempt = Ledger.BindResponse(responseToken, Objects.Token(owner));
+        if (attempt is not null)
+            BindContext(response, attempt.Context, "BestHTTP.HTTPResponse.baseRequest");
+        return attempt;
+    }
+
+    private static ResponseEntityFraming? PreserveResponse(
+        RequestLedger.Attempt attempt,
+        object response,
+        List<Action> commits,
+        string phase
+    )
+    {
+        var raw = (Il2CppStructArray<byte>?)((dynamic)response).Data;
+        if (raw is null)
+        {
+            var framing = ReadAvailable(
+                () => bindings!.ReadResponseFraming(response, Headers(response, true)),
+                "response_entity_framing_read_failed"
+            );
+            var verifiedEmpty = framing is not null && IsVerifiedEmptyEntity(framing);
+            Emit(
+                attempt.Context,
+                "response_entity_observation",
+                new
+                {
+                    request_id = attempt.Context.RequestId,
+                    attempt_id = attempt.Context.AttemptId,
+                    response_id = attempt.Context.ResponseId,
+                    stage = "response_entity",
+                    phase,
+                    original_native_value = (byte[]?)null,
+                    entity_status = verifiedEmpty
+                        ? "verified_empty_by_native_framing"
+                        : "unresolved_null",
+                    framing,
+                    native_contract = "PMLKMPHGENK.AMIKMFABIFK@0x4BBB3D0:null_Data_to_empty_result",
+                }
+            );
+            if (!verifiedEmpty)
+                Gap(
+                    attempt.Context,
+                    "response_entity_not_materialized",
+                    new { request_id = attempt.Context.RequestId, phase }
+                );
+            return verifiedEmpty ? framing : null;
+        }
+        Preserve(attempt, Copy(raw), "response", "response_entity", commits);
+        return null;
+    }
+
+    private static void Preserve(
+        RequestLedger.Attempt attempt,
+        byte[] bytes,
+        string direction,
+        string stage,
+        List<Action> commits
+    )
+    {
+        var hash = Convert.ToHexString(SHA256.HashData(bytes));
+        var key = direction + ":" + stage + ":" + hash;
+        if (!attempt.ReserveStage(key))
+            return;
+        try
+        {
+            var detached = ApiBodies.Own(attempt.Context, direction, stage, bytes, hash);
+            Emit(attempt.Context, "raw_body", detached, detached.body.LongLength + 4096L);
+            commits.Add(() => attempt.CommitStage(key));
+        }
+        catch
+        {
+            attempt.CancelStage(key);
+            throw;
+        }
+    }
+
+    private static void PreserveOrphan(
+        Il2CppStructArray<byte>? raw,
+        string direction,
+        string stage,
+        string reason
+    )
+    {
+        PreserveUnclassified(CopyNullable(raw), direction, stage, reason);
+        Gap(null, reason, new { direction, stage });
+    }
+
+    private static void PreserveUnclassified(
+        byte[]? bytes,
+        string direction,
+        string stage,
+        string reason
+    )
+    {
+        Plugin.Writer.EmitBootstrap(
+            "unclassified_raw_body",
+            new
+            {
+                direction,
+                stage,
+                body = bytes,
+                bytes = bytes?.Length,
+                sha256 = bytes is null ? null : Convert.ToHexString(SHA256.HashData(bytes)),
+                capture_status = "incomplete",
+                reason,
+            }
+        );
+    }
+
+    private static void RecordResponse(
+        RequestLedger.Attempt attempt,
+        object response,
+        object body,
+        string source,
+        List<Action> commits
+    )
+    {
+        var native = (dynamic)response;
+        StageResponse(
+            attempt,
+            () =>
+                Emit(
+                    attempt.Context,
+                    "response",
+                    new
+                    {
+                        request_id = attempt.Context.RequestId,
+                        attempt_id = attempt.Context.AttemptId,
+                        operation_id = attempt.Context.OperationId,
+                        response_id = attempt.Context.ResponseId,
+                        route = attempt.Context.Route,
+                        status = (int)native.StatusCode,
+                        headers = Headers(response, true),
+                        body,
+                        source,
+                    }
+                ),
+            commits
+        );
+    }
+
+    internal static bool StageResponse(
+        RequestLedger.Attempt attempt,
+        Action record,
+        List<Action> commits
+    )
+    {
+        if (attempt.ResponseWritten || attempt.ResponsePending)
+            return false;
+        record();
+        attempt.ResponsePending = true;
+        commits.Add(() =>
+        {
+            attempt.ResponseWritten = true;
+            attempt.ResponsePending = false;
+        });
         return true;
     }
 
-    private static void Send(dynamic __instance)
+    internal static bool StageTerminal(
+        RequestLedger ledger,
+        RequestLedger.Attempt attempt,
+        Action record,
+        List<Action> commits
+    )
     {
-        Plugin.Observe("request", () =>
-        {
-            if (!Select((object)__instance, out string path, out bool isPrivate)) return;
-            Volatile.Write(ref environment, isPrivate ? 1 : 0);
-            if (Requests.Count >= 1024)
-                foreach (var entry in Requests.OrderByDescending(x => Volatile.Read(ref x.Value.Completed))
-                    .ThenBy(x => x.Value.Started).Take(512))
-                    if (Requests.TryRemove(entry.Key, out var old) && Volatile.Read(ref old.Completed) == 0)
-                        Plugin.Writer.Emit(old.Private, false, "request_tracking_gap", new { request_id = old.Id, reason = "inflight_limit" });
-            var request = new Request(Interlocked.Increment(ref requestId), path, isPrivate, Stopwatch.GetTimestamp());
-            var pointer = (IntPtr)__instance.Pointer;
-            if (Requests.TryGetValue(pointer, out var previous) && Volatile.Read(ref previous.Completed) == 0)
-                Plugin.Writer.Emit(previous.Private, false, "request_tracking_gap", new { request_id = previous.Id, reason = "request_reused" });
-            Requests[pointer] = request;
-            var raw = (Il2CppStructArray<byte>?)__instance.RawData;
-            if (raw is not null) Preserve(request, raw, "request", "request_entity");
-            else Plugin.Writer.Emit(isPrivate, false, "raw_body", new
-            {
-                request_id = request.Id, route = path, direction = "request", stage = "request_entity",
-                omitted = __instance.UploadStream is null ? "request_entity_not_materialized" : "upload_stream_not_read"
-            });
-            var body = __instance.UploadStream is not null
-                ? (object)new { omitted = "upload_stream_not_read" }
-                : ReadBody(raw, path, false, path == "/status", encrypted: path != "/status");
-            Plugin.Writer.Emit(isPrivate, false, "request", new
-            {
-                request_id = request.Id, route = path, method = __instance.MethodType.ToString(),
-                headers = Headers(name => (string?)__instance.GetFirstHeaderValue(name)), body
-            });
-        });
+        if (attempt.Completed || attempt.CompletionPending)
+            return false;
+        record();
+        attempt.CompletionPending = true;
+        commits.Add(() => ledger.Complete(attempt));
+        return true;
     }
 
-    private static void SendFailed(dynamic __instance, Exception? __exception)
+    private static void ReleaseRequest(object request, long token)
     {
-        if (__exception is null) return;
-        Plugin.Observe("request_exception", () =>
-        {
-            if (Requests.TryRemove((IntPtr)__instance.Pointer, out var request))
-                Plugin.Writer.Emit(request.Private, false, "request_exception", new { request_id = request.Id, error = __exception.GetType().Name });
-        });
+        Ledger.Release(token);
+        RequestDescriptors.Remove(token);
+        Objects.Remove(request);
     }
 
-    private static void Decoding(dynamic __0)
+    internal static void Emit(
+        NetworkContext? context,
+        string kind,
+        object data,
+        long retainedBytes = 0
+    )
     {
-        Plugin.Observe("raw_response", () =>
-        {
-            if (__0.baseRequest is { } owner && Requests.TryGetValue((IntPtr)((dynamic)owner).Pointer, out var request))
-                PreserveResponse(request, (object)__0);
-        });
-    }
-
-    private static void PreserveResponse(Request request, dynamic response)
-    {
-        if (Interlocked.Exchange(ref request.RawResponseWritten, 1) == 0)
-            Preserve(request, (Il2CppStructArray<byte>?)response.Data, "response", "response_entity");
-    }
-
-    private static void Preserve(Request request, Il2CppStructArray<byte>? raw, string direction, string stage)
-    {
-        var length = raw?.Length ?? 0;
-        if (length > BodyLimit)
-        {
-            Plugin.Writer.Emit(request.Private, false, "raw_body", new
-            {
-                request_id = request.Id, route = request.Route, direction, stage, bytes = length, omitted = "body_limit"
-            });
-            return;
-        }
-        Plugin.Writer.Emit(request.Private, false, "raw_body",
-            new RawBody(request.Id, request.Route, direction, stage, Copy(raw)), length + 4096L);
-    }
-
-    private static void Completed(dynamic __instance)
-    {
-        Plugin.Observe("request_complete", () =>
-        {
-            if (!Requests.TryGetValue((IntPtr)__instance.Pointer, out var request)
-                || Interlocked.Exchange(ref request.Completed, 1) != 0) return;
-            var response = __instance.Response;
-            if (response is not null)
-            {
-                PreserveResponse(request, (object)response);
-                if (Volatile.Read(ref request.ResponseWritten) == 0)
+        if (context?.IsPrivate is { } environment)
+            Plugin.Writer.Emit(environment, false, kind, data, retainedBytes, context.SystemId);
+        else
+            Plugin.Writer.EmitBootstrap(
+                "unclassified_" + kind,
+                new
                 {
-                    var encrypted = ((string?)response.GetFirstHeaderValue("content-type"))?.Contains("application/octet-stream", StringComparison.Ordinal) == true;
-                    var compressed = encrypted && response.GetFirstHeaderValue("x-content-encoding") == "gzip";
-                    var body = ReadBody((Il2CppStructArray<byte>?)response.Data, request.Route, true,
-                        response.StatusCode != 200 || request.Route == "/status" || !encrypted, encrypted, compressed);
-                    RecordResponse(request, (int)response.StatusCode, Headers(name => (string?)response.GetFirstHeaderValue(name)), body, "completion_fallback");
+                    capture_status = "incomplete",
+                    context,
+                    data,
                 }
-            }
-            Plugin.Writer.Emit(request.Private, false, "request_complete", new
+            );
+    }
+
+    private static void Gap(NetworkContext? context, string reason, object details)
+    {
+        Emit(
+            context,
+            "api_capture_incomplete",
+            new
             {
-                request_id = request.Id, route = request.Route,
-                state = (int)__instance.State, state_name = __instance.State.ToString(),
-                status = response?.StatusCode, response_available = response is not null,
-                response_recorded = Volatile.Read(ref request.ResponseWritten) != 0,
-                transport_error = __instance.Exception is null ? null : ((object)__instance.Exception).GetType().Name,
-                retries = (int)__instance.Retries, max_retries = (int)__instance.MaxRetries,
-                headers = response is null ? null : Headers(name => (string?)response.GetFirstHeaderValue(name)),
-                elapsed_ms = (Stopwatch.GetTimestamp() - request.Started) * 1000.0 / Stopwatch.Frequency
-            });
-        });
-    }
-
-    private static void StateChanged(dynamic __instance)
-    {
-        Plugin.Observe("transport_state", () =>
-        {
-            if (!Requests.TryGetValue((IntPtr)__instance.Pointer, out var request)) return;
-            var state = (int)__instance.State;
-            Plugin.Writer.Emit(request.Private, false, "transport_state", new { request_id = request.Id, state = state, state_name = __instance.State.ToString() });
-        });
-    }
-
-    private static void Decoded(dynamic __0, Il2CppStructArray<byte>? __result)
-    {
-        Plugin.Observe("response", () =>
-        {
-            if (__0.baseRequest is not { } owner || !Requests.TryGetValue((IntPtr)((dynamic)owner).Pointer, out var request)) return;
-            if ((int)__0.StatusCode == 200 && routes.TryGetValue(request.Route, out var schema)
-                && schema[1].StartsWith("Blend.ApiSchema.Api.Battle", StringComparison.Ordinal))
-            {
-                Interlocked.Exchange(ref battleRequestId, request.Id);
-                Volatile.Write(ref battleEnvironment, request.Private ? 1 : 0);
+                capture_status = "incomplete",
+                reason,
+                details,
             }
-            if (Volatile.Read(ref request.ResponseWritten) != 0) return;
-            var body = ReadBody(__result, request.Route, true, (int)__0.StatusCode != 200 || request.Route == "/status");
-            RecordResponse(request, (int)__0.StatusCode, Headers(name => (string?)__0.GetFirstHeaderValue(name)), body, "client_decoder");
-        });
+        );
+        Plugin.ReportFailure("api_" + reason, new InvalidDataException(reason));
     }
 
-    private static void RecordResponse(Request request, int status, Dictionary<string, string> headers, object body, string source)
-    {
-        if (Interlocked.Exchange(ref request.ResponseWritten, 1) != 0) return;
-        Plugin.Writer.Emit(request.Private, false, "response", new { request_id = request.Id, route = request.Route, status, headers, body, source });
-    }
+    private static OriginalUri ReadUri(object request) =>
+        ParseOriginalUri(bindings!.ReadOriginalUri(request));
 
-    private static void DecodeFailed(dynamic __0, Exception? __exception)
-    {
-        if (__exception is null) return;
-        Plugin.Observe("response_decode_failed", () =>
-        {
-            if (__0.baseRequest is { } owner && Requests.TryGetValue((IntPtr)((dynamic)owner).Pointer, out var request))
-                Plugin.Writer.Emit(request.Private, false, "response_decode_failed", new
-                    { request_id = request.Id, status = __0.StatusCode, error = __exception.GetType().Name });
-        });
-    }
+    internal static OriginalUri ParseOriginalUri(string original) =>
+        new(original, Uri.TryCreate(original, UriKind.Absolute, out var uri) ? uri : null);
 
-    private static object ReadBody(Il2CppStructArray<byte>? raw, string path, bool response, bool json, bool encrypted = false, bool compressed = false)
+    internal sealed record OriginalUri(string OriginalString, Uri? Parsed);
+
+    private static T? ReadAvailable<T>(Func<T?> read, string reason)
+        where T : class
     {
-        var length = raw?.Length ?? 0;
-        if (length > BodyLimit) return new { bytes = length, omitted = "body_limit" };
-        object? wire = null;
         try
         {
-            var bytes = Copy(raw);
-            if (encrypted && bytes.Length != 0) bytes = Decrypt(bytes);
-            if (compressed && bytes.Length != 0)
-            {
-                using var gzip = new GZipStream(new MemoryStream(bytes), CompressionMode.Decompress);
-                using var expanded = new MemoryStream();
-                var block = new byte[65536];
-                int count;
-                while ((count = gzip.Read(block)) != 0)
+            return read();
+        }
+        catch (Exception error)
+        {
+            Gap(
+                current,
+                reason,
+                new
                 {
-                    if (expanded.Length + count > BodyLimit) throw new InvalidDataException("body_limit");
-                    expanded.Write(block, 0, count);
+                    error = (error.InnerException ?? error).GetType().Name,
+                    exception = error.ToString(),
                 }
-                bytes = expanded.ToArray();
-            }
-            JsonNode? value;
-            var unknown = false;
-            string? type = null;
-            if (json)
-                value = bytes.Length == 0 ? new JsonObject() : Privacy.Parse(Encoding.UTF8.GetString(bytes));
-            else
+            );
+            return null;
+        }
+    }
+
+    private static byte[] Copy(Il2CppStructArray<byte> source)
+    {
+        try
+        {
+            return source.AsSpan().ToArray();
+        }
+        finally
+        {
+            GC.KeepAlive(source);
+        }
+    }
+
+    private static byte[]? CopyNullable(Il2CppStructArray<byte>? source) =>
+        source is null ? null : Copy(source);
+
+    private static string? SystemId(string route) => Archive.RouteCountCatalog.SystemId(route);
+
+    private sealed record NetworkStatus(
+        int active_attempts,
+        bool binding_complete,
+        bool native_observers_closed = false,
+        string origin_policy = "publisher_domain_or_loopback_else_unclassified",
+        string correlation = "native_object_and_operation_identity",
+        string assignment_stage_status = "unsupported_shared_native_body",
+        string entity_stage_status = "observed_at_unique_consumers",
+        string decoder_result_stage_status = "observed_at_original_native_return",
+        bool complete = false
+    );
+
+    private sealed record Descriptor(
+        string? OperationId,
+        string Route,
+        byte[]? Bytes,
+        string? RawOperationId,
+        string DescriptorId
+    );
+
+    private sealed class SendState(IDisposable lifetime) : IDisposable
+    {
+        private IDisposable scope = PushContext(null);
+        internal RequestLedger.Attempt? Attempt;
+
+        internal void SetContext()
+        {
+            scope.Dispose();
+            scope = PushContext(Attempt?.Context);
+        }
+
+        public void Dispose()
+        {
+            scope.Dispose();
+            lifetime.Dispose();
+        }
+    }
+
+    private sealed class CallbackScope(IDisposable context, IDisposable lifetime) : IDisposable
+    {
+        public void Dispose()
+        {
+            context.Dispose();
+            lifetime.Dispose();
+        }
+    }
+
+    private sealed class ContextScope : IDisposable
+    {
+        private readonly NetworkContext? previous = current;
+        private bool disposed;
+
+        internal ContextScope(NetworkContext? context) => current = context;
+
+        public void Dispose()
+        {
+            if (!disposed)
             {
-                if (!routes.TryGetValue(path, out var route))
-                    return new { bytes = length, omitted = "unknown_route_schema", wire = Wire.Describe(bytes, null) };
-                type = route[response ? 1 : 0];
-                wire = Wire.Describe(bytes, type);
-                var parser = Parser(type);
-                var data = new Il2CppStructArray<byte>(bytes);
-                var message = parser.Parse.Invoke(parser.Parser, new object[] { data })!;
-                try
-                {
-                    unknown = message.GetType().GetProperty("_unknownFields")?.GetValue(message) is not null;
-                    value = Privacy.Parse(((Il2CppSystem.Object)message).ToString());
-                }
-                finally { (message as IDisposable)?.Dispose(); }
+                current = previous;
+                disposed = true;
             }
-            return new { bytes = length, protobuf_type = type, unknown_fields_omitted = unknown, wire, payload = Plugin.Privacy.Clean(value) };
         }
-        catch (Exception ex)
-        {
-            Plugin.ReportFailure("body_decode", ex);
-            return new { bytes = length, omitted = "body_decode_failed", wire, error = (ex.InnerException ?? ex).GetType().Name };
-        }
-    }
-
-    private static (object Parser, MethodInfo Parse) Parser(string name)
-    {
-        lock (ParserGate)
-        {
-            if (Parsers.TryGetValue(name, out var cached)) return cached;
-            var parser = Plugin.ResolveType(name).GetProperty("Parser", BindingFlags.Public | BindingFlags.Static)!.GetValue(null)!;
-            var parse = parser.GetType().GetMethod("ParseFrom", new[] { typeof(Il2CppStructArray<byte>) })!;
-            return Parsers[name] = (parser, parse);
-        }
-    }
-
-    private static Dictionary<string, string> Headers(Func<string, string?> read)
-    {
-        var result = new Dictionary<string, string>();
-        foreach (var name in SafeHeaders)
-        {
-            string? value;
-            try { value = read(name); }
-            catch { continue; }
-            if (!string.IsNullOrEmpty(value) && value.Length <= 256) result[name] = value;
-        }
-        return result;
-    }
-
-    private static byte[] Copy(Il2CppStructArray<byte>? source)
-    {
-        if (source is null || source.Length == 0) return Array.Empty<byte>();
-        return source.AsSpan().ToArray();
-    }
-
-    internal static byte[] Decrypt(byte[] frame)
-    {
-        if (frame.Length < 17 || (frame.Length - 1) % 16 != 0) throw new InvalidDataException();
-        var seed = Convert.FromHexString("487A9961C947F7D92ED6B79FC0545FEA");
-        var prefix = frame[0];
-        if (prefix > 127) Array.Reverse(seed);
-        var shift = prefix & 7;
-        var offset = prefix >> 3;
-        var key = new byte[16];
-        for (var i = 0; i < key.Length; i++)
-            key[i] = (byte)((seed[(i + offset) & 15] << shift)
-                | (shift == 0 ? 0 : seed[(i + offset + 1) & 15] >> (8 - shift)));
-        using var aes = Aes.Create();
-        aes.Key = key;
-        return aes.DecryptCbc(frame.AsSpan(1), Convert.FromHexString("65A99B89A634FCA3193C5212E5219378"));
     }
 }
