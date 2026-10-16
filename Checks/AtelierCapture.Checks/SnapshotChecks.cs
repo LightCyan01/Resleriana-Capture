@@ -24,6 +24,134 @@ internal static class SnapshotChecks
         RenderExclusionsStayOnExactOwnerFields();
         ResourceReceiversKeepArgumentsWithoutReadingOwnerState();
         GameplayFieldPoliciesUseExactStoredContracts();
+        PresentationAndTaskReferencesStayOnQualifiedEdges();
+    }
+
+    private static void PresentationAndTaskReferencesStayOnQualifiedEdges()
+    {
+        const string phase = "BattleTimelineMoveControl+IFGCIDFHICL";
+        var edges = new[]
+        {
+            (
+                "LANAGMCAFDC",
+                "JDIGBMHGKGE",
+                "KAKLKJIIIHB",
+                "Blend.dll",
+                new NativeEdgeReference(
+                    "presentation_view_state_not_observed",
+                    "BattleSupportAbilityView",
+                    "Blend.dll"
+                )
+            ),
+            (
+                "IEHOBJHGEID<" + phase + ">",
+                "CFEEIGJJECC",
+                "FHOEJNIEFIL",
+                "Blend.Framework.dll",
+                new NativeEdgeReference(
+                    "scheduler_callback_state_not_observed",
+                    "IEHOBJHGEID+BFJMAPKEMMG",
+                    "Blend.Framework.dll",
+                    phase
+                )
+            ),
+            (
+                "Il2CppSystem.Collections.Generic.KeyValuePair`2<" + phase + ",FHOEJNIEFIL>",
+                "value",
+                "FHOEJNIEFIL",
+                "Il2Cppmscorlib.dll",
+                new NativeEdgeReference(
+                    "scheduler_callback_state_not_observed",
+                    "IEHOBJHGEID+BFJMAPKEMMG",
+                    "Blend.Framework.dll",
+                    phase
+                )
+            ),
+        };
+        foreach (var (owner, field, declared, module, expected) in edges)
+        {
+            Require(
+                NativeProjection.ScopedReference(owner, field, declared, module) == expected
+                    && NativeProjection.ScopedReference(owner + "Other", field, declared, module)
+                        is null
+                    && NativeProjection.ScopedReference(owner, field + "Other", declared, module)
+                        is null
+                    && NativeProjection.ScopedReference(owner, field, declared + "Other", module)
+                        is null
+                    && NativeProjection.ScopedReference(owner, field, declared, "Other.dll") is null
+                    && NativeProjection.ItemReference(owner, field, declared, module) is null,
+                "A presentation/task reference escaped its exact stored edge."
+            );
+        }
+        const string array =
+            "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<FCMCKDCGGEB>";
+        var item = NativeProjection.ItemReference(
+            "BattleCommandItemControl",
+            "DKNDHNAIKFN",
+            array,
+            "Blend.dll"
+        );
+        Require(
+            item
+                == new NativeEdgeReference(
+                    "presentation_view_state_not_observed",
+                    "BattleCommandItemView",
+                    "Blend.dll"
+                )
+                && NativeProjection.ItemReference(
+                    "BattleCommandSkillControl",
+                    "DKNDHNAIKFN",
+                    array,
+                    "Blend.dll"
+                )
+                    is null
+                && NativeProjection.ItemReference(
+                    "BattleCommandItemControl",
+                    "m_itemList",
+                    array,
+                    "Blend.dll"
+                )
+                    is null
+                && NativeProjection.ItemReference(
+                    "BattleCommandItemControl",
+                    "DKNDHNAIKFN",
+                    array + "Other",
+                    "Blend.dll"
+                )
+                    is null
+                && NativeProjection.ItemReference(
+                    "BattleCommandItemControl",
+                    "DKNDHNAIKFN",
+                    array,
+                    "Other.dll"
+                )
+                    is null,
+            "The command-item reference replaced a different owner, collection or declaration."
+        );
+        Require(
+            NativeProjection.ScopedReference(
+                "IEHOBJHGEID<OtherPhase>",
+                "CFEEIGJJECC",
+                "FHOEJNIEFIL",
+                "Blend.Framework.dll"
+            )
+                is null
+                && NativeProjection.ScopedReference(
+                    "Il2CppSystem.Collections.Generic.KeyValuePair`2<OtherPhase,FHOEJNIEFIL>",
+                    "value",
+                    "FHOEJNIEFIL",
+                    "Il2Cppmscorlib.dll"
+                )
+                    is null
+                && NativeProjection.ScopedReference(
+                    "BattleTimelineMoveControl",
+                    "CFEEIGJJECC",
+                    phase,
+                    "Blend.dll"
+                )
+                    is null,
+            "An unrelated task or the actual gameplay phase became an identity-only reference."
+        );
     }
 
     private static void GameplayFieldPoliciesUseExactStoredContracts()

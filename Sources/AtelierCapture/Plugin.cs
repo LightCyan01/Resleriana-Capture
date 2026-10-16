@@ -53,7 +53,15 @@ public sealed class Plugin : BasePlugin
             assembly_sha256 = Convert.ToHexString(SHA256.HashData(assembly)),
             identity_self_reported = true,
             observation_contract = "complete_supported_gameplay_with_explicit_read_failures",
-            durability = "before_callback_continuation",
+            durability = new
+            {
+                gameplay_and_network = "durable_before_callback_continuation",
+                ordinary_diagnostics = "durable_before_outer_callback_continuation",
+                warnings_and_known_material_errors = "queued_before_outer_callback_continuation",
+                nested_diagnostics = "share_outer_observation_save_boundary",
+                normal_shutdown = "drain_admitted_diagnostics_before_summaries",
+                abrupt_termination = "queued_diagnostic_occurrences_can_be_lost",
+            },
             plugin_lifecycle = "one_capture_run_per_process_restart_required_after_unload",
             queued_batches = SessionWriter.QueueCapacity,
             retained_memory_budget_bytes = SessionWriter.QueueBudget,

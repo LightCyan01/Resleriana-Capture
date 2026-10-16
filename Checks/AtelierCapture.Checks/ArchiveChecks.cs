@@ -2189,7 +2189,7 @@ internal static class ArchiveChecks
     {
         var data = new byte[(5 << 19) + 12345];
         new Random(7).NextBytes(data);
-        using var target = new MemoryStream();
+        using var target = new CompressionWorkerWrite();
         using (var overlapped = new OverlappedWrite(target))
         {
             for (var offset = 0; offset < data.Length; )
@@ -2204,7 +2204,13 @@ internal static class ArchiveChecks
             target.ToArray().AsSpan().SequenceEqual(data),
             "Overlapped compression keeps every byte in order across partial chunks"
         );
-        using var failing = new OverlappedWrite(new FailingWrite());
+        Require(
+            !target.UsedThreadPool && target.WorkerIds.Count == 1,
+            "Compression reuses one worker outside the callback thread pool"
+        );
+        Require(target.CanWrite, "Compression leaves its ZIP entry open for the caller");
+        var expected = new IOException("Synthetic background write failure.");
+        using var failing = new OverlappedWrite(new FailingWrite(expected));
         var failed = false;
         try
         {
@@ -2212,17 +2218,125 @@ internal static class ArchiveChecks
             failing.Write(data);
             failing.Complete();
         }
-        catch (IOException)
+        catch (IOException actual)
         {
-            failed = true;
+            failed = ReferenceEquals(actual, expected);
         }
-        Require(failed, "Overlapped compression surfaces a background write failure");
+        Require(failed, "Overlapped compression preserves the original background write failure");
+        using (var failingTail = new OverlappedWrite(new FailingWrite(expected)))
+        {
+            failingTail.Write(data.AsSpan(0, 12345));
+            failed = false;
+            try
+            {
+                failingTail.Complete();
+            }
+            catch (IOException actual)
+            {
+                failed = ReferenceEquals(actual, expected);
+            }
+            Require(failed, "Completion surfaces a failed final partial chunk");
+        }
+        CompressionDisposal(data.AsSpan(0, 1 << 20).ToArray());
     }
 
-    private sealed class FailingWrite : MemoryStream
+    private static void CompressionDisposal(byte[] data)
     {
-        public override void Write(byte[] buffer, int offset, int count) =>
-            throw new IOException("Synthetic background write failure.");
+        using var target = new HeldCompressionWrite();
+        using var overlapped = new OverlappedWrite(target);
+        using var disposeStarted = new ManualResetEventSlim();
+        using var disposeFinished = new ManualResetEventSlim();
+        Exception? disposeFailure = null;
+        var disposer = new Thread(() =>
+        {
+            disposeStarted.Set();
+            try
+            {
+                overlapped.Dispose();
+            }
+            catch (Exception error)
+            {
+                disposeFailure = error;
+            }
+            finally
+            {
+                disposeFinished.Set();
+            }
+        })
+        {
+            IsBackground = true,
+        };
+        var started = false;
+        try
+        {
+            overlapped.Write(data);
+            Require(target.Entered.Wait(TimeSpan.FromSeconds(10)), "Compression write entered");
+            disposer.Start();
+            started = true;
+            Require(disposeStarted.Wait(TimeSpan.FromSeconds(10)), "Compression disposal started");
+            Require(
+                !disposeFinished.Wait(TimeSpan.FromMilliseconds(100)),
+                "Disposal retains the pooled chunk until its background write ends"
+            );
+        }
+        finally
+        {
+            target.Release.Set();
+            if (started)
+                Require(disposer.Join(TimeSpan.FromSeconds(10)), "Compression disposal finishes");
+        }
+        Require(disposeFailure is null, "Compression disposal succeeds after the write finishes");
+        Require(
+            target.ToArray().AsSpan().SequenceEqual(data),
+            "Disposal preserves the active chunk"
+        );
+        overlapped.Dispose();
+        Require(
+            target.CanWrite,
+            "Repeated compression disposal leaves its caller-owned stream open"
+        );
+    }
+
+    private sealed class CompressionWorkerWrite : MemoryStream
+    {
+        internal readonly HashSet<int> WorkerIds = [];
+        internal bool UsedThreadPool;
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            WorkerIds.Add(Environment.CurrentManagedThreadId);
+            UsedThreadPool |= Thread.CurrentThread.IsThreadPoolThread;
+            base.Write(buffer, offset, count);
+        }
+    }
+
+    private sealed class HeldCompressionWrite : MemoryStream
+    {
+        internal readonly ManualResetEventSlim Entered = new();
+        internal readonly ManualResetEventSlim Release = new();
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            Entered.Set();
+            if (!Release.Wait(TimeSpan.FromSeconds(10)))
+                throw new TimeoutException("Synthetic compression write was not released.");
+            base.Write(buffer, offset, count);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Entered.Dispose();
+                Release.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+
+    private sealed class FailingWrite(IOException error) : MemoryStream
+    {
+        public override void Write(byte[] buffer, int offset, int count) => throw error;
     }
 
     private static void ParserControls()

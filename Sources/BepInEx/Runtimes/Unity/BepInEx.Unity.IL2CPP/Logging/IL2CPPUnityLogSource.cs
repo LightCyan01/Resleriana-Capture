@@ -7,22 +7,59 @@ namespace BepInEx.Unity.IL2CPP.Logging;
 public class IL2CPPUnityLogSource : ILogSource
 {
     private readonly Action<string, string, LogType> callback;
+    private readonly Application.LogCallback nativeCallback;
+    private readonly object subscription = new();
+    private bool disposed;
 
     public IL2CPPUnityLogSource()
     {
         callback = UnityLogCallback;
-        Application.s_LogCallbackHandler = callback;
-
-        Il2CppInterop.Runtime.IL2CPP.ResolveICall<SetLogCallbackDefinedDelegate>(
-            "UnityEngine.Application::SetLogCallbackDefined"
-        )(true);
+        nativeCallback = callback;
+        try
+        {
+            // The threaded event also receives main-thread logs, so subscribe only once.
+            Application.add_logMessageReceivedThreaded(nativeCallback);
+        }
+        catch (Exception registrationError)
+        {
+            try
+            {
+                Application.remove_logMessageReceivedThreaded(nativeCallback);
+            }
+            catch (Exception cleanupError)
+            {
+                throw new AggregateException(
+                    "Unity log callback registration and cleanup failed.",
+                    registrationError,
+                    cleanupError
+                );
+            }
+            throw;
+        }
     }
 
     public string SourceName { get; } = "Unity";
 
     public event EventHandler<LogEventArgs> LogEvent;
 
-    public void Dispose() { }
+    public void Dispose()
+    {
+        try
+        {
+            lock (subscription)
+            {
+                if (disposed)
+                    return;
+                Application.remove_logMessageReceivedThreaded(nativeCallback);
+                disposed = true;
+            }
+        }
+        finally
+        {
+            GC.KeepAlive(callback);
+            GC.KeepAlive(nativeCallback);
+        }
+    }
 
     public void UnityLogCallback(string logLine, string exception, LogType type)
     {
@@ -36,9 +73,14 @@ public class IL2CPPUnityLogSource : ILogSource
             _ => LogLevel.Message,
         };
         var message = string.IsNullOrEmpty(exception) ? logLine : logLine + Environment.NewLine + exception;
-        LogEvent?.Invoke(this, new LogEventArgs(message, level, this));
-        GC.KeepAlive(callback);
+        try
+        {
+            LogEvent?.Invoke(this, new LogEventArgs(message, level, this));
+        }
+        finally
+        {
+            GC.KeepAlive(callback);
+            GC.KeepAlive(nativeCallback);
+        }
     }
-
-    private delegate IntPtr SetLogCallbackDefinedDelegate(bool defined);
 }

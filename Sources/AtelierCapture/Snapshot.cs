@@ -448,6 +448,25 @@ internal sealed class Snapshot
                 Excluded: ["collection_item_state:native_lifetime_identity_only"]
             );
         }
+        if (value is ScopedItems scoped)
+        {
+            var original = scoped.Value;
+            var projectedType = original.GetType();
+            return new(
+                projectedType.FullName!,
+                Identity(scoped)!,
+                [],
+                Items: () =>
+                    (
+                        original is IEnumerable managed
+                            ? managed.Cast<object?>()
+                            : Collections.GetOrAdd(projectedType, CollectionReader)(original)
+                    ).Select(item =>
+                        ReadChild(original, () => item, null, scoped.Reference, scoped.Declaration)
+                    ),
+                Excluded: ["qualified_collection_item_state:" + scoped.Reference.StateContract]
+            );
+        }
         var type = value.GetType();
         if (value is not Il2CppObjectBase native || native.Pointer == IntPtr.Zero)
             throw new InvalidDataException("Required native snapshot object is unavailable.");
@@ -540,6 +559,11 @@ internal sealed class Snapshot
                 items.Value.GetType(),
                 "unit_identity_items"
             ),
+            ScopedItems items => (
+                ((Il2CppObjectBase)items.Value).Pointer.ToInt64(),
+                items.Value.GetType(),
+                items.Reference
+            ),
             Il2CppObjectBase native when native.Pointer != IntPtr.Zero => (
                 native.Pointer.ToInt64(),
                 value.GetType()
@@ -590,7 +614,13 @@ internal sealed class Snapshot
         return ReadChild(owner, () => field.Get(owner));
     }
 
-    private static object? ReadChild(object parent, Func<object?> read, Field? field = null)
+    private static object? ReadChild(
+        object parent,
+        Func<object?> read,
+        Field? field = null,
+        NativeEdgeReference? itemReference = null,
+        Type? itemDeclaration = null
+    )
     {
         var child = read();
         if (child is Il2CppObjectBase)
@@ -602,6 +632,26 @@ internal sealed class Snapshot
                     static type => type.FullName + ":generated_field_or_collection_item"
                 )
             );
+        var edge = field?.EdgeReference ?? itemReference;
+        if (child is not null && edge is not null)
+        {
+            try
+            {
+                if (
+                    NativeObjectType.ReferenceAtEdge(
+                        child,
+                        field?.ReferenceType ?? itemDeclaration!,
+                        edge
+                    ) is
+                    { } scopedReference
+                )
+                    return scopedReference;
+            }
+            finally
+            {
+                GC.KeepAlive(parent);
+            }
+        }
         if (child is not null && field?.ReferenceContract is { } referenceContract)
         {
             if (child is not Il2CppObjectBase native || native.Pointer == IntPtr.Zero)
@@ -635,6 +685,12 @@ internal sealed class Snapshot
             }
         }
         child = Prepare(child);
+        if (child is Il2CppObjectBase && field?.ItemReference is { } collectionReference)
+            return new ScopedItems(
+                child,
+                field.ReferenceType!.GenericTypeArguments.Single(),
+                collectionReference
+            );
         if (
             child is Il2CppObjectBase
             && field is not null
@@ -1022,6 +1078,18 @@ internal sealed class Snapshot
                     Type = property.PropertyType.FullName,
                     ReferenceContract = NativeProjection.ReferenceContract(property),
                     ReferenceType = property.PropertyType,
+                    EdgeReference = NativeProjection.ScopedReference(
+                        RuntimeCompatibility.SignatureType(owner),
+                        property.Name,
+                        RuntimeCompatibility.SignatureType(property.PropertyType),
+                        owner.Module.ScopeName
+                    ),
+                    ItemReference = NativeProjection.ItemReference(
+                        RuntimeCompatibility.SignatureType(owner),
+                        property.Name,
+                        RuntimeCompatibility.SignatureType(property.PropertyType),
+                        owner.Module.ScopeName
+                    ),
                 };
                 if (!names.Add(field.Name))
                     field = field with { Name = owner.FullName + "." + field.Name };
@@ -1156,7 +1224,9 @@ internal sealed class Snapshot
         string? Type = null,
         bool Unavailable = false,
         string? ReferenceContract = null,
-        Type? ReferenceType = null
+        Type? ReferenceType = null,
+        NativeEdgeReference? EdgeReference = null,
+        NativeEdgeReference? ItemReference = null
     );
 
     private sealed record Projection(
@@ -1168,6 +1238,12 @@ internal sealed class Snapshot
     );
 
     private sealed record IdentityItems(object Value);
+
+    private sealed record ScopedItems(
+        object Value,
+        Type Declaration,
+        NativeEdgeReference Reference
+    );
 
     private sealed record ClientStatusOwner(object Value);
 

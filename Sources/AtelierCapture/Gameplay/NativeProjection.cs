@@ -5,9 +5,69 @@ namespace AtelierCapture;
 
 internal sealed record NativeReference(string type, string lifetime_id, string state_contract);
 
+internal sealed record NativeEdgeReference(
+    string StateContract,
+    string ConcreteType,
+    string Module,
+    string? GenericArgument = null
+);
+
 internal static class NativeProjection
 {
-    internal const string Contract = "general_gameplay_domain_v2";
+    internal const string Contract = "general_gameplay_domain_v3";
+
+    private const string TimelinePhase = "BattleTimelineMoveControl+IFGCIDFHICL";
+
+    internal static NativeEdgeReference? ScopedReference(
+        string owner,
+        string field,
+        string declaredType,
+        string module
+    ) =>
+        (owner, field, declaredType, module) switch
+        {
+            ("LANAGMCAFDC", "JDIGBMHGKGE", "KAKLKJIIIHB", "Blend.dll") => new(
+                "presentation_view_state_not_observed",
+                "BattleSupportAbilityView",
+                "Blend.dll"
+            ),
+            (
+                "IEHOBJHGEID<" + TimelinePhase + ">",
+                "CFEEIGJJECC",
+                "FHOEJNIEFIL",
+                "Blend.Framework.dll"
+            )
+            or (
+                "Il2CppSystem.Collections.Generic.KeyValuePair`2<"
+                    + TimelinePhase
+                    + ",FHOEJNIEFIL>",
+                "value",
+                "FHOEJNIEFIL",
+                "Il2Cppmscorlib.dll"
+            ) => new(
+                "scheduler_callback_state_not_observed",
+                "IEHOBJHGEID+BFJMAPKEMMG",
+                "Blend.Framework.dll",
+                TimelinePhase
+            ),
+            _ => null,
+        };
+
+    internal static NativeEdgeReference? ItemReference(
+        string owner,
+        string field,
+        string declaredType,
+        string module
+    ) =>
+        (owner, field, declaredType, module)
+        == (
+            "BattleCommandItemControl",
+            "DKNDHNAIKFN",
+            "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<FCMCKDCGGEB>",
+            "Blend.dll"
+        )
+            ? new("presentation_view_state_not_observed", "BattleCommandItemView", "Blend.dll")
+            : null;
 
     internal static string? ReferenceContract(PropertyInfo property) =>
         ReferenceContract(

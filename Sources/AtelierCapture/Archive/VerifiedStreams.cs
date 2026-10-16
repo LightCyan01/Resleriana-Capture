@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using System.IO.Compression;
+using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 
 namespace AtelierCapture.Archive;
@@ -115,19 +116,57 @@ internal sealed class GzipPrefix : Stream
 
 // Deflate Optimal is the slowest packing step; a second thread compresses one chunk while the
 // caller inflates, hashes and parses the next. Chunk order keeps the entry content identical.
-internal sealed class OverlappedWrite(Stream target) : Stream
+internal sealed class OverlappedWrite : Stream
 {
     private const int ChunkBytes = 1 << 20;
-    private byte[] filling = ArrayPool<byte>.Shared.Rent(ChunkBytes);
-    private byte[] writing = ArrayPool<byte>.Shared.Rent(ChunkBytes);
+    private readonly Stream target;
+    private readonly AutoResetEvent ready = new(false);
+    private readonly ManualResetEventSlim idle = new(true);
+    private readonly Thread worker;
+    private byte[] filling;
+    private byte[] writing;
     private int length;
-    private Task pending = Task.CompletedTask;
+    private int writingLength;
+    private volatile bool stopping;
+    private bool disposed;
+    private ExceptionDispatchInfo? failure;
+
+    internal OverlappedWrite(Stream target)
+    {
+        this.target = target;
+        byte[]? first = null;
+        byte[]? second = null;
+        try
+        {
+            first = ArrayPool<byte>.Shared.Rent(ChunkBytes);
+            second = ArrayPool<byte>.Shared.Rent(ChunkBytes);
+            filling = first;
+            writing = second;
+            worker = new Thread(WriteLoop)
+            {
+                IsBackground = true,
+                Name = "Atelier capture compression",
+            };
+            worker.Start();
+        }
+        catch
+        {
+            if (first is not null)
+                ArrayPool<byte>.Shared.Return(first);
+            if (second is not null)
+                ArrayPool<byte>.Shared.Return(second);
+            ready.Dispose();
+            idle.Dispose();
+            throw;
+        }
+    }
 
     public override void Write(byte[] buffer, int offset, int count) =>
         Write(buffer.AsSpan(offset, count));
 
     public override void Write(ReadOnlySpan<byte> data)
     {
+        ObjectDisposedException.ThrowIf(disposed, this);
         while (!data.IsEmpty)
         {
             var count = Math.Min(data.Length, ChunkBytes - length);
@@ -142,33 +181,64 @@ internal sealed class OverlappedWrite(Stream target) : Stream
     // Surfaces any background write failure; the target is complete only after this returns.
     internal void Complete()
     {
+        ObjectDisposedException.ThrowIf(disposed, this);
         if (length != 0)
             Hand();
-        pending.GetAwaiter().GetResult();
+        WaitForWrite();
     }
 
     private void Hand()
     {
-        pending.GetAwaiter().GetResult();
+        WaitForWrite();
         (filling, writing) = (writing, filling);
-        var chunk = writing;
-        var count = length;
+        writingLength = length;
         length = 0;
-        pending = Task.Run(() => target.Write(chunk, 0, count));
+        idle.Reset();
+        ready.Set();
+    }
+
+    private void WaitForWrite()
+    {
+        idle.Wait();
+        failure?.Throw();
+    }
+
+    private void WriteLoop()
+    {
+        while (true)
+        {
+            ready.WaitOne();
+            if (stopping)
+                return;
+            try
+            {
+                target.Write(writing, 0, writingLength);
+            }
+            catch (Exception error)
+            {
+                failure = ExceptionDispatchInfo.Capture(error);
+            }
+            finally
+            {
+                idle.Set();
+            }
+        }
     }
 
     protected override void Dispose(bool disposing)
     {
-        if (disposing)
+        if (disposing && !disposed)
         {
-            // The background write may still read its chunk; wait before returning buffers.
-            try
-            {
-                pending.Wait();
-            }
-            catch (AggregateException) { }
+            disposed = true;
+            // Recovery must finish without a free callback-pool worker, even during disposal.
+            idle.Wait();
+            stopping = true;
+            ready.Set();
+            worker.Join();
             ArrayPool<byte>.Shared.Return(filling);
             ArrayPool<byte>.Shared.Return(writing);
+            ready.Dispose();
+            idle.Dispose();
         }
         base.Dispose(disposing);
     }

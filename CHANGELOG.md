@@ -6,10 +6,12 @@
 - Preserve original API bodies, headers and unknown fields, with clearer links between requests, responses and gameplay observations.
 - Reduce repeated snapshots, redundant writes and diagnostic duplication.
 - Stop waiting on disk for repeated warnings and save queued records together.
-- Compress capture archives on a second thread so the game exits sooner.
+- Compress capture archives on a dedicated worker without depending on game callback threads.
 - Add durable saving, stronger crash recovery and verified archive cleanup.
 - Add readable request and record counts for each capture, stream, system and route.
 - Aggregate repeated warnings and known Unity material null-reference patterns while retaining their details and occurrence counts.
+- Capture Unity messages and exception stacks from background threads as well as the main thread.
+- Describe gameplay and queued diagnostic durability separately in capture manifests.
 - Check client and runtime compatibility before enabling native capture.
 - Upgrade the embedded runtime to .NET 10.0.13 and adapt BepInEx/Il2CppInterop for the new runtime and native capture.
 - Fix asset-bundle preservation in the English localization companion.

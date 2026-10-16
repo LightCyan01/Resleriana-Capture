@@ -11,6 +11,7 @@ internal static class NativeObjectType
 
     // Module.ScopeName is a runtime call that allocates; this runs for every snapshot child.
     private static readonly ConcurrentDictionary<Type, bool> ConcreteRequired = new();
+    private static readonly ConcurrentDictionary<NativeEdgeReference, Type> ReferenceTypes = new();
 
     internal static object WrapPointer(Type type, IntPtr pointer) =>
         Wrap.GetOrAdd(type, Wrapper)(pointer);
@@ -22,6 +23,75 @@ internal static class NativeObjectType
         try
         {
             return NativeName(IL2CPP.il2cpp_object_get_class(native.Pointer));
+        }
+        finally
+        {
+            GC.KeepAlive(value);
+        }
+    }
+
+    internal static NativeReference? ReferenceAtEdge(
+        object value,
+        Type declaration,
+        NativeEdgeReference edge
+    )
+    {
+        if (
+            value is not Il2CppObjectBase native
+            || native.Pointer == IntPtr.Zero
+            || !FiniteDeclaration(declaration.FullName, declaration.Module.ScopeName)
+        )
+            throw new InvalidDataException("Native edge reference declaration is unavailable.");
+        try
+        {
+            Plugin.Compatibility.ValidateInteropType(declaration);
+            var concrete = ReferenceTypes.GetOrAdd(
+                edge,
+                static policy =>
+                {
+                    var type = NativeContract.ResolveType(policy.ConcreteType);
+                    if (type.Module.ScopeName != policy.Module)
+                        throw new InvalidDataException("Native edge reference module changed.");
+                    return policy.GenericArgument is { } argument
+                        ? type.MakeGenericType(NativeContract.ResolveType(argument))
+                        : type;
+                }
+            );
+            Plugin.Compatibility.ValidateInteropType(concrete);
+            var declaredClass = Il2CppClassPointerStore.GetNativeClassPointer(declaration);
+            var concreteClass = Il2CppClassPointerStore.GetNativeClassPointer(concrete);
+            var actualClass = IL2CPP.il2cpp_object_get_class(native.Pointer);
+            if (
+                declaredClass == IntPtr.Zero
+                || concreteClass == IntPtr.Zero
+                || actualClass == IntPtr.Zero
+                || !IL2CPP.il2cpp_class_is_assignable_from(declaredClass, actualClass)
+            )
+                throw new InvalidDataException("Native edge reference class is incompatible.");
+            if (NativeName(declaredClass) != declaration.FullName)
+                throw new InvalidDataException("Native edge reference declaration name changed.");
+            ValidateDeclaration(
+                declaration.FullName!,
+                IL2CPP.il2cpp_class_get_flags(declaredClass)
+            );
+            // Other implementations retain their full normal snapshot or explicit failure.
+            if (actualClass != concreteClass)
+                return null;
+            ValidateResolvedClass(
+                edge.ConcreteType,
+                declaredClass,
+                actualClass,
+                concreteClass,
+                true,
+                !concrete.ContainsGenericParameters
+                    && typeof(Il2CppObjectBase).IsAssignableFrom(concrete),
+                IL2CPP.il2cpp_class_get_flags(actualClass)
+            );
+            return NativeProjection.Reference(
+                NativeName(actualClass),
+                Network.ObjectIdentity(value),
+                edge.StateContract
+            );
         }
         finally
         {
