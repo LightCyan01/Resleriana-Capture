@@ -65,19 +65,18 @@ internal static partial class Network
             Objects.InvalidateOperation(value);
     }
 
+    // Gaps write records, which can take the writer's copier lock; never hold Sync across them.
     internal static void BindContext(
         object value,
         NetworkContext context,
         string qualifiedEdge = "native_object_context"
     )
     {
+        bool ambiguous;
         lock (Sync)
-            if (Objects.Bind(value, context, qualifiedEdge))
-                Gap(
-                    context,
-                    "native_object_context_ambiguous",
-                    new { object_type = value.GetType().FullName }
-                );
+            ambiguous = Objects.Bind(value, context, qualifiedEdge);
+        if (ambiguous)
+            ContextAmbiguous(value, context);
     }
 
     internal static void BindEnvironment(object value, bool? environment, string qualifiedEdge)
@@ -86,27 +85,47 @@ internal static partial class Network
             throw new InvalidDataException(
                 "Native environment proof requires its qualified application edge."
             );
+        bool ambiguous;
         lock (Sync)
-            if (Objects.BindEnvironment(value, environment, qualifiedEdge))
-                Gap(
-                    null,
-                    "native_object_environment_ambiguous",
-                    new { object_type = value.GetType().FullName, qualified_edge = qualifiedEdge }
-                );
+            ambiguous = Objects.BindEnvironment(value, environment, qualifiedEdge);
+        if (ambiguous)
+            EnvironmentAmbiguous(value, qualifiedEdge);
     }
 
     // One lock for the read and the bind, so the parent's binding cannot change in between.
     internal static void InheritBinding(object parent, object child, string qualifiedEdge)
     {
+        NetworkContext? context;
+        bool ambiguous;
         lock (Sync)
         {
-            var (context, environment) = Objects.Lookup(parent);
-            if (context is not null)
-                BindContext(child, context, qualifiedEdge);
-            else if (environment is not null)
-                BindEnvironment(child, environment.IsPrivate, qualifiedEdge);
+            (context, var environment) = Objects.Lookup(parent);
+            ambiguous = context is not null
+                ? Objects.Bind(child, context, qualifiedEdge)
+                : environment is not null
+                    && Objects.BindEnvironment(child, environment.IsPrivate, qualifiedEdge);
         }
+        if (!ambiguous)
+            return;
+        if (context is not null)
+            ContextAmbiguous(child, context);
+        else
+            EnvironmentAmbiguous(child, qualifiedEdge);
     }
+
+    private static void ContextAmbiguous(object value, NetworkContext context) =>
+        Gap(
+            context,
+            "native_object_context_ambiguous",
+            new { object_type = value.GetType().FullName }
+        );
+
+    private static void EnvironmentAmbiguous(object value, string qualifiedEdge) =>
+        Gap(
+            null,
+            "native_object_environment_ambiguous",
+            new { object_type = value.GetType().FullName, qualified_edge = qualifiedEdge }
+        );
 
     internal static IDisposable PushContext(NetworkContext? context) => new ContextScope(context);
 
