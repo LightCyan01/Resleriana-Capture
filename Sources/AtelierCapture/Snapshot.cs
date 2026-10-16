@@ -13,6 +13,7 @@ internal sealed class Snapshot
 {
     private static readonly ConcurrentDictionary<Type, Field[]> Fields = new();
     private static readonly ConcurrentDictionary<Type, Projection> Projections = new();
+    private static readonly ConcurrentDictionary<Type, string> ChildEdges = new();
     private static readonly ConcurrentDictionary<
         Type,
         Func<object, IEnumerable<object?>>
@@ -593,13 +594,14 @@ internal sealed class Snapshot
     {
         var child = read();
         if (child is Il2CppObjectBase)
-        {
-            var edge = parent.GetType().FullName + ":generated_field_or_collection_item";
-            if (Network.ContextFor(parent) is { } context)
-                Network.BindContext(child, context, edge);
-            else if (Network.EnvironmentProofFor(parent) is not null)
-                Network.BindEnvironment(child, Network.EnvironmentFor(parent), edge);
-        }
+            Network.InheritBinding(
+                parent,
+                child,
+                ChildEdges.GetOrAdd(
+                    parent.GetType(),
+                    static type => type.FullName + ":generated_field_or_collection_item"
+                )
+            );
         if (child is not null && field?.ReferenceContract is { } referenceContract)
         {
             if (child is not Il2CppObjectBase native || native.Pointer == IntPtr.Zero)

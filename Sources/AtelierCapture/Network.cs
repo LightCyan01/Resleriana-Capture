@@ -39,16 +39,18 @@ internal static partial class Network
             return Objects.Token(value);
     }
 
-    internal static bool? EnvironmentFor(object? value)
-    {
-        lock (Sync)
-            return Objects.Environment(value)?.IsPrivate;
-    }
-
     internal static NativeEnvironmentProof? EnvironmentProofFor(object? value)
     {
         lock (Sync)
             return Objects.Environment(value);
+    }
+
+    internal static (NetworkContext? Context, NativeEnvironmentProof? Environment) BindingFor(
+        object? value
+    )
+    {
+        lock (Sync)
+            return Objects.Lookup(value);
     }
 
     internal static NativeBindingState BindingStateFor(object value)
@@ -91,6 +93,19 @@ internal static partial class Network
                     "native_object_environment_ambiguous",
                     new { object_type = value.GetType().FullName, qualified_edge = qualifiedEdge }
                 );
+    }
+
+    // One lock for the read and the bind, so the parent's binding cannot change in between.
+    internal static void InheritBinding(object parent, object child, string qualifiedEdge)
+    {
+        lock (Sync)
+        {
+            var (context, environment) = Objects.Lookup(parent);
+            if (context is not null)
+                BindContext(child, context, qualifiedEdge);
+            else if (environment is not null)
+                BindEnvironment(child, environment.IsPrivate, qualifiedEdge);
+        }
     }
 
     internal static IDisposable PushContext(NetworkContext? context) => new ContextScope(context);

@@ -207,20 +207,21 @@ internal static class Battle
                 method is ConstructorInfo
                     ? []
                     : Snapshot.BindOwnerLineage(instance, hook.Boundary, hook.Rva);
-            var contexts = args.Append(instance)
-                .Select(Network.ContextFor)
+            var inputs = args.Append(instance).Select(Network.BindingFor).ToArray();
+            var contexts = inputs
+                .Select(input => input.Context)
                 .Append(Network.CurrentContext)
                 .Where(c => c is not null)
                 .Cast<NetworkContext>()
                 .DistinctBy(c => (c.AttemptId, c.OperationId, c.Route, c.IsPrivate))
                 .ToArray();
             var context = contexts.Length == 1 ? contexts[0] : null;
-            var environmentProofs = args.Append(instance)
-                .Select(Network.EnvironmentProofFor)
+            var environmentProofs = inputs
+                .Select(input => input.Environment)
                 .Where(p => p is not null)
                 .ToArray();
-            var origins = args.Append(instance)
-                .Select(Network.EnvironmentFor)
+            var origins = environmentProofs
+                .Select(p => p!.IsPrivate)
                 .Concat(contexts.Select(c => c.IsPrivate))
                 .Where(value => value is not null)
                 .Distinct()
@@ -398,7 +399,13 @@ internal static class Battle
                     var observationGap = isTaskReturn
                         ? "async_operation_completion_edge_unqualified"
                         : null;
-                    var complete = false;
+                    var clientStatus = ClientStatusProjection.Applies(
+                        state.Hook.Boundary,
+                        state.Hook.Rva
+                    );
+                    var resourceReceiver =
+                        !clientStatus
+                        && ResourceReceiverProjection.Applies(state.Hook.Boundary, state.Hook.Rva);
                     var data = new
                     {
                         invocation_id = state.Id.ToString(CultureInfo.InvariantCulture),
@@ -425,8 +432,9 @@ internal static class Battle
                         },
                         route = context?.Route,
                         declared_route = state.Hook.Route,
-                        status = complete ? "complete" : "incomplete",
-                        complete,
+                        // Owner stability across the copy is unqualified, so no observation is complete.
+                        status = "incomplete",
+                        complete = false,
                         failures = snapshot.Failures,
                         correlation_gap = state.CorrelationGap,
                         lineage_failures = state.LineageFailures,
@@ -443,13 +451,8 @@ internal static class Battle
                             * 1000.0
                             / Stopwatch.Frequency,
                         instance,
-                        projection_contract = ClientStatusProjection.Applies(
-                            state.Hook.Boundary,
-                            state.Hook.Rva
-                        )
-                            ? ClientStatusProjection.Contract
-                        : ResourceReceiverProjection.Applies(state.Hook.Boundary, state.Hook.Rva)
-                            ? ResourceReceiverProjection.Contract
+                        projection_contract = clientStatus ? ClientStatusProjection.Contract
+                        : resourceReceiver ? ResourceReceiverProjection.Contract
                         : NativeProjection.Contract,
                         snapshot_schema = 2,
                         snapshot_contracts = snapshot.Contracts,
@@ -457,10 +460,8 @@ internal static class Battle
                         instance_contract = !phaseSnapshotAvailable ? "phase_snapshot_unavailable"
                         : state.Hook.Method == ".ctor" && phase != "exit"
                             ? "uninitialized_constructor_receiver"
-                        : ClientStatusProjection.Applies(state.Hook.Boundary, state.Hook.Rva)
-                            ? "initialized_owner_native_client_status_read_set"
-                        : ResourceReceiverProjection.Applies(state.Hook.Boundary, state.Hook.Rva)
-                            ? ResourceReceiverProjection.StateContract
+                        : clientStatus ? "initialized_owner_native_client_status_read_set"
+                        : resourceReceiver ? ResourceReceiverProjection.StateContract
                         : "initialized_owner_gameplay_projection",
                         values,
                         result = returned,
@@ -468,12 +469,7 @@ internal static class Battle
                         error,
                         native_original_threw = phase == "exception",
                     };
-                    if (!complete)
-                        Incomplete.AddOrUpdate(
-                            state.Hook.Boundary,
-                            1,
-                            static (_, count) => count + 1
-                        );
+                    Incomplete.AddOrUpdate(state.Hook.Boundary, 1, static (_, count) => count + 1);
                     var kind = (state.Hook.System == "Battle" ? "combat_" : "native_") + phase;
                     if (state.Environment is { } isPrivate)
                     {

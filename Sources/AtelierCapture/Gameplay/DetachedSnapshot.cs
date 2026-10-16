@@ -157,17 +157,18 @@ internal sealed class DetachedSnapshot(
             try
             {
                 foreach (var item in source.Items())
-                    node.items.Add(Reference(item, node.id, "items[" + node.items.Count + "]"));
+                    node.items.Add(Reference(item, node.id, null, node.items.Count));
             }
             catch (Exception ex)
             {
-                Failure(node.id, "items[" + node.items.Count + "]", ex);
+                Failure(node.id, ItemField(node.items.Count), ex);
             }
         }
         return root;
     }
 
-    private object? Reference(object? value, int? parent, string field)
+    // Item field names are built only on failure; collections can hold many items.
+    private object? Reference(object? value, int? parent, string? field, int item = 0)
     {
         RetainedBytes = checked(RetainedBytes + 32);
         if (value is null)
@@ -177,7 +178,7 @@ internal sealed class DetachedSnapshot(
         if (value is IntPtr or UIntPtr)
             return Failure(
                 parent,
-                field,
+                field ?? ItemField(item),
                 new InvalidDataException("Required native pointer has no semantic reader.")
             );
         if (value is string text)
@@ -242,9 +243,11 @@ internal sealed class DetachedSnapshot(
         }
         catch (Exception ex)
         {
-            return Failure(parent, field, ex);
+            return Failure(parent, field ?? ItemField(item), ex);
         }
     }
+
+    private static string ItemField(int index) => "items[" + index + "]";
 
     private SnapshotContract Contract(SnapshotSource source)
     {

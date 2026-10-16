@@ -25,35 +25,25 @@ internal sealed class NativeObjectContexts
         return binding.Token;
     }
 
-    internal NetworkContext? Context(object? value)
-    {
-        if (value is not Il2CppObjectBase native || native.Pointer == IntPtr.Zero)
-            return null;
-        return bindings.TryGetValue(native.Pointer, out var binding) && binding.Alive
-            ? binding.Context.Current
+    private ContextBinding? Live(object? value) =>
+        value is Il2CppObjectBase native
+        && native.Pointer != IntPtr.Zero
+        && bindings.TryGetValue(native.Pointer, out var binding)
+        && binding.Alive
+            ? binding.Context
             : null;
-    }
 
-    internal NativeEnvironmentProof? Environment(object? value)
-    {
-        if (value is not Il2CppObjectBase native || native.Pointer == IntPtr.Zero)
-            return null;
-        return
-            bindings.TryGetValue(native.Pointer, out var binding)
-            && binding.Alive
-            && binding.Context.Origin.HasEvidence
-            ? binding.Context.Origin.Proof
-            : null;
-    }
+    internal NetworkContext? Context(object? value) => Live(value)?.Current;
 
-    internal NativeBindingState State(object? value)
-    {
-        if (value is not Il2CppObjectBase native || native.Pointer == IntPtr.Zero)
-            return default;
-        return bindings.TryGetValue(native.Pointer, out var binding) && binding.Alive
-            ? binding.Context.State
+    internal NativeEnvironmentProof? Environment(object? value) =>
+        Live(value)?.Origin is { HasEvidence: true } origin ? origin.Proof : null;
+
+    internal (NetworkContext? Context, NativeEnvironmentProof? Environment) Lookup(object? value) =>
+        Live(value) is { } binding
+            ? (binding.Current, binding.Origin.HasEvidence ? binding.Origin.Proof : null)
             : default;
-    }
+
+    internal NativeBindingState State(object? value) => Live(value)?.State ?? default;
 
     internal bool Bind(object value, NetworkContext context, string qualifiedEdge)
     {
