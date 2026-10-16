@@ -167,14 +167,14 @@ def source_inventory(runtime_only=False):
     folders = [ROOT / "Sources/BepInEx", ROOT / "Sources/Il2CppInterop", ROOT / "Sources/AtelierCapture.Native", ROOT / "Licenses", ROOT / ".config"]
     if not runtime_only:
         folders.extend([ROOT / "Sources/AtelierCapture", ROOT / "Sources/AtelierCapture.Update",
-                        ROOT / "Sources/AtelierCapture.Updater", ROOT / "Checks/AtelierCapture.Checks"])
+                        ROOT / "Sources/AtelierCapture.Updater"])
     files = {ROOT / "VERSION", ROOT / "global.json", ROOT / "README.md", ROOT / "CHANGELOG.md",
              ROOT / "scripts/build.py", ROOT / "scripts/package.py"}
     files.add(ROOT / ".github/workflows/release.yml")
     for folder in folders:
         for path in folder.rglob("*"):
             if path.is_file() and not {"bin", "obj", "node_modules", ".store"}.intersection(path.relative_to(folder).parts):
-                if path.suffix in {".cs", ".cpp", ".h", ".inc", ".csproj", ".props", ".targets", ".json", ".config", ".cfg", ".txt", ".md", ".ini", ".ps1", ".pem"} or (path.suffix == ".zip" and path.parent == ROOT / "Checks/AtelierCapture.Checks/Fixtures"):
+                if path.suffix in {".cs", ".cpp", ".h", ".inc", ".csproj", ".props", ".targets", ".json", ".config", ".cfg", ".txt", ".md", ".ini", ".ps1", ".pem"}:
                     files.add(path)
     return [{"path": path.relative_to(ROOT).as_posix(), "sha256": sha256(path), "size": path.stat().st_size}
             for path in sorted(files)]

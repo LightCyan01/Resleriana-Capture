@@ -14,8 +14,6 @@ scripts/*.py text diff merge eol=lf
 .github/workflows/*.yml text diff merge eol=lf
 VERSION text diff merge eol=lf
 # Preserve exact build-input bytes while exposing new source files in reviews.
-Checks/** -text diff merge
-Checks/AtelierCapture.Checks/Fixtures/*.zip binary
 Sources/AtelierCapture.Update/*.pem text diff merge eol=lf
 Sources/AtelierCapture.Native/** -text diff merge
 Sources/AtelierCapture/Gameplay/*.json -text diff merge

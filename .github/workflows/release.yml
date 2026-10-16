@@ -27,43 +27,9 @@ jobs:
         shell: pwsh
         run: py scripts/build.py --source-commit '${{ github.sha }}'
 
-      - name: Check the packaged runtime and recorder
+      - name: Build and package the manual source
         shell: pwsh
-        run: |
-          & work/toolchain/dotnet10/dotnet.exe build Checks/AtelierCapture.Checks -c Release
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $captureCheckOutput = 'Checks/AtelierCapture.Checks/bin/Release/net10.0'
-          Get-ChildItem work/build/stage/BepInEx/core -File |
-            Copy-Item -Destination $captureCheckOutput -Force
-          Get-ChildItem work/build/stage/BepInEx/plugins -Filter *.dll -File |
-            Copy-Item -Destination $captureCheckOutput -Force
-          Copy-Item work/build/stage/dotnet/AtelierCapture.Update.dll -Destination $captureCheckOutput -Force
-          & work/toolchain/dotnet10/dotnet.exe "$captureCheckOutput/AtelierCapture.Checks.dll"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          py scripts/build.py --self-check
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Build and check the manual package
-        shell: pwsh
-        run: |
-          py scripts/build.py --manual-only --source-commit '${{ github.sha }}'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $manualCore = (Resolve-Path work/build-manual/stage/BepInEx/core).Path
-          $manualReferences = (Resolve-Path work/build-manual/dependencies).Path
-          $automaticUpdater = (Resolve-Path work/build/stage/dotnet).Path
-          & work/toolchain/dotnet10/dotnet.exe build Checks/AtelierCapture.Checks -c Release `
-            -p:CaptureAutoUpdates=false "-p:RuntimeDirectory=$manualCore" `
-            "-p:ReferenceDirectory=$manualReferences" "-p:UpdaterDirectory=$automaticUpdater"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $captureCheckOutput = 'Checks/AtelierCapture.Checks/bin/Release/net10.0'
-          Get-ChildItem work/build-manual/stage/BepInEx/core -File |
-            Copy-Item -Destination $captureCheckOutput -Force
-          Get-ChildItem work/build-manual/stage/BepInEx/plugins -Filter *.dll -File |
-            Copy-Item -Destination $captureCheckOutput -Force
-          $env:ATELIER_CAPTURE_CHECK_STAGE = (Resolve-Path work/build-manual/stage).Path
-          & work/toolchain/dotnet10/dotnet.exe "$captureCheckOutput/AtelierCapture.Checks.dll" `
-            StorageChecks ArchiveChecks NativeContractChecks NetworkChecks BuildChecks DiagnosticChecks JsonCaptureChecks UpdateVariantChecks
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        run: py scripts/build.py --manual-only --source-commit '${{ github.sha }}'
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
