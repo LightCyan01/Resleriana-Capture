@@ -87,7 +87,16 @@ The updater checks for newer stable releases in the background, at most once per
 
 Automatic updates replace only the capture plugin, its native companion and their compatibility certificate. A release that changes BepInEx, the updater or the embedded runtime requires the full installer. Existing captures and recording recovery folders are preserved. Downloads that fail validation leave the installed recorder in place.
 
-To disable automatic updates, set `Enabled = false` under `[Updates]` in `BepInEx/config/AtelierCapture.Updater.cfg`. Recovery of an already interrupted installation still runs. Local builds and releases with the same version number do not update automatically.
+Automatic updates are enabled by default, including in source builds. Updates come from `LightCyan01/Resleriana-Capture`. If you modify the capture plugin, a compatible newer official release can replace your changes.
+
+To disable updates and keep your custom build, create or edit `BepInEx/config/AtelierCapture.Updater.cfg` before starting the game:
+
+```ini
+[Updates]
+Enabled = false
+```
+
+Set `Enabled = true` to enable official updates again. Recovery of an already interrupted installation still runs. Releases with the same version number do not update automatically.
 
 ## How recording works
 
@@ -122,6 +131,8 @@ py scripts/build.py
 This builds the modified BepInEx runtime, HarmonySupport, the native forwarding layer and the capture plugin, then writes `work/release/Resleriana-Capture-vX.Y.Z-win-x64.zip`. The first build needs an internet connection to download checksum-pinned public dependencies. Later builds can use `--offline`. You don't need the game installed to build.
 
 Install the result as described under [Install](#install). After editing the source, run `py scripts/build.py` again.
+
+If you modify the recorder, [disable automatic updates](#automatic-capture-updates) before starting the game to keep your changes.
 
 ## More documentation
 
