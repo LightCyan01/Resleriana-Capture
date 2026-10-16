@@ -54,7 +54,7 @@ Each ZIP holds four JSON Lines files and a manifest:
 A capture covers only what you played. Hooks that couldn't be installed, failed reads and unclear object origins show up as gaps in the manifest and diagnostics.
 
 > [!WARNING]
-> Captures contain your account and session data. Bodies, decoded fields and headers are saved as captured, with no redaction or hashing. The plugin keeps recordings on your PC and doesn't upload them, but anyone you send a capture to can read that data.
+> Captures contain account data, login credentials and session tokens. Bodies, decoded fields and headers are saved without redaction. The plugin keeps recordings on your PC and doesn't upload them, but anyone you send a capture to can read that data. See [Account and session data recorded](https://github.com/LightCyan01/Resleriana-Capture/blob/main/docs/account-and-session-data.md) for the fields and where they are stored.
 
 ## Long sessions
 
