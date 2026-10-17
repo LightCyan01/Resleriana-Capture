@@ -3,6 +3,8 @@
 ## 1.4.2
 
 - Fix privacy mode discarding native Battle and Atelier gameplay inputs, results and state. Retain qualified values and references while filtering personal data.
+- Preserve by-reference damage flags and qualified native skill-state, reward, trait and character-definition list entries.
+- Retain qualified timeline controller values through verified native interface declarations; keep presentation views as references.
 - Preserve filtered gameplay from native protobuf messages, including messages whose original snapshot contained only protobuf bytes.
 - Retain public probability strings, asset references, store product identifiers and typed mail-template values and times.
 - Preserve unknown numeric protocol enum values and report omitted fields with reasons and occurrence counts.

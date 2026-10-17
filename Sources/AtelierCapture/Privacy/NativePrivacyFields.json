@@ -1846,6 +1846,106 @@
       "e": "System.Int64",
       "s": "System.Int64",
       "c": "System.Int32"
+    },
+    "IAKOGAEEOOC+KFODNHINDJN": {
+      "LIJDBCOEJLJ": "BJCGPLBACKM",
+      "DKKLICIHEAJ": "KIBOOBBLMHI",
+      "JHAELOKNDKH": "Il2CppSystem.Nullable`1<KOGJCMAPBGB>",
+      "IMFHDKHAGFG": "GEAMFIIAAPN",
+      "MOCBEKLOEBA": "System.Int64",
+      "MLJCGAPIHNA": "System.Int64",
+      "LKJKJHLBFPP": "System.Int64",
+      "LFIAAPFAFOA": "System.Int64",
+      "ONNJCFKDDOP": "ALKJNJOOAFA",
+      "KHHNICNCFGE": "System.Int32",
+      "DMBOLOGKIDN": "System.Int32",
+      "HOPAKBBLBPN": "System.Boolean",
+      "OLLJCCKHDGE": "System.Boolean",
+      "GICOOPDJHCG": "System.Boolean",
+      "KODHGAPMCPE": "Il2CppSystem.Collections.Generic.List`1<ANBHPMNFOPM>",
+      "PGAMGCJBKKK": "System.Int32",
+      "NHBPDNDKOPA": "System.Int32",
+      "PGGKBJPCIMA": "System.Int32",
+      "KIAPECHMOEB": "System.Boolean",
+      "_AGOCKAGMCNO_k__BackingField": "System.Int64",
+      "_LAHIPJNGPJJ_k__BackingField": "System.Int64",
+      "_JEJDJGIFCBH_k__BackingField": "System.Int64",
+      "_ECMCFMLOCFJ_k__BackingField": "System.Int64",
+      "CBAMACDIECC": "Il2CppSystem.Nullable`1<HDEBKLAHCNM>",
+      "AOEFIMCLLJF": "System.Int32",
+      "IKJPDADOFCD": "System.Boolean"
+    },
+    "CAJJKLAKPHH": {
+      "_FEDEHFBAAHP_k__BackingField": "Il2CppSystem.Nullable`1<PANILJJHCGP>",
+      "_KOMMAHLIEAM_k__BackingField": "System.Int64",
+      "_GNMPHPIHOOB_k__BackingField": "System.Int64",
+      "_BKCGBLNNAHA_k__BackingField": "System.Int64",
+      "_EGGBDNBOBBN_k__BackingField": "System.Int64"
+    },
+    "OHOCHBPLHAC": {
+      "_LJPNDPHCHGF_k__BackingField": "System.Int32",
+      "_NJNELIMANOC_k__BackingField": "System.Int32",
+      "_NLEMAGAAPMM_k__BackingField": "System.Int32",
+      "_NBMJPNJNGHI_k__BackingField": "System.Int32",
+      "_BPLDHAGDOLP_k__BackingField": "FAJCHCEDBPM",
+      "_INKFLKCNDAN_k__BackingField": "System.Boolean",
+      "_KKOHDCJAIPN_k__BackingField": "System.Boolean",
+      "_GGHKBCFPILK_k__BackingField": "System.Boolean",
+      "_PEDHJMBCPNC_k__BackingField": "System.Boolean",
+      "_EMAGNAJCFJL_k__BackingField": "System.Int32",
+      "_DJLFAMMOAGI_k__BackingField": "System.Boolean",
+      "_ENLMFGOHHCL_k__BackingField": "System.Boolean",
+      "_BENBEKJJKAI_k__BackingField": "System.Int32",
+      "_PGDJNAMMFEA_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<IBBCCMFKKHB>",
+      "GBHBNPJBLJC": "Il2CppSystem.Collections.Generic.List`1<IJLKGKMCCPL>"
+    },
+    "IJLKGKMCCPL": {
+      "_AENDCGGFCNO_k__BackingField": "NIOOEHACJKA",
+      "_BMIONDGNDHA_k__BackingField": "JFCLGFPOCCD",
+      "PBIACKJNNGO": "DJGGPBPJADG"
+    },
+    "IBBCCMFKKHB": {
+      "_LJPNDPHCHGF_k__BackingField": "System.Int32",
+      "_NJNELIMANOC_k__BackingField": "System.Int32",
+      "_NLEMAGAAPMM_k__BackingField": "System.Int32",
+      "_BPLDHAGDOLP_k__BackingField": "FAJCHCEDBPM",
+      "NJIPMGBMLCA": "KEFAGJENCMJ",
+      "GBHBNPJBLJC": "Il2CppSystem.Collections.Generic.List`1<IJLKGKMCCPL>"
+    },
+    "FAJCHCEDBPM": {
+      "_BFKNNONLCOF_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_EAGBIDDKPFL_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_DJIGPHNFBFO_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<NIOOEHACJKA>",
+      "_EOCNLCBFMPK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "NIOOEHACJKA": {
+      "_NJNELIMANOC_k__BackingField": "System.Int32",
+      "_EAGBIDDKPFL_k__BackingField": "System.Int32"
+    },
+    "KEFAGJENCMJ": {
+      "_BFKNNONLCOF_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_EAGBIDDKPFL_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_OMLGGFBMJMM_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BMFOPHDGFNI>",
+      "_EOCNLCBFMPK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "DJGGPBPJADG": {
+      "_NCCNEIADCOD_k__BackingField": "FIKMJIKIAND",
+      "_IKKMIAFCCOI_k__BackingField": "System.Int32",
+      "_FONLDGACABK_k__BackingField": "ENDHIGPANLD"
+    },
+    "BMFOPHDGFNI": {
+      "_NCCNEIADCOD_k__BackingField": "System.Int32",
+      "_EAGBIDDKPFL_k__BackingField": "FIKMJIKIAND"
+    },
+    "ENDHIGPANLD": {
+      "_NCCNEIADCOD_k__BackingField": "DGLGAKOEEEE",
+      "_NLEMAGAAPMM_k__BackingField": "System.Int32"
+    },
+    "ACFODADLBFC": {
+      "_LJPNDPHCHGF_k__BackingField": "JFCLGFPOCCD",
+      "_NCCNEIADCOD_k__BackingField": "System.Int32",
+      "_NLEMAGAAPMM_k__BackingField": "System.Int32",
+      "_BPLDHAGDOLP_k__BackingField": "KEFAGJENCMJ"
     }
   },
   "enums": {
@@ -1893,7 +1993,49 @@
     "Blend.ApiSchema.Enum.BattleStatus": "System.Int32",
     "Blend.ApiSchema.Enum.BattleTimelineMoveReason": "System.Int32",
     "Blend.ApiSchema.Enum.BattleTimelineTargetTurnRange": "System.Int32",
-    "Blend.ApiSchema.Enum.BattleTimelineUnitType": "System.Int32"
+    "Blend.ApiSchema.Enum.BattleTimelineUnitType": "System.Int32",
+    "FIKMJIKIAND": "System.Int32",
+    "BattleDamageControl+HJFPICAALFD": "System.Int32",
+    "ALKJNJOOAFA": "System.Int32",
+    "KOGJCMAPBGB": "System.Int32",
+    "ANBHPMNFOPM": "System.Int32",
+    "JFCLGFPOCCD": "System.Int32",
+    "GEAMFIIAAPN": "System.Int32",
+    "KIBOOBBLMHI": "System.Int32",
+    "HDEBKLAHCNM": "System.Int32",
+    "BattleMoveControl+BGCJHDEGCBF": "System.Int32",
+    "BattleMoveControl+OHPEILOEEIM": "System.Int32",
+    "BattleTutorialControl+GGIFFPLBDHH": "System.Int32",
+    "BattleUnitConditionControl+JOCLBFKGKHF": "System.Int32",
+    "BattleTimelineIcon+NEAOAABOFGG": "System.Int32",
+    "BattleTimelineIcon+KKEOILEPLCC": "System.Int32",
+    "BattleTimelineMoveControl+IFGCIDFHICL": "System.Int32",
+    "CharaMenuWindow+DHNLHKKKFPB": "System.Int32",
+    "HBGPLGOJMKG+DDFDOELLPIB": "System.Int32",
+    "DAEHEDNDEEF": "System.Int32",
+    "OGJNOOODKBK": "System.Int32",
+    "KBKDJEONBGF": "System.Int32",
+    "PBPLLFJDOMG": "System.Int64",
+    "OFLJFCOLGGK": "System.Int32",
+    "LLAAOOAIPLN": "System.Int64",
+    "ADKHOOIOIMN": "System.Int64",
+    "JHBONBLBFKK": "System.Int32",
+    "NEMHPEAJKFF": "System.Int32",
+    "OAEGBHJGHDN": "System.Int32",
+    "EMMHGCNFILF": "System.Int32",
+    "HJDCGFHLHBI": "System.Int32",
+    "DEOANGLNHCO": "System.Int32",
+    "BLJBEHACPAM": "System.Int32",
+    "DIFKNEHILKI": "System.Int32",
+    "FHGHEHJAECO": "System.Int32",
+    "NFFLGLCFJFC": "System.Int32",
+    "CJFLDANIILJ": "System.Int32",
+    "PCBBDJACHCE": "System.Int32",
+    "NGJBCKGHCBF": "System.Int32",
+    "NLFBLBDJNIF": "System.Int32",
+    "JOJLFLCCGEJ": "System.Int32",
+    "FPNBLIDNHFD": "System.Int32",
+    "MotionBase+OCMNNMEIKNN": "System.Int32"
   },
   "interfaces": [
     "ALGPFGEMFML",
@@ -1903,5 +2045,769 @@
     "LHPKCPHOCPA",
     "MCLNPPGMLGH",
     "PLIHKAHEAEN"
-  ]
+  ],
+  "interface_implementations": {
+    "FCMCKDCGGEB": ["BattleTimelineMoveControl"]
+  },
+  "excluded_types": {
+    "BattleTurnActionData": "presentation_rotation_motion_not_gameplay_state",
+    "Api.BattleApi+BattleFinishInfo": "semantic_owner_route_unqualified",
+    "GJBJDOCCPIG": "semantic_owner_route_unqualified",
+    "JACAGEFEHFC": "semantic_owner_route_unqualified",
+    "PIDHNOONNJG": "semantic_owner_route_unqualified"
+  },
+  "blocked_dependencies": {
+    "AGMNKCPPPCO": {
+      "_CJGKFIICLPF_k__BackingField": {
+        "declared_type": "HHGNPKDGJGB",
+        "unqualified_types": ["HHGNPKDGJGB"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "LBHFALJPJAO": {
+        "declared_type": "PIDKEJGAPOI",
+        "unqualified_types": ["PIDKEJGAPOI"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "PPJONNJGDMK": {
+        "declared_type": "IJJGGCPCMND",
+        "unqualified_types": ["IJJGGCPCMND"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "PBCBLDOODFK": {
+        "declared_type": "JMDLEBGJBMB",
+        "unqualified_types": ["JMDLEBGJBMB"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "BEKCCCMANGN": {
+        "declared_type": "AGFFMHDGBPA+AGGADFEMHKK",
+        "unqualified_types": ["AGFFMHDGBPA+AGGADFEMHKK"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "EAPELGDNGEP": {
+        "declared_type": "LCLAMDKIEFD",
+        "unqualified_types": ["LCLAMDKIEFD"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "Api.CharacterApi+_RequestCharacterEnhance_d__0": {
+      "itemInfos": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<FOAFJDMHNLI>",
+        "unqualified_types": ["FOAFJDMHNLI"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BNAILBMBKDK": {
+      "PBCBLDOODFK": {
+        "declared_type": "JMDLEBGJBMB",
+        "unqualified_types": ["JMDLEBGJBMB"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "BEKCCCMANGN": {
+        "declared_type": "AGFFMHDGBPA+AGGADFEMHKK",
+        "unqualified_types": ["AGFFMHDGBPA+AGGADFEMHKK"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "EAPELGDNGEP": {
+        "declared_type": "LCLAMDKIEFD",
+        "unqualified_types": ["LCLAMDKIEFD"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleCommandItemControl+MOBIEOGDGFO": {
+      "LMJGHENDBAF": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "MDCNIMOOPIB": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "NKNLHHHCJPB": {
+        "declared_type": "MEBPPKLGKDF",
+        "unqualified_types": ["MEBPPKLGKDF"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleCommandSkillControl": {
+      "PEPFJNEGLHL": {
+        "declared_type": "BattleCommandSkillControl+BBHPBKMEKAO",
+        "unqualified_types": ["BattleCommandSkillControl+BBHPBKMEKAO"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleEffectControl": {
+      "m_fieldHandle": {
+        "declared_type": "OKPNFJNAFGB",
+        "unqualified_types": ["OKPNFJNAFGB"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleMoveControl": {
+      "_GLJKDCLBMAP_k__BackingField": {
+        "declared_type": "AKCNEPADDOJ",
+        "unqualified_types": ["AKCNEPADDOJ"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattlePresenter": {
+      "m_battleMessagesList": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<BattleMessage>",
+        "unqualified_types": ["BattleMessage"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "CIJNOCFAEKP": {
+        "declared_type": "NHBCPNDOJGK",
+        "unqualified_types": ["NHBCPNDOJGK"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleStateVariables": {
+      "_NCOHNNHNEBD_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "HNAGLLJCJPK": {
+        "declared_type": "ELFDHIPPOGO",
+        "unqualified_types": ["ELFDHIPPOGO"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "PDHCIEFKGCL": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "JEHKCCNGMJA": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`3<System.Int32,System.Int32,BattleStateVariables+MNJKABPDMJL>>",
+        "unqualified_types": ["BattleStateVariables+MNJKABPDMJL"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "CAIBMIMOPFI": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`3<System.Int32,System.Int32,BattleStateVariables+MNJKABPDMJL>>",
+        "unqualified_types": ["BattleStateVariables+MNJKABPDMJL"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "PELBKEMPEEL": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`3<System.Int32,System.Int32,BattleStateVariables+MNJKABPDMJL>>",
+        "unqualified_types": ["BattleStateVariables+MNJKABPDMJL"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "NDMGLBMJOKM": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`3<System.Int32,System.Int32,BattleStateVariables+MNJKABPDMJL>>",
+        "unqualified_types": ["BattleStateVariables+MNJKABPDMJL"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleTimelineControl": {
+      "NEPIMAHHMDG": {
+        "declared_type": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<BattleTimelineControl+JIMJEKNOBGG>",
+        "unqualified_types": ["BattleTimelineControl+JIMJEKNOBGG"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "LJCHHCJCGFA": {
+        "declared_type": "BattleTimelineControl+FPCOIBCMPJC",
+        "unqualified_types": ["BattleTimelineControl+FPCOIBCMPJC"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleTimelineIcon": {
+      "JEMHBGPNDMB": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "NOPEHLBABAK": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "CHNNOAHJAOC": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleTimelineMoveControl": {
+      "GHBIGDJNMGM": {
+        "declared_type": "IEHOBJHGEID<BattleTimelineMoveControl+IFGCIDFHICL>",
+        "unqualified_types": ["IEHOBJHGEID"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "CGGKFDGOFGN": {
+      "_BKJPLPBLIEA_k__BackingField": {
+        "declared_type": "EAEEELNJMFI",
+        "unqualified_types": ["EAEEELNJMFI"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_DOOHCGMIHPK_k__BackingField": {
+        "declared_type": "IHPOLNLKEAB",
+        "unqualified_types": ["IHPOLNLKEAB"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "CHFECOJEFCA": {
+      "BLILELMDIAC": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      }
+    },
+    "CharaDetailMenuWindow": {
+      "_HNDLBOBALMP_k__BackingField": {
+        "declared_type": "Blend.UserData.Party",
+        "unqualified_types": ["Blend.UserData.Party"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "PEDAGCDMKGN": {
+        "declared_type": "CharaWindowBase+LBANKLEEKFP",
+        "unqualified_types": ["CharaWindowBase+LBANKLEEKFP"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "CharaDetailMenuWindow+GMDDADKNAFO": {
+      "__8__1": {
+        "declared_type": "CharaDetailMenuWindow+LMFNBCPGJFN",
+        "unqualified_types": ["CharaDetailMenuWindow+LMFNBCPGJFN"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_releaseData_5__2": {
+        "declared_type": "NPIFBBAJEAC",
+        "unqualified_types": ["NPIFBBAJEAC"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "CharaGrowResetWindow": {
+      "MENGDMGIJNA": {
+        "declared_type": "FOAFJDMHNLI",
+        "unqualified_types": ["FOAFJDMHNLI"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "CharaLevelUpWindow": {
+      "BOKGOGOCJAF": {
+        "declared_type": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<FOAFJDMHNLI>",
+        "unqualified_types": ["FOAFJDMHNLI"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "CharaLevelUpWindow+NLMMHLKOLEI": {
+      "_selectedItemInfoList_5__2": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<FOAFJDMHNLI>",
+        "unqualified_types": ["FOAFJDMHNLI"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "ContainerToolWindow+BGCFMGPGCCC": {
+      "__8__1": {
+        "declared_type": "ContainerToolWindow+PNLIGJIABDM",
+        "unqualified_types": ["ContainerToolWindow+PNLIGJIABDM"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "DJFKNLNCLPM": {
+      "_AICHFAJFCIM_k__BackingField": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<JKJNNCGPOIL>",
+        "unqualified_types": ["JKJNNCGPOIL"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "DNDKEBECKMG": {
+      "_IBHMKGHFIMA_k__BackingField": {
+        "declared_type": "CNNGMEHPCHA",
+        "unqualified_types": ["CNNGMEHPCHA"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_MJHEPKGMOBL_k__BackingField": {
+        "declared_type": "IJJGGCPCMND",
+        "unqualified_types": ["IJJGGCPCMND"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "FGHNMGBOGHF": {
+      "_DPLMIBNLKEG_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_AICGCMHMFMB_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      }
+    },
+    "GCKIKJHLMDO": {
+      "_CLNPNLBPLNP_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      }
+    },
+    "JCDJDPMCAPB": {
+      "EOLOGCJAJIL": {
+        "declared_type": "IJJGGCPCMND",
+        "unqualified_types": ["IJJGGCPCMND"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "JJPPPEBLGOK": {
+      "OENJMECIDFB": {
+        "declared_type": "FOAFJDMHNLI",
+        "unqualified_types": ["FOAFJDMHNLI"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "JKKEAMMOGHE": {
+      "_HOOCEMOLCPC_k__BackingField": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<GBOOPJABJOJ>",
+        "unqualified_types": ["GBOOPJABJOJ"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "JOBHGDLMMKC": {
+      "LDMAOMLEKMH": {
+        "declared_type": "KGJJICOMNCP",
+        "unqualified_types": ["KGJJICOMNCP"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "MIPJCECFKPM": {
+      "_DPLMIBNLKEG_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_LPKJFDHGCLO_k__BackingField": {
+        "declared_type": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<PKBGEBFKGJJ>",
+        "unqualified_types": ["PKBGEBFKGJJ"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "MMGMFDEMDLA": {
+      "HLHEEFMCNCM": {
+        "declared_type": "Blend.UserData.GrowboardState",
+        "unqualified_types": ["Blend.UserData.GrowboardState"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_PLOCPHGLJFP_k__BackingField": {
+        "declared_type": "KHKKADNDINF",
+        "unqualified_types": ["KHKKADNDINF"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_BLFMGKAFNOH_k__BackingField": {
+        "declared_type": "KHKKADNDINF",
+        "unqualified_types": ["KHKKADNDINF"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_IJGIHCNGBFA_k__BackingField": {
+        "declared_type": "KHKKADNDINF",
+        "unqualified_types": ["KHKKADNDINF"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_MPOLNFLPIAN_k__BackingField": {
+        "declared_type": "Blend.UserData.Memoria",
+        "unqualified_types": ["Blend.UserData.Memoria"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "KNNOOLGBIHF": {
+        "declared_type": "BABNDCGGEAB",
+        "unqualified_types": ["BABNDCGGEAB"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "NCGFBHHDPPO": {
+        "declared_type": "JFOHDDCEAEJ",
+        "unqualified_types": ["JFOHDDCEAEJ"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "LPHHKAHGCNK": {
+        "declared_type": "EAOONFHLEKA",
+        "unqualified_types": ["EAOONFHLEKA"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "PJMBOFADFBL": {
+        "declared_type": "EAOONFHLEKA",
+        "unqualified_types": ["EAOONFHLEKA"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "CGNNAPIEENC": {
+        "declared_type": "EAOONFHLEKA",
+        "unqualified_types": ["EAOONFHLEKA"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "OJAMAKPFKLF": {
+        "declared_type": "GCKKHBHJPHO",
+        "unqualified_types": ["GCKKHBHJPHO"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "HOHFGEHPOPG": {
+        "declared_type": "ALBJLHDKLAC",
+        "unqualified_types": ["ALBJLHDKLAC"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "OPELOMEHBJH": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<CCLJPBHNDPL>",
+        "unqualified_types": ["CCLJPBHNDPL"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "CEFLKDDGGFH": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<NLPPHEPPDLH>",
+        "unqualified_types": ["NLPPHEPPDLH"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "FDOAPMBKOMB": {
+        "declared_type": "Blend.UserData.Recipe",
+        "unqualified_types": ["Blend.UserData.Recipe"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "NAKLKNNBDMC": {
+      "JCFLKHGGACH": {
+        "declared_type": "Blend.UserData.Recipe",
+        "unqualified_types": ["Blend.UserData.Recipe"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "NHEIMMIAMJO": {
+      "_DPLMIBNLKEG_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_ILAMKMPAAKI_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_ACOOGLOBFLJ_k__BackingField": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_IKFKOKDHMLD_k__BackingField": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_KKFMOCDNELD_k__BackingField": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_EPNOCCFKJDK_k__BackingField": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "NKCLGCOJLEI": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "OFJELAMLOLC": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "EHDNBKDIAIB": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "LOJIMGGCEEI": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "FHDPNPDBGAK": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "ICNHFKBCLNB": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "KGLPBLOPJHB": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "NGKHMOEABGA": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "KCJKEJCDDGE": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<System.String>",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "OCIPKHBPJOM": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_MNHEFKOOGNP_k__BackingField": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_MHHMNDPHOBC_k__BackingField": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "ResearchMenuWindow+ACFKNHHLBON": {
+      "_before_5__2": {
+        "declared_type": "Blend.UserData.ResearchGroup",
+        "unqualified_types": ["Blend.UserData.ResearchGroup"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "ShipEnhanceRecipeSelectWindow+BNKKLLKGCMI": {
+      "__8__1": {
+        "declared_type": "ShipEnhanceRecipeSelectWindow+POCOMGKDAII",
+        "unqualified_types": ["ShipEnhanceRecipeSelectWindow+POCOMGKDAII"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "ShipEnhanceRecipeSelectWindow+DCNDGOJLEBN": {
+      "__8__1": {
+        "declared_type": "ShipEnhanceRecipeSelectWindow+PJAOAKFOFOH",
+        "unqualified_types": ["ShipEnhanceRecipeSelectWindow+PJAOAKFOFOH"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "SynthesisCombinationRankDisplay": {
+      "EOMMNPBFNBK": {
+        "declared_type": "AppWindowBase",
+        "unqualified_types": ["AppWindowBase"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "SynthesisResultDialog": {
+      "IGOCFCLMJAC": {
+        "declared_type": "Blend.UserData.Recipe",
+        "unqualified_types": ["Blend.UserData.Recipe"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "HDDCHBOLKHK": {
+        "declared_type": "KHKLMKBLIMA",
+        "unqualified_types": ["KHKLMKBLIMA"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "PJJILJNPOPM": {
+        "declared_type": "KHKLMKBLIMA",
+        "unqualified_types": ["KHKLMKBLIMA"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "FLHMNIPBDEH": {
+        "declared_type": "KHKLMKBLIMA",
+        "unqualified_types": ["KHKLMKBLIMA"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "SynthesisResultWindow+BJMBBFODAJE": {
+      "__7__wrap2": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1+Enumerator<SynthesisResultItemIcon>",
+        "unqualified_types": ["SynthesisResultItemIcon"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_icon_5__4": {
+        "declared_type": "SynthesisResultItemIcon",
+        "unqualified_types": ["SynthesisResultItemIcon"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "GCNOLOEMKPL": {
+      "_KOECLFIGEMP_k__BackingField": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<UnityEngine.GameObject>",
+        "unqualified_types": ["UnityEngine.GameObject"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_AOMJPGAMDPH_k__BackingField": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<GCNOLOEMKPL+CAIPAKNIDDF>",
+        "unqualified_types": ["GCNOLOEMKPL+CAIPAKNIDDF"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_HONDCGNCHJP_k__BackingField": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_KDMKGJFDHFG_k__BackingField": {
+        "declared_type": "UnityEngine.Quaternion",
+        "unqualified_types": ["UnityEngine.Quaternion"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "DICAFEPBAHN": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<System.String>",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      }
+    },
+    "BattleUnitTimelineControl": {
+      "CBMIOKAIJHM": {
+        "declared_type": "BattleUnitTimelineControl+LHJINPPIDLC",
+        "unqualified_types": ["BattleUnitTimelineControl+LHJINPPIDLC"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "HEAEPANNLDI": {
+        "declared_type": "BattleUnitTimelineControl+MBHEKIMBEHD",
+        "unqualified_types": ["BattleUnitTimelineControl+MBHEKIMBEHD"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "PCBCNLFOHCD": {
+        "declared_type": "BattleUnitTimelineControl+MBHEKIMBEHD",
+        "unqualified_types": ["BattleUnitTimelineControl+MBHEKIMBEHD"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "HPKOKJBLGKO": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<UnityEngine.Timeline.IMarker>",
+        "unqualified_types": ["UnityEngine.Timeline.IMarker"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleUnitMoveControl": {
+      "GDGCCPBMOOL": {
+        "declared_type": "BattleUnitMoveControl+JPOMNKKPIFC",
+        "unqualified_types": ["BattleUnitMoveControl+JPOMNKKPIFC"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "KHNPLGEBAHG": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "FIDFAKMBJCM": {
+        "declared_type": "UnityEngine.Vector3",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "BHBLHCMEIMI": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<UnityEngine.Vector3>",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "HLMGBENBLNJ": {
+        "declared_type": "UnityEngine.Quaternion",
+        "unqualified_types": ["UnityEngine.Quaternion"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "EPEIPLOKFME": {
+        "declared_type": "UnityEngine.Quaternion",
+        "unqualified_types": ["UnityEngine.Quaternion"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "JHOFFKAOEEI": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<BattleUnitMoveControl+NCANMNIBHAI>",
+        "unqualified_types": ["BattleUnitMoveControl+NCANMNIBHAI"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "OBGOHKMOGIO": {
+        "declared_type": "BattleUnitMoveControl+CABEEDBJFKD",
+        "unqualified_types": ["BattleUnitMoveControl+CABEEDBJFKD"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "BattleTurnActionDataset": {
+      "m_dataList": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<BattleTurnActionData>",
+        "unqualified_types": ["BattleTurnActionData"],
+        "reason": "presentation_rotation_motion_not_gameplay_state"
+      }
+    },
+    "SignalHost": {
+      "m_soundSetting": {
+        "declared_type": "SoundSetting",
+        "unqualified_types": ["SoundSetting"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "EDLOCNJHDKH": {
+      "JIDECCGLDHL": {
+        "declared_type": "Il2CppSystem.Collections.Generic.List`1<EDLOCNJHDKH+NNIFBOGDDPO>",
+        "unqualified_types": ["EDLOCNJHDKH+NNIFBOGDDPO"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "NACHLMPIJDK": {
+      "_PGIPFBCKANA_k__BackingField": {
+        "declared_type": "UnityEngine.Playables.PlayableAsset",
+        "unqualified_types": ["UnityEngine.Playables.PlayableAsset"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_CEBGGICMEOI_k__BackingField": {
+        "declared_type": "Il2CppSystem.Nullable`1<UnityEngine.Vector3>",
+        "unqualified_types": ["UnityEngine.Vector3"],
+        "reason": "native_dependency_semantics_unqualified"
+      }
+    },
+    "AGAJFINGPKJ": {
+      "_DPLMIBNLKEG_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_IIKCOHDBMGF_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_NELCFHOPOHB_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_OJFONGHOOBG_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_JLENLDFCJKB_k__BackingField": {
+        "declared_type": "BLILGFLOGMO",
+        "unqualified_types": ["BLILGFLOGMO"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_DODBACNJODO_k__BackingField": {
+        "declared_type": "MFFICBDCNPN",
+        "unqualified_types": ["MFFICBDCNPN"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_AICGCMHMFMB_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_COFLFDINFDK_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_OKPDDLGMHLN_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      },
+      "_BIJECACHLIE_k__BackingField": {
+        "declared_type": "AGAJFINGPKJ+PBACIPLMBAH",
+        "unqualified_types": ["AGAJFINGPKJ+PBACIPLMBAH"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_LNCMPMNGIMJ_k__BackingField": {
+        "declared_type": "AGAJFINGPKJ+MNOGONNPBGC",
+        "unqualified_types": ["AGAJFINGPKJ+MNOGONNPBGC"],
+        "reason": "native_dependency_semantics_unqualified"
+      },
+      "_AAKLMBABDJD_k__BackingField": {
+        "declared_type": "System.String",
+        "unqualified_types": ["System.String"],
+        "reason": "privacy_text"
+      }
+    }
+  }
 }

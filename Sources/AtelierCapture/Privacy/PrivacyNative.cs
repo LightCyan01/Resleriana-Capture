@@ -25,6 +25,11 @@ internal static class PrivacyNative
         "scheduler_callback_state_not_observed",
     };
 
+    internal static IEnumerable<string> InterfaceDeclarations(string concreteType) =>
+        Fields
+            .Value.InterfaceImplementations.Where(pair => pair.Value.Contains(concreteType))
+            .Select(pair => pair.Key);
+
     internal static object Project(object? value, string system)
     {
         var owner = Text(Read(value, "system_id"));
@@ -74,7 +79,10 @@ internal static class PrivacyNative
             if (input is NativeReference reference)
             {
                 if (
-                    !ReferenceContracts.Contains(reference.state_contract)
+                    Numeric(type)
+                    || type is "System.Boolean" or "System.Single" or "System.Double"
+                    || catalog.Enums.ContainsKey(type)
+                    || !ReferenceContracts.Contains(reference.state_contract)
                     || Id(reference.lifetime_id) is null
                 )
                     return Omit("privacy_native_reference_unqualified");
@@ -112,10 +120,11 @@ internal static class PrivacyNative
                 && Read(input, "value") is string enumValue
             )
             {
-                var expected =
-                    input is SnapshotEnum original && original.DeclaredType == type
-                        ? original.underlying_type
-                        : catalog.Enums.GetValueOrDefault(type);
+                var expected = input is SnapshotEnum original
+                    ? original.DeclaredType == type
+                        ? catalog.Enums.GetValueOrDefault(type) ?? original.underlying_type
+                        : null
+                    : catalog.Enums.GetValueOrDefault(type);
                 if (
                     expected is null
                     || !Numeric(underlying)
@@ -330,8 +339,14 @@ internal static class PrivacyNative
     private static string? Phase(object? value) =>
         value is "enter" or "exit" or "task_return" or "exception" ? (string)value : null;
 
-    private static string Unwrap(string type) =>
-        type.StartsWith("Il2CppSystem.Nullable`1<", StringComparison.Ordinal) ? type[24..^1] : type;
+    private static string Unwrap(string type)
+    {
+        if (type.EndsWith('&'))
+            type = type[..^1];
+        return type.StartsWith("Il2CppSystem.Nullable`1<", StringComparison.Ordinal)
+            ? type[24..^1]
+            : type;
+    }
 
     private static bool Numeric(string type) =>
         type
@@ -508,6 +523,8 @@ internal static class PrivacyNative
         [property: JsonPropertyName("metadata_sha256")] string MetadataSha256,
         Dictionary<string, Dictionary<string, string>> Types,
         Dictionary<string, string> Enums,
-        string[] Interfaces
+        string[] Interfaces,
+        [property: JsonPropertyName("interface_implementations")]
+            Dictionary<string, string[]> InterfaceImplementations
     );
 }

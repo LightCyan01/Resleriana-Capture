@@ -472,6 +472,42 @@ internal sealed class Snapshot
         var types = type.GetInterfaces().Select(RuntimeCompatibility.SignatureType).ToList();
         for (var parent = type.BaseType; parent is not null; parent = parent.BaseType)
             types.Add(RuntimeCompatibility.SignatureType(parent));
+        foreach (
+            var name in PrivacyNative.InterfaceDeclarations(
+                RuntimeCompatibility.SignatureType(type)
+            )
+        )
+        {
+            var declaration = NativeContract.ResolveType(name);
+            if (
+                type.Module.ScopeName != "Blend.dll"
+                || declaration.Module.ScopeName != "Blend.dll"
+                || !NativeObjectType.FiniteDeclaration(name, declaration.Module.ScopeName)
+            )
+                throw new InvalidDataException(
+                    "Native privacy interface declaration is unqualified."
+                );
+            Plugin.Compatibility.ValidateInteropType(type);
+            Plugin.Compatibility.ValidateInteropType(declaration);
+            var declaredClass = Il2CppClassPointerStore.GetNativeClassPointer(declaration);
+            var concreteClass = Il2CppClassPointerStore.GetNativeClassPointer(type);
+            if (declaredClass == IntPtr.Zero || concreteClass == IntPtr.Zero)
+                throw new InvalidDataException("Native privacy interface class is unavailable.");
+            NativeObjectType.ValidateDeclaration(
+                name,
+                IL2CPP.il2cpp_class_get_flags(declaredClass)
+            );
+            NativeObjectType.ValidateResolvedClass(
+                type.FullName!,
+                declaredClass,
+                concreteClass,
+                concreteClass,
+                IL2CPP.il2cpp_class_is_assignable_from(declaredClass, concreteClass),
+                !type.ContainsGenericParameters && typeof(Il2CppObjectBase).IsAssignableFrom(type),
+                IL2CPP.il2cpp_class_get_flags(concreteClass)
+            );
+            types.Add(name);
+        }
         return types.ToArray();
     }
 
