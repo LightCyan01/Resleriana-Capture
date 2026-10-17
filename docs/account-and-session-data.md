@@ -1,6 +1,6 @@
 # Account and session data recorded
 
-By default, Resleriana Capture preserves the API bodies, decoded fields and headers it observes in the JP Steam client. Account identifiers, login credentials and session tokens are saved with their original values. The recorder also saves native gameplay observations and diagnostic logs. This describes 1.4.0 and the default configuration of 1.4.1.
+By default, Resleriana Capture preserves the API bodies, decoded fields and headers it observes in the JP Steam client. Account identifiers, login credentials and session tokens are saved with their original values. The recorder also saves native gameplay observations and diagnostic logs. This describes 1.4.0 and the default configuration of 1.4.1 and later.
 
 Captures stay on your PC until you share them. Anyone receiving a capture can read its contents. Base64 encoding, ZIP compression and integrity hashes do not hide the recorded values.
 
@@ -8,7 +8,9 @@ Captures stay on your PC until you share them. Anyone receiving a capture can re
 
 Set `enabled` to `true` in `BepInEx/config/AtelierCapture.Privacy.json` while the game is closed, then restart it. The default is `false`.
 
-Enabled mode retains qualified numeric gameplay progress, quantities, catalog and owned-entity references, ordered inputs/results and typed timestamps. It excludes account and device identifiers, credentials, profile details and arbitrary text. Original body bytes, unknown fields, headers, URLs, free-form diagnostics, startup log copies and unaudited native snapshot values are omitted. Native call identities and explicit privacy gaps remain; the manifest records the enabled policy.
+Enabled mode retains qualified numeric gameplay progress, quantities, catalog and owned-entity references, ordered inputs/results and typed timestamps. It excludes account and device identifiers, credentials, profile details and arbitrary text. Original body bytes, unknown fields, headers, URLs, free-form diagnostics and startup log copies are omitted.
+
+In 1.4.1, privacy mode also omitted every native snapshot value. From 1.4.2, qualified Battle and Atelier gameplay arguments, results and state remain, including a filtered decoded view of native protobuf messages. Public probability values, asset and store-product references, and numeric mail-template parameters also remain where their exact field contract is qualified. Unsupported fields have explicit omissions. The manifest records the policy version; a policy-1 recording cannot recover values it omitted.
 
 The retained progress can still be recognizable. This setting does not guarantee anonymity, erase existing captures or alter the game's external BepInEx/Unity log files. Recovery in privacy mode leaves older full or unknown-policy recordings untouched. Full original capture remains useful for research and a possible future account-progress import; filtered captures have explicit omissions and cannot promise a complete import.
 

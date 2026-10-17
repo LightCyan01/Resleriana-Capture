@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using AtelierCapture.Archive;
 
 namespace AtelierCapture;
 
@@ -17,20 +16,13 @@ internal sealed class CapturePrivacy(bool enabled)
     private static readonly Lazy<Dictionary<string, string[]>> Routes = new(() =>
         Plugin.ReadResource<Dictionary<string, string[]>>("Routes.json")
     );
-    private static readonly Lazy<HashSet<string>> Boundaries = new(() =>
-        NativeCountCatalog
-            .Boundaries.Select(value =>
-                NativeCountCatalog.Key(value.System, value.Boundary, value.Variant)
-            )
-            .ToHashSet(StringComparer.Ordinal)
-    );
 
     internal bool Enabled { get; } = enabled;
     internal object Metadata =>
         new
         {
             enabled = Enabled,
-            policy_version = 1,
+            policy_version = 2,
             mode = Enabled ? "filtered_gameplay" : "full_raw",
             account_import_complete = false,
             original_bodies = Enabled ? "omitted" : "preserved_when_observed",
@@ -192,6 +184,7 @@ internal sealed class CapturePrivacy(bool enabled)
         var body = Read(value, "body");
         var type = Text(Read(body, "protobuf_type"));
         JsonNode? payload = null;
+        IReadOnlyList<PrivacyPayload.Omission> omissions = [];
         try
         {
             if (
@@ -199,7 +192,7 @@ internal sealed class CapturePrivacy(bool enabled)
                 && type == expected[kind == "response" ? 1 : 0]
                 && Read(body, "payload") is JsonNode original
             )
-                payload = PrivacyPayload.Project(type, original, out _);
+                payload = PrivacyPayload.Project(type, original, out _, out omissions);
         }
         catch
         {
@@ -221,37 +214,15 @@ internal sealed class CapturePrivacy(bool enabled)
                 protobuf_type = payload is null ? null : type,
                 payload,
                 source = "privacy_gameplay_projection",
+                privacy_omissions = omissions,
                 omitted = "privacy_mode",
             },
             omitted = "privacy_mode",
         };
     }
 
-    private static object Native(object? value, string system)
-    {
-        var owner = Text(Read(value, "system_id"));
-        owner =
-            owner is "Battle" or "Atelier" ? owner
-            : system is "Battle" or "Atelier" ? system
-            : "Unknown";
-        var boundary = Text(Read(value, "boundary_id"));
-        var variant = Text(Read(value, "variant_id"));
-        var known =
-            boundary is not null
-            && variant is not null
-            && Boundaries.Value.Contains(NativeCountCatalog.Key(owner, boundary, variant));
-        return new
-        {
-            invocation_id = Id(Read(value, "invocation_id")),
-            parent_invocation_id = Id(Read(value, "parent_invocation_id")),
-            boundary_id = known ? boundary : null,
-            variant_id = known ? variant : null,
-            system_id = owner,
-            omitted = "privacy_mode",
-            complete = false,
-            copied_fields_complete = false,
-        };
-    }
+    private static object Native(object? value, string system) =>
+        PrivacyNative.Project(value, system);
 
     internal static bool IsFilteredMetadata(JsonElement? metadata) =>
         metadata is { ValueKind: JsonValueKind.Object } value
@@ -262,12 +233,12 @@ internal sealed class CapturePrivacy(bool enabled)
         && privacy.TryGetProperty("policy_version", out var version)
         && version.ValueKind == JsonValueKind.Number
         && version.TryGetInt32(out var number)
-        && number == 1
+        && number is 1 or 2
         && privacy.TryGetProperty("mode", out var mode)
         && mode.ValueKind == JsonValueKind.String
         && mode.GetString() == "filtered_gameplay";
 
-    private static object? Read(object? value, string name)
+    internal static object? Read(object? value, string name)
     {
         if (value is null)
             return null;

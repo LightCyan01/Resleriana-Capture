@@ -16,9 +16,22 @@ internal sealed class Snapshot
     private static readonly ConcurrentDictionary<Type, string> ChildEdges = new();
     private static readonly ConcurrentDictionary<
         Type,
+        IReadOnlyDictionary<string, string>
+    > PrivacyDeclarations = new();
+    private static readonly ConcurrentDictionary<Type, string[]> PrivacyAssignments = new();
+    private static readonly ConcurrentDictionary<
+        Type,
         Func<object, IEnumerable<object?>>
     > Collections = new();
-    private readonly DetachedSnapshot graph = new(Describe, Identity);
+    private readonly DetachedSnapshot graph;
+    private readonly bool privacy;
+
+    internal Snapshot(bool privacy = false)
+    {
+        this.privacy = privacy;
+        graph = new(Describe, Identity);
+    }
+
     internal IReadOnlyList<SnapshotNode> Nodes => graph.Nodes;
     internal IReadOnlyList<SnapshotFailure> Failures => graph.Failures;
     internal bool Complete => graph.Complete;
@@ -399,7 +412,123 @@ internal sealed class Snapshot
             : null;
     }
 
-    private static SnapshotSource Describe(object value)
+    private SnapshotSource Describe(object value)
+    {
+        var source = DescribeFull(value);
+        if (!privacy)
+            return source;
+        var original = value switch
+        {
+            ClientStatusOwner owner => owner.Value,
+            IdentityItems items => items.Value,
+            ScopedItems items => items.Value,
+            _ => value,
+        };
+        var type = original.GetType();
+        var declarations =
+            source.Fields.Count == 0 ? null : PrivacyDeclarations.GetOrAdd(type, DeclaredFields);
+        return source with
+        {
+            PrivacyType = RuntimeCompatibility.SignatureType(type),
+            Declarations = declarations,
+            ElementType = source.Items is null ? null : CollectionElement(type),
+            AssignableTypes = PrivacyAssignments.GetOrAdd(type, AssignableTypes),
+            Protobuf = null,
+            ProtobufFallback = null,
+            FilteredProtobuf = source.Protobuf is null
+                ? null
+                : () => Network.ParsePayload(Network.NativeMessageText(original)),
+        };
+    }
+
+    private static IReadOnlyDictionary<string, string> DeclaredFields(Type type)
+    {
+        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var field in Fields.GetOrAdd(type, NativeFields))
+            if (field.ReferenceType is { } fieldType)
+                result[field.Name] = RuntimeCompatibility.SignatureType(fieldType);
+        if (type.IsValueType)
+            foreach (
+                var field in type.GetFields(
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+                )
+            )
+                result[field.Name] = RuntimeCompatibility.SignatureType(field.FieldType);
+        foreach (var name in new[] { "IIECCBMHJLK", "LMIFNHFLGDI" })
+            if (NativeSelections.HasDerived(type, name) && type.GetProperty(name) is { } derived)
+                result[name] = RuntimeCompatibility.SignatureType(derived.PropertyType);
+        if (type.FullName == "BattleStateVariables")
+        {
+            result["m_actionInfoList._size"] = "System.Int32";
+            result["m_actionSetupInfoList._size"] = "System.Int32";
+            result["_ENPKCFFLCFM_k__BackingField._NMGKEONKAHG_k__BackingField"] =
+                "Blend.ApiSchema.Enum.BattleStatus";
+        }
+        return result;
+    }
+
+    private static string[] AssignableTypes(Type type)
+    {
+        var types = type.GetInterfaces().Select(RuntimeCompatibility.SignatureType).ToList();
+        for (var parent = type.BaseType; parent is not null; parent = parent.BaseType)
+            types.Add(RuntimeCompatibility.SignatureType(parent));
+        foreach (
+            var name in PrivacyNative.InterfaceDeclarations(
+                RuntimeCompatibility.SignatureType(type)
+            )
+        )
+        {
+            var declaration = NativeContract.ResolveType(name);
+            if (
+                type.Module.ScopeName != "Blend.dll"
+                || declaration.Module.ScopeName != "Blend.dll"
+                || !NativeObjectType.FiniteDeclaration(name, declaration.Module.ScopeName)
+            )
+                throw new InvalidDataException(
+                    "Native privacy interface declaration is unqualified."
+                );
+            Plugin.Compatibility.ValidateInteropType(type);
+            Plugin.Compatibility.ValidateInteropType(declaration);
+            var declaredClass = Il2CppClassPointerStore.GetNativeClassPointer(declaration);
+            var concreteClass = Il2CppClassPointerStore.GetNativeClassPointer(type);
+            if (declaredClass == IntPtr.Zero || concreteClass == IntPtr.Zero)
+                throw new InvalidDataException("Native privacy interface class is unavailable.");
+            NativeObjectType.ValidateDeclaration(
+                name,
+                IL2CPP.il2cpp_class_get_flags(declaredClass)
+            );
+            NativeObjectType.ValidateResolvedClass(
+                type.FullName!,
+                declaredClass,
+                concreteClass,
+                concreteClass,
+                IL2CPP.il2cpp_class_is_assignable_from(declaredClass, concreteClass),
+                !type.ContainsGenericParameters && typeof(Il2CppObjectBase).IsAssignableFrom(type),
+                IL2CPP.il2cpp_class_get_flags(concreteClass)
+            );
+            types.Add(name);
+        }
+        return types.ToArray();
+    }
+
+    private static string? CollectionElement(Type type)
+    {
+        if (type.IsArray)
+            return RuntimeCompatibility.SignatureType(type.GetElementType()!);
+        if (!type.IsConstructedGenericType)
+            return null;
+        var arguments = type.GenericTypeArguments;
+        return arguments.Length == 1 ? RuntimeCompatibility.SignatureType(arguments[0])
+            : arguments.Length == 2
+            && type.GetGenericTypeDefinition()
+                .FullName?.Contains("Dictionary", StringComparison.Ordinal) == true
+                ? "Il2CppSystem.Collections.Generic.KeyValuePair`2<"
+                    + string.Join(",", arguments.Select(RuntimeCompatibility.SignatureType))
+                    + ">"
+            : null;
+    }
+
+    private static SnapshotSource DescribeFull(object value)
     {
         if (NativeStoredValues.Describe(value) is { } storedValue)
             return storedValue;

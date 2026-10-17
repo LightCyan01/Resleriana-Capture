@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Security.Cryptography;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace AtelierCapture;
@@ -17,7 +18,12 @@ internal sealed record SnapshotSource(
     IReadOnlyList<string>? Unavailable = null,
     string? LifetimeId = null,
     Func<IReadOnlyList<SnapshotMember>>? ProtobufFallback = null,
-    Func<IReadOnlyList<string>>? Lineage = null
+    Func<IReadOnlyList<string>>? Lineage = null,
+    string? PrivacyType = null,
+    IReadOnlyDictionary<string, string>? Declarations = null,
+    string? ElementType = null,
+    Func<JsonNode?>? FilteredProtobuf = null,
+    IReadOnlyList<string>? AssignableTypes = null
 );
 
 internal sealed class SnapshotNode(int id, string type)
@@ -41,6 +47,27 @@ internal sealed class SnapshotNode(int id, string type)
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? representation { get; internal set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public JsonNode? filtered_protobuf { get; internal set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<PrivacyPayload.Omission>? privacy_omissions { get; internal set; }
+
+    [JsonIgnore]
+    internal string? PrivacyType { get; set; }
+
+    [JsonIgnore]
+    internal IReadOnlyDictionary<string, string>? Declarations { get; set; }
+
+    [JsonIgnore]
+    internal string? ElementType { get; set; }
+
+    [JsonIgnore]
+    internal bool FilteredProtobufQualified { get; set; }
+
+    [JsonIgnore]
+    internal IReadOnlyList<string>? AssignableTypes { get; set; }
+
     [JsonIgnore]
     public IReadOnlyList<string>? excluded_fields { get; internal set; }
 
@@ -62,6 +89,13 @@ internal sealed record SnapshotContract(
 );
 
 internal sealed record SnapshotFailure(int? Node, string Field, string Error, string Details);
+
+internal sealed record SnapshotEnum(
+    string? name,
+    string? underlying_type,
+    string? value,
+    [property: JsonIgnore] string DeclaredType
+);
 
 // Flat references keep both copying and JSON serialization stack safe.
 internal sealed class DetachedSnapshot(
@@ -102,6 +136,10 @@ internal sealed class DetachedSnapshot(
             node.unavailable_fields = contract.unavailable_fields;
             node.contract_id = contract.id;
             node.lifetime_id = source.LifetimeId;
+            node.PrivacyType = source.PrivacyType;
+            node.Declarations = source.Declarations;
+            node.ElementType = source.ElementType;
+            node.AssignableTypes = source.AssignableTypes;
             if (source.Lineage is { } readLineage)
             {
                 try
@@ -114,7 +152,30 @@ internal sealed class DetachedSnapshot(
                 }
             }
             var members = source.Fields;
-            if (source.Protobuf is { } readProtobuf)
+            if (source.FilteredProtobuf is { } filtered)
+            {
+                try
+                {
+                    node.filtered_protobuf = PrivacyPayload.Project(
+                        source.PrivacyType ?? source.Type,
+                        filtered(),
+                        out _,
+                        out var omissions
+                    );
+                    node.privacy_omissions = omissions;
+                    node.FilteredProtobufQualified = true;
+                    RetainedBytes = checked(RetainedBytes + FilteredBytes(node.filtered_protobuf));
+                    node.representation = node.filtered_protobuf is null
+                        ? "privacy_protobuf_unavailable"
+                        : "privacy_qualified_protobuf_json";
+                }
+                catch (Exception ex)
+                {
+                    Failure(node.id, "$privacy_protobuf", ex);
+                    node.representation = "privacy_protobuf_unavailable";
+                }
+            }
+            else if (source.Protobuf is { } readProtobuf)
             {
                 try
                 {
@@ -168,6 +229,36 @@ internal sealed class DetachedSnapshot(
     }
 
     // Item field names are built only on failure; collections can hold many items.
+    private static long FilteredBytes(JsonNode? root)
+    {
+        if (root is null)
+            return 0;
+        var pending = new Stack<JsonNode>();
+        pending.Push(root);
+        long bytes = 0;
+        while (pending.TryPop(out var node))
+        {
+            bytes = checked(bytes + 128);
+            if (node is JsonObject fields)
+                foreach (var field in fields)
+                {
+                    bytes = checked(bytes + 64 + field.Key.Length * 2L);
+                    if (field.Value is { } value)
+                        pending.Push(value);
+                }
+            else if (node is JsonArray items)
+                foreach (var item in items)
+                {
+                    bytes = checked(bytes + 16);
+                    if (item is not null)
+                        pending.Push(item);
+                }
+            else if (node is JsonValue scalar && scalar.TryGetValue<string>(out var text))
+                bytes = checked(bytes + text.Length * 2L);
+        }
+        return bytes;
+    }
+
     private object? Reference(object? value, int? parent, string? field, int item = 0)
     {
         RetainedBytes = checked(RetainedBytes + 32);
@@ -207,11 +298,10 @@ internal sealed class DetachedSnapshot(
         if (value is ulong unsigned)
             return unsigned.ToString(CultureInfo.InvariantCulture);
         if (value.GetType().IsEnum)
-            return new
-            {
-                name = value.ToString(),
-                underlying_type = Enum.GetUnderlyingType(value.GetType()).FullName,
-                value = Convert.ToString(
+            return new SnapshotEnum(
+                value.ToString(),
+                Enum.GetUnderlyingType(value.GetType()).FullName,
+                Convert.ToString(
                     Convert.ChangeType(
                         value,
                         Enum.GetUnderlyingType(value.GetType()),
@@ -219,7 +309,8 @@ internal sealed class DetachedSnapshot(
                     ),
                     CultureInfo.InvariantCulture
                 ),
-            };
+                value.GetType().FullName!
+            );
         if (value.GetType().IsPrimitive || value is decimal)
             return value;
         try

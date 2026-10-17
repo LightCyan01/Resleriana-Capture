@@ -7,6 +7,13 @@ namespace AtelierCapture;
 
 internal static class PrivacyPayload
 {
+    internal sealed record Omission(
+        string message_type,
+        string field,
+        string reason,
+        long occurrences
+    );
+
     private static readonly Lazy<Catalog> Fields = new(Load);
     private static readonly Dictionary<string, string> Wrappers = new(StringComparer.Ordinal)
     {
@@ -22,25 +29,58 @@ internal static class PrivacyPayload
         @"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.[0-9]{1,9})?(Z|[+-]\d{2}:\d{2})$",
         RegexOptions.CultureInvariant | RegexOptions.NonBacktracking
     );
+    private static readonly Regex DecimalText = new(
+        @"\A(?:0|[1-9][0-9]*)(?:\.[0-9]+)?\z",
+        RegexOptions.CultureInvariant | RegexOptions.NonBacktracking
+    );
+    private static readonly Regex ProductIdentifier = new(
+        @"\A[A-Za-z0-9][A-Za-z0-9._-]{0,127}\z",
+        RegexOptions.CultureInvariant | RegexOptions.NonBacktracking
+    );
 
-    internal static JsonNode? Project(string nativeType, JsonNode? payload, out bool omitted)
+    internal static JsonNode? Project(string nativeType, JsonNode? payload, out bool omitted) =>
+        Project(nativeType, payload, out omitted, out _);
+
+    internal static JsonNode? Project(
+        string nativeType,
+        JsonNode? payload,
+        out bool omitted,
+        out IReadOnlyList<Omission> omissions
+    )
     {
         var catalog = Fields.Value;
         var excluded = false;
+        var missing = new Dictionary<(string Owner, string Field, string Reason), long>();
         JsonNode? result = null;
         var pending = new Stack<Action>();
         Schedule(payload, Normalize(nativeType), value => result = value, static () => { });
         while (pending.TryPop(out var next))
             next();
         omitted = excluded;
+        omissions = missing
+            .Select(row => new Omission(row.Key.Owner, row.Key.Field, row.Key.Reason, row.Value))
+            .ToArray();
         return result;
 
-        void Schedule(JsonNode? input, string type, Action<JsonNode?> save, Action reject) =>
-            pending.Push(() => Visit(input, type, save, reject));
+        void Schedule(
+            JsonNode? input,
+            string type,
+            Action<JsonNode?> save,
+            Action reject,
+            string owner = "$root",
+            string field = "$value"
+        ) => pending.Push(() => Visit(input, type, save, reject, owner, field));
 
-        void Reject(Action reject)
+        void Missing(string owner, string field, string reason)
         {
             excluded = true;
+            var key = (owner, field, reason);
+            missing[key] = checked(missing.GetValueOrDefault(key) + 1);
+        }
+
+        void Reject(Action reject, string owner, string field, string reason)
+        {
+            Missing(owner, field, reason);
             reject();
         }
 
@@ -58,16 +98,26 @@ internal static class PrivacyPayload
                         or "uint64"
                         or "float"
                         or "double"
+                        or "decimal_string"
+                        or "product_identifier"
+                        or "currency_code"
                 || type == "google.protobuf.Timestamp"
                 || type.StartsWith("enum:", StringComparison.Ordinal)
                     && catalog.enums.ContainsKey(type[5..]);
         }
 
-        void Visit(JsonNode? input, string type, Action<JsonNode?> save, Action reject)
+        void Visit(
+            JsonNode? input,
+            string type,
+            Action<JsonNode?> save,
+            Action reject,
+            string owner,
+            string field
+        )
         {
             if (!Known(type))
             {
-                Reject(reject);
+                Reject(reject, owner, field, "unqualified_message_or_type");
                 return;
             }
             if (input is null)
@@ -79,7 +129,7 @@ internal static class PrivacyPayload
             {
                 if (input is not JsonArray array)
                 {
-                    Reject(reject);
+                    Reject(reject, owner, field, "invalid_array_representation");
                     return;
                 }
                 var output = new JsonArray();
@@ -90,7 +140,7 @@ internal static class PrivacyPayload
                 {
                     // A rejected element removes its array rather than inventing a null or changing order.
                     if (invalid)
-                        Reject(reject);
+                        Reject(reject, owner, field, "array_contains_omitted_element");
                     else
                         save(output);
                 });
@@ -101,7 +151,9 @@ internal static class PrivacyPayload
                         array[index],
                         type[2..],
                         value => output[position] = value,
-                        () => invalid = true
+                        () => invalid = true,
+                        owner,
+                        field
                     );
                 }
                 return;
@@ -112,24 +164,31 @@ internal static class PrivacyPayload
             {
                 if (input is not JsonObject source)
                 {
-                    Reject(reject);
+                    Reject(reject, owner, field, "invalid_message_representation");
                     return;
                 }
                 var output = new JsonObject();
                 pending.Push(() => save(output));
-                foreach (var field in source)
+                foreach (var member in source)
                 {
-                    if (!fields.TryGetValue(field.Key, out var childType))
+                    if (!fields.TryGetValue(member.Key, out var childType))
                     {
-                        excluded = true;
+                        var known = catalog.Excluded.Contains((type, member.Key));
+                        Missing(
+                            type,
+                            known ? member.Key : "$unknown",
+                            known ? "excluded_schema_field" : "unqualified_field_name"
+                        );
                         continue;
                     }
-                    var name = field.Key;
+                    var name = member.Key;
                     Schedule(
-                        field.Value,
+                        member.Value,
                         childType,
                         value => output.Add(name, value),
-                        static () => { }
+                        static () => { },
+                        type,
+                        name
                     );
                 }
                 return;
@@ -137,7 +196,7 @@ internal static class PrivacyPayload
             if (input is JsonValue value && Scalar(value, type, catalog))
                 save(value.DeepClone());
             else
-                Reject(reject);
+                Reject(reject, owner, field, "invalid_or_unsupported_scalar");
         }
     }
 
@@ -146,6 +205,17 @@ internal static class PrivacyPayload
         var kind = value.GetValueKind();
         if (type == "bool")
             return kind is JsonValueKind.True or JsonValueKind.False;
+        if (type == "decimal_string")
+            return kind == JsonValueKind.String
+                && value.GetValue<string>() is { Length: > 0 and <= 128 } decimalText
+                && DecimalText.IsMatch(decimalText);
+        if (type == "product_identifier")
+            return kind == JsonValueKind.String
+                && ProductIdentifier.IsMatch(value.GetValue<string>());
+        if (type == "currency_code")
+            return kind == JsonValueKind.String
+                && value.GetValue<string>() is { Length: 3 } currency
+                && currency.All(character => character is >= 'A' and <= 'Z');
         if (type == "google.protobuf.Timestamp")
         {
             if (kind != JsonValueKind.String)
@@ -173,8 +243,7 @@ internal static class PrivacyPayload
                     NumberStyles.AllowLeadingSign,
                     CultureInfo.InvariantCulture,
                     out var number
-                )
-                && values.ContainsValue(number);
+                );
         }
         if (kind is not (JsonValueKind.Number or JsonValueKind.String))
             return false;
@@ -263,13 +332,36 @@ internal static class PrivacyPayload
             if (jsonName != field.Key)
                 fields.Add(jsonName, field.Value);
         }
+        foreach (var excluded in catalog.excluded_fields)
+        {
+            var split = excluded.LastIndexOf('.');
+            if (split < 1)
+                continue;
+            var owner = excluded[..split];
+            var field = excluded[(split + 1)..];
+            catalog.Excluded.Add((owner, field));
+            var parts = field.Split('_');
+            catalog.Excluded.Add(
+                (
+                    owner,
+                    parts[0]
+                        + string.Concat(
+                            parts.Skip(1).Select(part => char.ToUpperInvariant(part[0]) + part[1..])
+                        )
+                )
+            );
+        }
         return catalog;
     }
 
     private sealed record Catalog(
         int schema,
         string descriptor_sha256,
+        string[] excluded_fields,
         Dictionary<string, Dictionary<string, string>> messages,
         Dictionary<string, Dictionary<string, int>> enums
-    );
+    )
+    {
+        internal HashSet<(string Owner, string Field)> Excluded { get; } = [];
+    }
 }
