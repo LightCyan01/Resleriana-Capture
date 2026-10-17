@@ -382,7 +382,7 @@ internal static class Battle
                 "native_observation",
                 () =>
                 {
-                    var snapshot = new Snapshot();
+                    var snapshot = new Snapshot(Plugin.Writer.PrivacyEnabled);
                     var started = Stopwatch.GetTimestamp();
                     var instance =
                         !phaseSnapshotAvailable || state.Hook.Method == ".ctor" && phase != "exit"

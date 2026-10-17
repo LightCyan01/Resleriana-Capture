@@ -57,34 +57,17 @@
     "blend.model.BulkMail.body",
     "blend.model.BulkMail.subject",
     "blend.model.EquipmentPreset.name",
-    "blend.model.EventTitle.bgm_path_hash",
-    "blend.model.EventTitle.ui_asset_path_hash",
-    "blend.model.GachaMixedWishListRateBySelection.percent_rate_per_card",
-    "blend.model.GachaMixedWishListRateSet.non_selected_card_rate",
-    "blend.model.GachaMixedWishListRateSet.selected_card_rate",
-    "blend.model.GachaRate.percent_rate_per_card",
-    "blend.model.GachaRateSummary.percent_rate",
     "blend.model.KeyTask.name",
     "blend.model.MailParams.body",
-    "blend.model.MailParams.datetime1",
-    "blend.model.MailParams.datetime2",
     "blend.model.MailParams.serial_code",
     "blend.model.MailParams.subject",
-    "blend.model.MailParams.value",
     "blend.model.PurchaseStep.description",
     "blend.model.PurchaseStep.name",
     "blend.model.Resources.profile",
     "blend.model.ShopGemList.admob_unit_id",
     "blend.model.Status.birth_month",
     "blend.model.Status.birth_year",
-    "blend.model.Status.is_invited",
-    "blend.model.StoreProduct.currency",
-    "blend.model.StoreProduct.product_id",
-    "blend.model.StoreProductPrice.android_product_id",
-    "blend.model.StoreProductPrice.ios_product_id",
-    "blend.model.StoreProductPrice.steam_product_id",
-    "blend.model.Title.bgm_path_hash",
-    "blend.model.Title.timeline_asset_path_hash"
+    "blend.model.Status.is_invited"
   ],
   "messages": {
     "blend.api.AtelierResearchRequest": {
@@ -1614,7 +1597,9 @@
     "blend.model.EventTitle": {
       "id": "int32",
       "start_at": "google.protobuf.Timestamp",
-      "end_at": "google.protobuf.Timestamp"
+      "end_at": "google.protobuf.Timestamp",
+      "bgm_path_hash": "int64",
+      "ui_asset_path_hash": "int64"
     },
     "blend.model.ExpeditionState": {
       "number": "int32",
@@ -1678,14 +1663,17 @@
     "blend.model.GachaMixedWishListRateBySelection": {
       "character_count": "int32",
       "memoria_count": "int32",
-      "character_skin_count": "int32"
+      "character_skin_count": "int32",
+      "percent_rate_per_card": "decimal_string"
     },
     "blend.model.GachaMixedWishListRateSet": {
       "gacha_id": "int32",
       "dynamic_rows": "[]blend.model.GachaMixedWishListRate",
       "rows": "[]blend.model.GachaRate",
       "summaries": "[]blend.model.GachaRateSummary",
-      "pickup_total_character_ids": "[]int32"
+      "pickup_total_character_ids": "[]int32",
+      "non_selected_card_rate": "decimal_string",
+      "selected_card_rate": "decimal_string"
     },
     "blend.model.GachaNotification": {
       "gacha_category": "int32",
@@ -1695,7 +1683,8 @@
     },
     "blend.model.GachaRate": {
       "gacha_rate_id": "int32",
-      "cards": "[]blend.model.GachaCard"
+      "cards": "[]blend.model.GachaCard",
+      "percent_rate_per_card": "decimal_string"
     },
     "blend.model.GachaRateSet": {
       "gacha_rate_set_id": "int32",
@@ -1707,7 +1696,8 @@
     },
     "blend.model.GachaRateSummary": {
       "card_type": "int32",
-      "rarity": "int32"
+      "rarity": "int32",
+      "percent_rate": "decimal_string"
     },
     "blend.model.GachaWishListSelectedHistory": {
       "step": "int32",
@@ -1835,7 +1825,10 @@
       "invitation_mission_id": "google.protobuf.Int32Value",
       "quest_id": "google.protobuf.Int32Value",
       "episode_id": "google.protobuf.Int32Value",
-      "growth_pack_id": "google.protobuf.Int32Value"
+      "growth_pack_id": "google.protobuf.Int32Value",
+      "value": "google.protobuf.Int32Value",
+      "datetime1": "google.protobuf.Timestamp",
+      "datetime2": "google.protobuf.Timestamp"
     },
     "blend.model.MasterData": {
       "shop_products": "[]blend.model.ShopProduct",
@@ -2277,13 +2270,18 @@
       "id": "int32",
       "money_amount": "int32",
       "free_amount": "int32",
-      "price": "google.protobuf.DoubleValue"
+      "price": "google.protobuf.DoubleValue",
+      "product_id": "product_identifier",
+      "currency": "currency_code"
     },
     "blend.model.StoreProductPrice": {
       "id": "int32",
       "price": "float",
       "money_amount": "int32",
-      "free_amount": "int32"
+      "free_amount": "int32",
+      "android_product_id": "product_identifier",
+      "ios_product_id": "product_identifier",
+      "steam_product_id": "product_identifier"
     },
     "blend.model.StreetState": {
       "quest_id": "int32",
@@ -2301,7 +2299,9 @@
       "ranks": "[]blend.model.SynthesisCombinationRank"
     },
     "blend.model.Title": {
-      "id": "int32"
+      "id": "int32",
+      "bgm_path_hash": "int64",
+      "timeline_asset_path_hash": "int64"
     },
     "blend.model.ToolEntity": {
       "type": "int32",

@@ -65,6 +65,7 @@ internal sealed partial class SessionWriter : IDisposable
     private long faultSince;
 
     internal string RunId { get; } = Guid.NewGuid().ToString("N");
+    internal bool PrivacyEnabled => privacy.Enabled;
 
     internal SessionWriter(
         string root,

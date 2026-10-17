@@ -1,0 +1,1907 @@
+{
+  "schema": 1,
+  "client_version": "2.16.0",
+  "gameassembly_sha256": "35868ee52cb199b018e2ced962dd233a9f4d200a7e5d8e9903e7f4607f21f5ea",
+  "metadata_sha256": "af138395b956bc835f99b2fd140a4c5015781e56c9cab3052bdb7e69065cc9b0",
+  "declarations_source_sha256": "fe5fe81dd605610f71f1a74afb28577cb5845ae1c38e660adb7f573dea3ed7ba",
+  "policy": "reviewed_gameplay_native_fields_exact_signature_no_strings_or_original_bytes",
+  "types": {
+    "AAODHOPGMLP": {
+      "_BAIBBLHCKGH_k__BackingField": "System.Int32",
+      "_ADFJHFODNDP_k__BackingField": "System.Boolean",
+      "_KJKBHJDLFGH_k__BackingField": "System.Int32"
+    },
+    "AGMNKCPPPCO": {
+      "_CJGKFIICLPF_k__BackingField": "HHGNPKDGJGB",
+      "LBHFALJPJAO": "PIDKEJGAPOI",
+      "PPJONNJGDMK": "IJJGGCPCMND",
+      "_BMIONDGNDHA_k__BackingField": "JFCLGFPOCCD",
+      "PJBNGDJFDBF": "Il2CppSystem.Collections.Generic.List`1<IJLKGKMCCPL>",
+      "PBCBLDOODFK": "JMDLEBGJBMB",
+      "AMNLLMEIDEE": "System.Int32",
+      "CJEHDEGDCJL": "System.Int32",
+      "GCADKCFGMKD": "System.Int32",
+      "BEKCCCMANGN": "AGFFMHDGBPA+AGGADFEMHKK",
+      "JPEPGPDCPAK": "System.Int32",
+      "EAPELGDNGEP": "LCLAMDKIEFD",
+      "EBHPGOIMHKB": "System.Boolean"
+    },
+    "Api.AtelierApi": {},
+    "Api.AtelierApi+_RequestAtelierResearchInternal_d__3": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.AtelierResearchRequest"
+    },
+    "Api.AtelierApi+_RequestAtelierResearchWithError_d__2": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.AtelierResearchRequest"
+    },
+    "Api.AtelierApi+_RequestAtelierResearch_d__0": {
+      "__1__state": "System.Int32",
+      "researchGroupId": "JIBNBBPDIAD",
+      "count": "System.Int32"
+    },
+    "Api.BattleApi": {},
+    "Api.BattleApi+_RequestBattleAttackWithError_d__17": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.BattleAttackRequest"
+    },
+    "Api.BattleApi+_RequestBattleFinishWithError_d__29": {
+      "__1__state": "System.Int32"
+    },
+    "Api.BattleApi+_RequestBattleResumeWithError_d__21": {
+      "__1__state": "System.Int32"
+    },
+    "Api.BattleApi+_RequestBattleRetireWithError_d__25": {
+      "__1__state": "System.Int32"
+    },
+    "Api.CharacterApi": {},
+    "Api.CharacterApi+_RequestCharacterEnhanceInternal_d__14": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CharacterEnhanceRequest"
+    },
+    "Api.CharacterApi+_RequestCharacterEnhanceWithError_d__13": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CharacterEnhanceRequest"
+    },
+    "Api.CharacterApi+_RequestCharacterEnhance_d__0": {
+      "__1__state": "System.Int32",
+      "characterId": "DLFJOBIEIHF",
+      "itemInfos": "Il2CppSystem.Collections.Generic.List`1<FOAFJDMHNLI>"
+    },
+    "Api.CharacterApi+_RequestCharacterEnhancementResetInternal_d__42": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CharacterEnhancementResetRequest"
+    },
+    "Api.CharacterApi+_RequestCharacterEnhancementResetWithError_d__41": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CharacterEnhancementResetRequest"
+    },
+    "Api.CharacterApi+_RequestCharacterLevelLimitReleaseInternal_d__46": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CharacterLevelLimitReleaseRequest"
+    },
+    "Api.CharacterApi+_RequestCharacterLevelLimitReleaseWithError_d__45": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CharacterLevelLimitReleaseRequest"
+    },
+    "Api.CharacterApi+_RequestCharacterLevelLimitRelease_d__8": {
+      "__1__state": "System.Int32",
+      "character": "MMGMFDEMDLA"
+    },
+    "Api.CharacterApi+_RequestCharacterRarityEnhanceInternal_d__18": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CharacterRarityEnhanceRequest"
+    },
+    "Api.CharacterApi+_RequestCharacterRarityEnhanceWithError_d__17": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CharacterRarityEnhanceRequest"
+    },
+    "Api.CharacterApi+_RequestCharacterRarityEnhance_d__1": {
+      "__1__state": "System.Int32",
+      "characterId": "DLFJOBIEIHF",
+      "rarityCount": "System.Int32"
+    },
+    "Api.CharacterApi+_RequestCharacterReset_d__7": {
+      "__1__state": "System.Int32",
+      "character": "MMGMFDEMDLA",
+      "onlyResetLevel": "System.Boolean"
+    },
+    "Api.CommunicationApi": {},
+    "Api.CommunicationApi+_RequestCommunicationStoryClearInternal_d__8": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CommunicationStoryClearRequest"
+    },
+    "Api.CommunicationApi+_RequestCommunicationStoryClearWithError_d__7": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CommunicationStoryClearRequest"
+    },
+    "Api.CommunicationApi+_RequestCommunicationStoryClear_d__1": {
+      "__1__state": "System.Int32",
+      "characterId": "DLFJOBIEIHF",
+      "storyNumber": "System.Int32"
+    },
+    "Api.CommunicationApi+_RequestCommunicationStoryReleaseInternal_d__4": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CommunicationStoryReleaseRequest"
+    },
+    "Api.CommunicationApi+_RequestCommunicationStoryReleaseWithError_d__3": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.CommunicationStoryReleaseRequest"
+    },
+    "Api.CommunicationApi+_RequestCommunicationStoryRelease_d__0": {
+      "__1__state": "System.Int32",
+      "characterId": "DLFJOBIEIHF",
+      "storyNumber": "System.Int32"
+    },
+    "Api.ExplorationApi": {},
+    "Api.ExplorationApi+_RequestExplorationBattleStartWithError_d__20": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ExplorationBattleStartRequest"
+    },
+    "Api.GachaApi": {},
+    "Api.GachaApi+_RequestGachaBattleStartWithError_d__24": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.GachaBattleStartRequest"
+    },
+    "Api.IllustratedBookApi": {},
+    "Api.IllustratedBookApi+_RequestIllustratedBookStartInternal_d__2": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.IllustratedBookStartRequest"
+    },
+    "Api.IllustratedBookApi+_RequestIllustratedBookStartWithError_d__1": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.IllustratedBookStartRequest"
+    },
+    "Api.IllustratedBookApi+_RequestIllustratedBookStart_d__4": {
+      "__1__state": "System.Int32",
+      "id": "INMGPDGGIIE"
+    },
+    "Api.ItemChallengeApi": {},
+    "Api.ItemChallengeApi+_RequestItemChallengeExecuteInternal_d__2": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ItemChallengeExecuteRequest"
+    },
+    "Api.ItemChallengeApi+_RequestItemChallengeExecuteWithError_d__1": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ItemChallengeExecuteRequest"
+    },
+    "Api.ItemChallengeApi+_RequestItemChallengeExecute_d__9": {
+      "__1__state": "System.Int32",
+      "id": "AHLCJLNECIM",
+      "toolBases": "Il2CppSystem.Collections.Generic.IEnumerable`1<BNAILBMBKDK>",
+      "_prevHighScore_5__2": "System.Int32"
+    },
+    "Api.ItemChallengeApi+_RequestItemChallengeRewardReceiveInternal_d__6": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ItemChallengeRewardReceiveRequest"
+    },
+    "Api.ItemChallengeApi+_RequestItemChallengeRewardReceiveWithError_d__5": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ItemChallengeRewardReceiveRequest"
+    },
+    "Api.ItemChallengeApi+_RequestItemChallengeRewardReceive_d__10": {
+      "__1__state": "System.Int32",
+      "id": "AHLCJLNECIM"
+    },
+    "Api.ManaApi": {},
+    "Api.ManaApi+_RequestManaPurchaseInternal_d__2": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ManaPurchaseRequest"
+    },
+    "Api.ManaApi+_RequestManaPurchaseWithError_d__1": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ManaPurchaseRequest"
+    },
+    "Api.ManaApi+_RequestManaPurchase_d__8": {
+      "__1__state": "System.Int32",
+      "count": "System.Int32"
+    },
+    "Api.ManaApi+_RequestManaUseItemInternal_d__6": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ManaUseItemRequest"
+    },
+    "Api.ManaApi+_RequestManaUseItemWithError_d__5": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ManaUseItemRequest"
+    },
+    "Api.ManaApi+_RequestManaUseItem_d__9": {
+      "__1__state": "System.Int32",
+      "itemId": "DGLGAKOEEEE",
+      "count": "System.Int32"
+    },
+    "Api.MemoriaApi": {},
+    "Api.QuestApi": {},
+    "Api.QuestApi+_RequestQuestBattleRentalPartyStartWithError_d__13": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.QuestBattleRentalPartyStartRequest"
+    },
+    "Api.QuestApi+_RequestQuestBattleSoloRaidBattleStartWithError_d__9": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.QuestBattleSoloRaidBattleStartRequest"
+    },
+    "Api.QuestApi+_RequestQuestBattleStartWithError_d__1": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.QuestBattleStartRequest"
+    },
+    "Api.QuestApi+_RequestQuestBattleTotalBattleStartWithError_d__5": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.QuestBattleTotalBattleStartRequest"
+    },
+    "Api.RecipeApi": {},
+    "Api.RecipeApi+_RequestRecipeCountRewardReceiveInternal_d__2": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.RecipeCountRewardReceiveRequest"
+    },
+    "Api.RecipeApi+_RequestRecipeCountRewardReceiveWithError_d__1": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.RecipeCountRewardReceiveRequest"
+    },
+    "Api.RecipeApi+_RequestRecipeCountRewardsReceive_d__13": {
+      "__1__state": "System.Int32",
+      "recipeDatas": "Il2CppSystem.Collections.Generic.IEnumerable`1<Il2CppSystem.ValueTuple`2<AHLDLNGEEFE,Il2CppSystem.Collections.Generic.IEnumerable`1<System.Int32>>>"
+    },
+    "Api.RecipeApi+_RequestRecipeFavoriteInternal_d__10": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.RecipeFavoriteRequest"
+    },
+    "Api.RecipeApi+_RequestRecipeFavoriteWithError_d__9": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.RecipeFavoriteRequest"
+    },
+    "Api.RecipeApi+_RequestRecipeFavorite_d__14": {
+      "__1__state": "System.Int32",
+      "recipeId": "FFFKNOKFAIH",
+      "isFavorite": "System.Boolean"
+    },
+    "Api.RecipeApi+_RequestRecipeLearnInternal_d__6": {
+      "__1__state": "System.Int32"
+    },
+    "Api.RecipeApi+_RequestRecipeLearnWithError_d__5": {
+      "__1__state": "System.Int32"
+    },
+    "Api.RecipeApi+_RequestRecipeLearn_d__12": {
+      "__1__state": "System.Int32"
+    },
+    "Api.ShipApi": {},
+    "Api.ShipApi+_RequestShipBulkUpdateInternal_d__6": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ShipBulkUpdateRequest"
+    },
+    "Api.ShipApi+_RequestShipBulkUpdateWithError_d__5": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ShipBulkUpdateRequest"
+    },
+    "Api.ShipApi+_RequestShipBulkUpdate_d__16": {
+      "__1__state": "System.Int32",
+      "shipId": "DEOICFBIKKL",
+      "number": "System.Int32",
+      "mainMemoriaEntityId": "Il2CppSystem.Nullable`1<System.Int32>",
+      "characterIds": "Il2CppSystem.Collections.Generic.IList`1<DLFJOBIEIHF>",
+      "subMemoriaEntityIds": "Il2CppSystem.Collections.Generic.IList`1<System.Int32>"
+    },
+    "Api.ShipApi+_RequestShipCreateInternal_d__2": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ShipCreateRequest"
+    },
+    "Api.ShipApi+_RequestShipCreateWithError_d__1": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ShipCreateRequest"
+    },
+    "Api.ShipApi+_RequestShipCreate_d__17": {
+      "__1__state": "System.Int32",
+      "count": "System.Int32",
+      "shipPartId": "HBFNAAPJCLG"
+    },
+    "Api.ShipApi+_RequestShipShipToolsSetInternal_d__10": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ShipShipToolsSetRequest"
+    },
+    "Api.ShipApi+_RequestShipShipToolsSetWithError_d__9": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ShipShipToolsSetRequest"
+    },
+    "Api.ShipApi+_RequestShipSynthesizeInternal_d__14": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ShipSynthesizeRequest"
+    },
+    "Api.ShipApi+_RequestShipSynthesizeWithError_d__13": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ShipSynthesizeRequest"
+    },
+    "Api.ShipApi+_RequestShipSynthesize_d__19": {
+      "__1__state": "System.Int32",
+      "recipeId": "FFFKNOKFAIH"
+    },
+    "Api.ShipApi+_RequestShipToolSet_d__18": {
+      "__1__state": "System.Int32",
+      "shipId": "DEOICFBIKKL",
+      "shipToolEntityIds": "Il2CppSystem.Collections.Generic.IEnumerable`1<System.Int32>"
+    },
+    "Api.SynthesisApi": {},
+    "Api.SynthesisApi+_RequestSynthesisBulkExecuteInternal_d__6": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisBulkExecuteRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisBulkExecuteWithError_d__5": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisBulkExecuteRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisBulkExecute_d__22": {
+      "__1__state": "System.Int32",
+      "recipeId": "FFFKNOKFAIH",
+      "ingredientId": "Il2CppSystem.Nullable`1<DGLGAKOEEEE>",
+      "count": "System.Int32",
+      "characterIds": "Il2CppSystem.Collections.Generic.IEnumerable`1<DLFJOBIEIHF>",
+      "traitStimulatorIds": "Il2CppSystem.Collections.Generic.IEnumerable`1<System.Int32>"
+    },
+    "Api.SynthesisApi+_RequestSynthesisCombinationRankingInternal_d__14": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisCombinationRankingRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisCombinationRankingWithError_d__13": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisCombinationRankingRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisCombinationRanking_d__24": {
+      "__1__state": "System.Int32",
+      "recipeId": "FFFKNOKFAIH"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecuteEasyInternal_d__10": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisExecuteEasyRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecuteEasyWithError_d__9": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisExecuteEasyRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecuteEasy_d__23": {
+      "__1__state": "System.Int32",
+      "recipeId": "FFFKNOKFAIH",
+      "count": "System.Int32"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecuteInternal_d__2": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisExecuteRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecuteRentalInternal_d__18": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisExecuteRentalRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecuteRentalWithError_d__17": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisExecuteRentalRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecuteRental_d__25": {
+      "__1__state": "System.Int32",
+      "recipeId": "FFFKNOKFAIH",
+      "rankingType": "NEMHPEAJKFF",
+      "rankNumber": "System.Int32",
+      "count": "System.Int32",
+      "traitStimulatorIds": "Il2CppSystem.Collections.Generic.IEnumerable`1<System.Int32>"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecuteWithError_d__1": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.SynthesisExecuteRequest"
+    },
+    "Api.SynthesisApi+_RequestSynthesisExecute_d__20": {
+      "__1__state": "System.Int32",
+      "recipeId": "FFFKNOKFAIH",
+      "ingredientId": "Il2CppSystem.Nullable`1<DGLGAKOEEEE>",
+      "characterIds": "Il2CppSystem.Collections.Generic.IEnumerable`1<DLFJOBIEIHF>",
+      "traitStimulatorIds": "Il2CppSystem.Collections.Generic.IEnumerable`1<System.Int32>"
+    },
+    "Api.ToolApi": {},
+    "Api.ToolApi+_RequestToolConvertInternal_d__2": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ToolConvertRequest"
+    },
+    "Api.ToolApi+_RequestToolConvertWithError_d__1": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ToolConvertRequest"
+    },
+    "Api.ToolApi+_RequestToolConvert_d__14": {
+      "__1__state": "System.Int32",
+      "userTools": "Il2CppSystem.Collections.Generic.IEnumerable`1<BNAILBMBKDK>"
+    },
+    "Api.ToolApi+_RequestToolLockInternal_d__6": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ToolLockRequest"
+    },
+    "Api.ToolApi+_RequestToolLockWithError_d__5": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ToolLockRequest"
+    },
+    "Api.ToolApi+_RequestToolLock_d__15": {
+      "__1__state": "System.Int32",
+      "userTool": "BNAILBMBKDK",
+      "isLocked": "System.Boolean"
+    },
+    "Api.ToolApi+_RequestToolTraitRankUpInternal_d__10": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ToolTraitRankUpRequest"
+    },
+    "Api.ToolApi+_RequestToolTraitRankUpWithError_d__9": {
+      "__1__state": "System.Int32",
+      "arg": "Blend.ApiSchema.Api.ToolTraitRankUpRequest"
+    },
+    "Api.ToolApi+_RequestToolTraitRankUp_d__17": {
+      "__1__state": "System.Int32",
+      "userTool": "BNAILBMBKDK",
+      "traitIndex": "System.Int32"
+    },
+    "Api.TutorialApi": {},
+    "BBNGKKCENAE": {
+      "_PDMABKOOJCP_k__BackingField": "System.Int32",
+      "_LMHNADEILJB_k__BackingField": "System.Int32",
+      "_OLCHLOCHGOC_k__BackingField": "System.Int32",
+      "_EIPLBHLPHEI_k__BackingField": "System.Int32",
+      "_MLKFCAFNKDB_k__BackingField": "System.Int32",
+      "_DGMAEOCGFGJ_k__BackingField": "System.Int32",
+      "_CBFEGODPNHF_k__BackingField": "System.Int32"
+    },
+    "BHPJMGDLNNE": {
+      "_OFFGJCDHLLN_k__BackingField": "System.Int32",
+      "_OKEFFPGMJGP_k__BackingField": "System.Int32",
+      "_LBJCPPAMGLG_k__BackingField": "System.Int32",
+      "_OBEJDMBPPON_k__BackingField": "System.Int32",
+      "_FMONJKDBJAA_k__BackingField": "System.Int32"
+    },
+    "BNAILBMBKDK": {
+      "_BMIONDGNDHA_k__BackingField": "JFCLGFPOCCD",
+      "PJBNGDJFDBF": "Il2CppSystem.Collections.Generic.List`1<IJLKGKMCCPL>",
+      "PBCBLDOODFK": "JMDLEBGJBMB",
+      "AMNLLMEIDEE": "System.Int32",
+      "CJEHDEGDCJL": "System.Int32",
+      "GCADKCFGMKD": "System.Int32",
+      "BEKCCCMANGN": "AGFFMHDGBPA+AGGADFEMHKK",
+      "JPEPGPDCPAK": "System.Int32",
+      "EAPELGDNGEP": "LCLAMDKIEFD",
+      "EBHPGOIMHKB": "System.Boolean"
+    },
+    "BPEKJGJPNCO": {
+      "_MHHONCLHGHG_k__BackingField": "System.Int32",
+      "_IFGHLJJODIG_k__BackingField": "System.Int32",
+      "_PBPEIFKJAPH_k__BackingField": "System.Int32"
+    },
+    "BattleCommandItemControl": {
+      "DKNDHNAIKFN": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<FCMCKDCGGEB>",
+      "CIHHEGKEOED": "BattleStateVariables",
+      "m_itemList": "Il2CppSystem.Collections.Generic.List`1<BattleCommandItemControl+MOBIEOGDGFO>",
+      "NFGMMNJGMIC": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "JBEPNNOOHED": "Il2CppSystem.Collections.Generic.List`1<NHEIMMIAMJO>",
+      "COGOCKGAAKH": "NHEIMMIAMJO",
+      "OLONACKOKFH": "NHEIMMIAMJO",
+      "_DLEFFIECKEI_k__BackingField": "System.Int32",
+      "_MMPHAPHNHOK_k__BackingField": "System.Int32",
+      "_NLJEJNODJEM_k__BackingField": "System.Boolean",
+      "EGJFIKAFKJJ": "System.Boolean",
+      "JFOEBADGDOL": "DNDKEBECKMG"
+    },
+    "BattleCommandItemControl+MOBIEOGDGFO": {
+      "CKELKBNHPAE": "System.Int32",
+      "JECCNJCFFDB": "BMIJIFJHBCA",
+      "DHNAIKPKMMO": "BJCGPLBACKM",
+      "BIAPGLKLOEA": "System.Int32",
+      "FGMPCNAOBDH": "System.Int32",
+      "DEBNIELPLAH": "System.Int32",
+      "KOMLOACEMMJ": "System.Int64",
+      "BBHAEBJDHAH": "System.Int64",
+      "NFDJEBJBEGO": "System.Boolean",
+      "CADCAIOHFMI": "System.Int32",
+      "LMJGHENDBAF": "System.String",
+      "MDCNIMOOPIB": "System.String",
+      "LFLCNJLCAJA": "Il2CppSystem.Collections.Generic.IList`1<CHDBPBEKIMO>",
+      "KKCDCFJGELF": "CJFLDANIILJ",
+      "NKNLHHHCJPB": "MEBPPKLGKDF"
+    },
+    "BattleCommandSkillControl": {
+      "PEPFJNEGLHL": "BattleCommandSkillControl+BBHPBKMEKAO",
+      "CLCEAEGHOOK": "System.Int32",
+      "NNIADBMENAN": "System.Int32",
+      "_IOJOCDOIMAN_k__BackingField": "System.Boolean",
+      "BJAENACPNND": "HMIEBOKCGFE",
+      "DKNDHNAIKFN": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<LHPKCPHOCPA>",
+      "CIHHEGKEOED": "BattleStateVariables"
+    },
+    "BattleDamageControl": {
+      "m_battleStateVariables": "BattleStateVariables",
+      "OJILICAKMBC": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`2<NHEIMMIAMJO,System.Boolean>>",
+      "MJBODAGGLEP": "System.Boolean",
+      "BKBFGJFOHNI": "System.Boolean",
+      "JEFAELIECEC": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "DCEKPJLNKAA": "System.Int32",
+      "AHCGLNCPECM": "System.Int32",
+      "LIJDBCOEJLJ": "System.Int32",
+      "JPLBBDLMKGD": "Il2CppSystem.Collections.Generic.IList`1<FGGLBOCKLIJ>",
+      "GMFMEACDNCO": "LACKKEMGIJD",
+      "DHMDNHBFKAF": "Il2CppSystem.Collections.Generic.IList`1<JKHFJKGHLHF>",
+      "PMNENDJHHMN": "Il2CppSystem.Collections.Generic.IList`1<JKHFJKGHLHF>"
+    },
+    "BattleDamageControl+CJILPEICEJO": {
+      "_LBDELDPJKEC_k__BackingField": "SignalHost",
+      "_OLAJAMOEHOB_k__BackingField": "System.Int32",
+      "_MCPAHGGEALB_k__BackingField": "System.Int32",
+      "_JGLKBKBEJNL_k__BackingField": "System.Boolean",
+      "_IOGBBOKJLIB_k__BackingField": "System.Boolean",
+      "_DEOIMGHDAIO_k__BackingField": "System.Boolean",
+      "_OBLMJCEKANE_k__BackingField": "System.Boolean",
+      "_JGKJGDMLEOI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<System.Int32>"
+    },
+    "BattleDamageControl+OLHIICNJOHA": {
+      "_BNJBMEPBKHC_k__BackingField": "NHEIMMIAMJO",
+      "_FAGBNDLDPLI_k__BackingField": "BattleDamageControl+HJFPICAALFD",
+      "_LBDELDPJKEC_k__BackingField": "SignalHost",
+      "_HLDFLOGNNBI_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_BFMKPDHNKHL_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_KGJLPHEHPKL_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_NMJGAFDOMBL_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_JJIKECIONNH_k__BackingField": "System.Int32",
+      "_OFCACGBJGAM_k__BackingField": "System.Int64",
+      "_KLENFIGKBHK_k__BackingField": "System.Int64",
+      "_MOAJFICHJFN_k__BackingField": "System.Int64",
+      "_ICJDOCDFHOP_k__BackingField": "System.Int64",
+      "_KPKKIOBGNNE_k__BackingField": "System.Boolean",
+      "_IOGBBOKJLIB_k__BackingField": "System.Boolean",
+      "_DEOIMGHDAIO_k__BackingField": "System.Boolean",
+      "_BOHOKCGALDO_k__BackingField": "System.Boolean",
+      "_OBLMJCEKANE_k__BackingField": "System.Boolean",
+      "_FFCIGBCKGKL_k__BackingField": "System.Boolean"
+    },
+    "BattleEffectControl": {
+      "m_battleStateVariables": "BattleStateVariables",
+      "m_fieldHandle": "OKPNFJNAFGB"
+    },
+    "BattleMoveControl": {
+      "LIGHIBCCIGK": "Il2CppSystem.Collections.Generic.List`1<NHEIMMIAMJO>",
+      "FGKILMLJBGE": "Il2CppSystem.Collections.Generic.List`1<NHEIMMIAMJO>",
+      "_GLJKDCLBMAP_k__BackingField": "AKCNEPADDOJ",
+      "m_battleStateVariables": "BattleStateVariables",
+      "DHGNCKCMCHP": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2<System.Int32,System.Int32>>",
+      "CGIKPDMFEFN": "System.Int32",
+      "MLJDHEOLEAF": "System.Int32",
+      "LHCEDJGJOBD": "System.Int32",
+      "IFJHNNDAPKN": "System.Int32",
+      "FANNNNOODKJ": "System.Int32",
+      "DAGEJIJMCFH": "System.Int32",
+      "CFOIJHCMIEA": "System.Boolean",
+      "_AGJJJNHPEIF_k__BackingField": "GNFAEODJFGH"
+    },
+    "BattlePresenter": {
+      "m_battleMessagesList": "Il2CppSystem.Collections.Generic.List`1<BattleMessage>",
+      "CIHHEGKEOED": "BattleStateVariables",
+      "EJIDBLHEBNI": "BattleTimelineControl",
+      "KACMCAGJPLP": "BattleDamageControl",
+      "CNIANLIMOJI": "EDLOCNJHDKH",
+      "CIJNOCFAEKP": "NHBCPNDOJGK",
+      "OEOLLGJINOG": "LANAGMCAFDC",
+      "BJLFGABNCFN": "System.Int32",
+      "ODHHOGLAIDO": "System.Boolean",
+      "FPLHLDKJOIH": "System.Boolean",
+      "_PLEGGICJADK_k__BackingField": "System.Boolean",
+      "_FAGONPDDHNF_k__BackingField": "System.Boolean",
+      "_JKOGIGOBAFD_k__BackingField": "System.Boolean",
+      "_MOKPKDHCLNF_k__BackingField": "System.Boolean",
+      "LEAIBJFAFKM": "BattleCommandItemControl",
+      "AECBNHEGMGN": "System.Boolean",
+      "IBMGILPMLIG": "BattleCommandSkillControl",
+      "AGGPMIDGKID": "Il2CppSystem.Nullable`1<DMPCHKOKCLP>",
+      "KJCGEHKIHEG": "BattleTimelineMoveControl"
+    },
+    "BattleServerControl": {
+      "m_battleStateVariables": "BattleStateVariables",
+      "m_requestAutoType": "Blend.ApiSchema.Enum.BattleAutoType",
+      "LEOBECPBPPI": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2<DLFJOBIEIHF,System.Int32>>"
+    },
+    "BattleStateVariables": {
+      "_ANEOKLHLLFO_k__BackingField": "BattleCommandSkillControl",
+      "_JHMIKIIBJKF_k__BackingField": "BattleCommandItemControl",
+      "_DLIPCLJEGDO_k__BackingField": "BattleTimelineMoveControl",
+      "_NOMCDGDGBPA_k__BackingField": "BattlePresenter",
+      "_JIFAMLKIJAM_k__BackingField": "BattleDamageControl",
+      "_GCCFEGKOLMI_k__BackingField": "BattleEffectControl",
+      "_KHHJFPDFDEO_k__BackingField": "BattleMoveControl",
+      "_NHMJNNNPDML_k__BackingField": "BattleServerControl",
+      "_EHOOAKHEEPL_k__BackingField": "EDLOCNJHDKH",
+      "_EGLONMHHIOO_k__BackingField": "BattleTimelineControl",
+      "_HCIGLJOHIGI_k__BackingField": "LIAHKJACBDJ",
+      "_KCGBGGBIFDE_k__BackingField": "BattleTutorialControl",
+      "_NBHGMKAPBKI_k__BackingField": "BattleTurnActionDataset",
+      "_OFDJIKHEBBH_k__BackingField": "System.Int64",
+      "_NCOHNNHNEBD_k__BackingField": "System.String",
+      "_GDBEKOOCIGE_k__BackingField": "NLFBLBDJNIF",
+      "_LJAKAECDJDG_k__BackingField": "JOJLFLCCGEJ",
+      "_DJPMEKCDAGE_k__BackingField": "Il2CppSystem.Nullable`1<DEOANGLNHCO>",
+      "_DIIKLOELOCJ_k__BackingField": "FPNBLIDNHFD",
+      "_CCNDFDDNJEE_k__BackingField": "OGECOPJMALJ",
+      "m_playerUnitList": "Il2CppSystem.Collections.Generic.List`1<NHEIMMIAMJO>",
+      "m_enemyUnitList": "Il2CppSystem.Collections.Generic.List`1<NHEIMMIAMJO>",
+      "m_allUnitList": "Il2CppSystem.Collections.Generic.List`1<NHEIMMIAMJO>",
+      "Rewards": "Il2CppSystem.Collections.Generic.List`1<OHOCHBPLHAC>",
+      "BFJACIABCKH": "Il2CppSystem.Collections.Generic.List`1<NHEIMMIAMJO>",
+      "_DFPKDLIFNEN_k__BackingField": "System.Int32",
+      "_GHEIKCOLLFI_k__BackingField": "System.Int32",
+      "_GBHGIJGKNGB_k__BackingField": "System.Boolean",
+      "_MOMIGMKAAJK_k__BackingField": "System.Int32",
+      "_CIHOFIDHCBA_k__BackingField": "System.Int32",
+      "_NFOJFGMKCCA_k__BackingField": "System.Int32",
+      "_NNHKBFBAKLD_k__BackingField": "HBGPLGOJMKG+DDFDOELLPIB",
+      "_FCHAHADMLOB_k__BackingField": "System.Boolean",
+      "_NLOOBGNAIBP_k__BackingField": "System.Boolean",
+      "_OAJLNGFAANI_k__BackingField": "System.Boolean",
+      "_ICKDAGBFOKL_k__BackingField": "System.Boolean",
+      "_MBBBHNFIOCF_k__BackingField": "System.Boolean",
+      "_KOOAJNMFAIE_k__BackingField": "System.Boolean",
+      "_AFLBLJNLFAB_k__BackingField": "System.Boolean",
+      "_OFBENBJFLMD_k__BackingField": "System.Boolean",
+      "_BLIDHEJLGGA_k__BackingField": "System.Boolean",
+      "_KDCDKCDJCHJ_k__BackingField": "System.Boolean",
+      "HNAGLLJCJPK": "ELFDHIPPOGO",
+      "_LOBNNCJNPML_k__BackingField": "System.Boolean",
+      "_MGGJACFGEPG_k__BackingField": "System.Int32",
+      "_MNNLCDLMEEF_k__BackingField": "System.Boolean",
+      "JNADLBNNIEO": "System.Boolean",
+      "GLGJPMNOGMG": "System.Boolean",
+      "EMCBCOCFFMN": "Blend.ApiSchema.Enum.BattleAutoType",
+      "MIIDAEBNAKP": "System.Boolean",
+      "_ENPKCFFLCFM_k__BackingField": "CGGKFDGOFGN",
+      "_MEENINAKKFN_k__BackingField": "GCKIKJHLMDO",
+      "_OCIPBGHALAL_k__BackingField": "LACKKEMGIJD",
+      "_FEJHNLFPJAN_k__BackingField": "LACKKEMGIJD",
+      "_LPCCBJOOEBG_k__BackingField": "LACKKEMGIJD",
+      "_MIOFPEMOJPA_k__BackingField": "HMIEBOKCGFE",
+      "m_actionInfoList": "Il2CppSystem.Collections.Generic.List`1<JCDJDPMCAPB>",
+      "m_actionSetupInfoList": "Il2CppSystem.Collections.Generic.List`1<HMIEBOKCGFE>",
+      "_GFNMEDJIHEN_k__BackingField": "System.Int32",
+      "_JLCMKFAHEAC_k__BackingField": "System.Int32",
+      "_FPNFFAJBLCC_k__BackingField": "System.Int32",
+      "_GKECMIEKNGB_k__BackingField": "System.Int32",
+      "_JCCFDMBFJEJ_k__BackingField": "System.Boolean",
+      "_CPPIEKJOHFK_k__BackingField": "System.Boolean",
+      "_EMPLIMEEAEO_k__BackingField": "System.Boolean",
+      "_IELPDPCEGJB_k__BackingField": "System.Boolean",
+      "_JCOMGOMFOGD_k__BackingField": "System.Boolean",
+      "_CIOOHMJCBIO_k__BackingField": "System.Boolean",
+      "_MHHGMPCBOKI_k__BackingField": "System.Boolean",
+      "_AINAFKNKNPN_k__BackingField": "System.Boolean",
+      "_OLAJEJHNMOH_k__BackingField": "System.Boolean",
+      "_CHDMIGIKBGL_k__BackingField": "System.Int32",
+      "_LEEDKEJLIDN_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "KBOGIFKCLEI": "System.Boolean",
+      "CAFGHHPGDNP": "NHEIMMIAMJO",
+      "PDHCIEFKGCL": "UnityEngine.Vector3",
+      "JEHKCCNGMJA": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`3<System.Int32,System.Int32,BattleStateVariables+MNJKABPDMJL>>",
+      "CAIBMIMOPFI": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`3<System.Int32,System.Int32,BattleStateVariables+MNJKABPDMJL>>",
+      "PELBKEMPEEL": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`3<System.Int32,System.Int32,BattleStateVariables+MNJKABPDMJL>>",
+      "NDMGLBMJOKM": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.Tuple`3<System.Int32,System.Int32,BattleStateVariables+MNJKABPDMJL>>",
+      "_OIKDICCGNDN_k__BackingField": "NHEIMMIAMJO",
+      "_FJKMKAGFGKA_k__BackingField": "NHEIMMIAMJO",
+      "_LOOAANEOCCF_k__BackingField": "NHEIMMIAMJO",
+      "_NFMIMPGPDPF_k__BackingField": "NHEIMMIAMJO",
+      "_NGAKJHGAICD_k__BackingField": "NHEIMMIAMJO",
+      "_NLGNCGNJFOM_k__BackingField": "NHEIMMIAMJO",
+      "_FAPIAEAJMPI_k__BackingField": "NHEIMMIAMJO",
+      "_PBIFOMAACBB_k__BackingField": "NHEIMMIAMJO",
+      "_FOBMEFPEIPC_k__BackingField": "DLFJOBIEIHF",
+      "m_actionInfoList._size": "System.Int32",
+      "m_actionSetupInfoList._size": "System.Int32",
+      "_ENPKCFFLCFM_k__BackingField._NMGKEONKAHG_k__BackingField": "Blend.ApiSchema.Enum.BattleStatus"
+    },
+    "BattleTimelineControl": {
+      "m_battleStateVariables": "BattleStateVariables",
+      "NEPIMAHHMDG": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<BattleTimelineControl+JIMJEKNOBGG>",
+      "MOCBEKLOEBA": "System.Int64",
+      "GGBMLLKDFKB": "NHEIMMIAMJO",
+      "LIJDBCOEJLJ": "BJCGPLBACKM",
+      "LJCHHCJCGFA": "BattleTimelineControl+FPCOIBCMPJC",
+      "_HNCNFMPALMM_k__BackingField": "System.Int32",
+      "_OMFPBEIHMGA_k__BackingField": "System.Boolean",
+      "_OJLIHMONAJG_k__BackingField": "System.Boolean"
+    },
+    "BattleTimelineIcon": {
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "EMFDFCPFBFB": "System.Int32",
+      "AGHBNFGDDON": "Il2CppSystem.Nullable`1<System.Int32>",
+      "DMAANJDNHFN": "System.Boolean",
+      "MLEHOBEAKKO": "System.Boolean",
+      "NEJEMDAPNEN": "System.Boolean",
+      "JBDBPEEHNIH": "System.Boolean",
+      "KPHJGJMKLJA": "System.Boolean",
+      "GEHDLHCDACC": "BattleTimelineIcon+NEAOAABOFGG",
+      "OIJEANAOPGF": "BattleTimelineIcon+KKEOILEPLCC",
+      "EFHLLPONEKP": "System.Boolean",
+      "IMGKHCLMOFH": "System.Boolean",
+      "_CPADBHFJJPE_k__BackingField": "System.Int32",
+      "_MPDICFHJCCP_k__BackingField": "System.Int32",
+      "GDGLDDIAFNP": "NHEIMMIAMJO",
+      "AFEBMDNDALB": "System.Boolean",
+      "ONHKAGMCJLE": "System.Boolean",
+      "CBDCBDHNMPP": "System.Single",
+      "JEMHBGPNDMB": "UnityEngine.Vector3",
+      "EGMLAPEEGID": "Blend.ApiSchema.Enum.BattleTimelineUnitType",
+      "NOPEHLBABAK": "UnityEngine.Vector3",
+      "CHNNOAHJAOC": "UnityEngine.Vector3",
+      "FGGBEJECENB": "System.Boolean"
+    },
+    "BattleTimelineMoveControl": {
+      "CIHHEGKEOED": "BattleStateVariables",
+      "GHBIGDJNMGM": "IEHOBJHGEID<BattleTimelineMoveControl+IFGCIDFHICL>",
+      "AGBDPFBLDFC": "Il2CppSystem.Collections.Generic.List`1<BattleTimelineMoveControl+IFGCIDFHICL>",
+      "AJNMGKCHDCC": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "MHCFAGGFCMN": "Il2CppSystem.Collections.Generic.List`1<MMLMFGCGJEE>",
+      "KKPJGODANEE": "Il2CppSystem.Collections.Generic.List`1<MMLMFGCGJEE>",
+      "DKOPAOFJLFN": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>",
+      "CFEEIGJJECC": "BattleTimelineMoveControl+IFGCIDFHICL",
+      "_BIKMDPIHCCJ_k__BackingField": "System.Boolean",
+      "BEAPFHANIBM": "System.Boolean",
+      "JOKMGGNMIFJ": "System.Boolean",
+      "ANBKNBOGLCL": "System.Boolean",
+      "HCMINBHKOEL": "System.Boolean"
+    },
+    "BattleToolSelectWindow": {
+      "JPJJGBHJPEC": "Il2CppSystem.Collections.Generic.List`1<BNAILBMBKDK>",
+      "MDAMAEGLMCN": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BNAILBMBKDK>",
+      "IDBEOIJMNAL": "Il2CppSystem.Collections.Generic.List`1<BNAILBMBKDK>",
+      "FFPJNIIIJPF": "System.Int32",
+      "HOHDJNFGCCJ": "System.Int32",
+      "NNCBIMCIPLD": "MCLNPPGMLGH",
+      "GCDHLJFAPGB": "System.Int32",
+      "OGAMCDODAPE": "System.Int32",
+      "FDLKHBPGIOB": "System.Boolean",
+      "BMCKNIAPMHC": "PLCHDHONCDJ",
+      "DLEFBGJPFJN": "System.Boolean"
+    },
+    "BattleToolSelectWindow+JAMCEBHLIJC": {
+      "__1__state": "System.Int32",
+      "__4__this": "BattleToolSelectWindow"
+    },
+    "BattleTutorialControl": {
+      "m_battleStateVariables": "BattleStateVariables",
+      "MPOOONCGPEM": "BattleTutorialControl+GGIFFPLBDHH"
+    },
+    "BattleUnitConditionControl": {
+      "m_selfUnit": "NHEIMMIAMJO",
+      "m_battleStateVariables": "BattleStateVariables",
+      "m_conditionList": "Il2CppSystem.Collections.Generic.List`1<CHFECOJEFCA>",
+      "NDBGEJIPBAG": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2<System.Int64,System.Boolean>>",
+      "PJMGGCKGAIL": "System.Int32",
+      "_NFGOAMLLKJE_k__BackingField": "System.Int32",
+      "_PIHOMMGGKHP_k__BackingField": "System.Boolean",
+      "_BEDFCHNMPEF_k__BackingField": "System.Int32",
+      "_CJDJOBGJHGJ_k__BackingField": "Il2CppSystem.Collections.Generic.IList`1<System.Int32>",
+      "_FMGHCHILPNB_k__BackingField": "System.Boolean",
+      "_HEAMNMHPEAO_k__BackingField": "MotionBase+OCMNNMEIKNN",
+      "_OBCICEDPLJP_k__BackingField": "System.Boolean",
+      "_MGONKKIICFM_k__BackingField": "BattleUnitConditionControl+JOCLBFKGKHF"
+    },
+    "CFCLNEHOKPB": {
+      "_PKCCOLMDKKK_k__BackingField": "System.Int32",
+      "_CCEJOJLFKFO_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "CFDKKHNDJJD": {
+      "_NJNELIMANOC_k__BackingField": "System.Int32",
+      "_KJKBHJDLFGH_k__BackingField": "System.Int32"
+    },
+    "CGGKFDGOFGN": {
+      "_NMGKEONKAHG_k__BackingField": "Blend.ApiSchema.Enum.BattleStatus",
+      "_EKPCFHJFGMH_k__BackingField": "OJEECMDJAAC",
+      "_PIIPANJBNOE_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<NCFKMOKLODO>",
+      "_BLDNNKCHHMD_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<HMIEBOKCGFE>",
+      "_ECBGOKBJBLC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JCDJDPMCAPB>",
+      "_JLFPJAKFNMC_k__BackingField": "LACKKEMGIJD",
+      "_BKJPLPBLIEA_k__BackingField": "EAEEELNJMFI",
+      "_IMLKBKEKAGE_k__BackingField": "Blend.ApiSchema.Enum.BattleAutoType",
+      "_DOOHCGMIHPK_k__BackingField": "IHPOLNLKEAB"
+    },
+    "CHDBPBEKIMO": {
+      "_HICNJBGPGHE_k__BackingField": "System.Int32",
+      "_EAGBIDDKPFL_k__BackingField": "System.Int32"
+    },
+    "CHFECOJEFCA": {
+      "CAPGAAFEFGJ": "System.Int64",
+      "BLILELMDIAC": "System.String",
+      "LHNCBGDKOBF": "System.Int32",
+      "IINIDMCJNGF": "System.Int32",
+      "DIGIGKEIKJH": "System.Int32",
+      "AOGCIIKJFOK": "System.Int64",
+      "ANNFFKFGLHF": "System.Boolean",
+      "KANLIOJCGHL": "System.Int64",
+      "NPFNGNGLNCD": "System.Int64",
+      "KIFFOPPCBPM": "System.Int32",
+      "MMFHJBDKGME": "NGJBCKGHCBF",
+      "NOFPBABGELH": "PCBBDJACHCE",
+      "HKHPOGIMJCM": "HDEBKLAHCNM",
+      "ONAKMNJOOOH": "System.Boolean",
+      "PNCMAFOCBKC": "System.Boolean",
+      "MCAHIEHHBBC": "System.Boolean",
+      "NGNLEAAGNLI": "System.Boolean",
+      "JEAGLIINEOB": "System.Boolean",
+      "EMGGNCDNEBD": "Il2CppSystem.Nullable`1<System.Int32>",
+      "JLNCHMCBALN": "System.Boolean"
+    },
+    "CKPHFNPDGBA": {
+      "_MONJNEJDIJD_k__BackingField": "System.Int32",
+      "_LDLCABKDAMB_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "CharaDetailMenuWindow": {
+      "LDLLEAPMAIG": "System.Boolean",
+      "FPGPDGACOIH": "System.Boolean",
+      "JIICDJJJOFG": "MMGMFDEMDLA",
+      "NFBDKHJDCLA": "System.Boolean",
+      "CFEEIGJJECC": "CharaMenuWindow+DHNLHKKKFPB",
+      "HMFDICKGKHJ": "System.Boolean",
+      "_DOEFKNHOPIF_k__BackingField": "CharaMenuWindow+DHNLHKKKFPB",
+      "_MPEICAKNGOD_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<MMGMFDEMDLA>",
+      "FDMDCNKBNNK": "DLFJOBIEIHF",
+      "MKNBCKKILBK": "MMGMFDEMDLA",
+      "_HNDLBOBALMP_k__BackingField": "Blend.UserData.Party",
+      "_CFANHOCIOHE_k__BackingField": "System.Int32",
+      "_NNOPGPHOOPM_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<ANBHPMNFOPM>",
+      "_CFFNFCBIPHN_k__BackingField": "System.Boolean",
+      "_NGDOIKHBBHI_k__BackingField": "System.Boolean",
+      "FDLKHBPGIOB": "System.Boolean",
+      "LADHCEHDOON": "Il2CppSystem.Collections.Generic.List`1<DLFJOBIEIHF>",
+      "HDNDGCFJHJO": "Il2CppSystem.Collections.Generic.List`1<HOIFNPIPOFP>",
+      "PEDAGCDMKGN": "CharaWindowBase+LBANKLEEKFP",
+      "LMIFNHFLGDI": "MMGMFDEMDLA"
+    },
+    "CharaDetailMenuWindow+GMDDADKNAFO": {
+      "__1__state": "System.Int32",
+      "__4__this": "CharaDetailMenuWindow",
+      "__8__1": "CharaDetailMenuWindow+LMFNBCPGJFN",
+      "_releaseData_5__2": "NPIFBBAJEAC",
+      "_beforeNum_5__3": "System.Int32"
+    },
+    "CharaGrowResetWindow": {
+      "CADGOOMJHOJ": "MMGMFDEMDLA",
+      "NFMBOGHBAMA": "Il2CppSystem.Collections.Generic.List`1<ACFODADLBFC>",
+      "FKGHJJLDCCA": "System.Boolean",
+      "MENGDMGIJNA": "FOAFJDMHNLI"
+    },
+    "CharaGrowResetWindow+NALIPFIKIAO": {
+      "__1__state": "System.Int32",
+      "__4__this": "CharaGrowResetWindow"
+    },
+    "CharaLevelUpWindow": {
+      "BOKGOGOCJAF": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<FOAFJDMHNLI>",
+      "LOAPLFPJPJA": "MMGMFDEMDLA",
+      "_HEHHHFAPDNE_k__BackingField": "System.Boolean"
+    },
+    "CharaLevelUpWindow+NLMMHLKOLEI": {
+      "__1__state": "System.Int32",
+      "__4__this": "CharaLevelUpWindow",
+      "_selectedItemInfoList_5__2": "Il2CppSystem.Collections.Generic.List`1<FOAFJDMHNLI>",
+      "_beforeLevel_5__3": "System.Int32",
+      "_beforePower_5__4": "System.Int32",
+      "_afterLevel_5__5": "System.Int32"
+    },
+    "CharaRarityUpWindow": {
+      "LOAPLFPJPJA": "MMGMFDEMDLA",
+      "CIIHGOELLLE": "System.Int32",
+      "BEPLGPFANJK": "Il2CppSystem.Collections.Generic.List`1<ACFODADLBFC>"
+    },
+    "CharaRarityUpWindow+KBPOIKMLLNG": {
+      "__1__state": "System.Int32",
+      "__4__this": "CharaRarityUpWindow",
+      "_beforeRarity_5__2": "PANILJJHCGP",
+      "_afterRarity_5__3": "PANILJJHCGP"
+    },
+    "ContainerToolWindow": {
+      "AHGPEALPIDF": "DGLGAKOEEEE",
+      "FGEJAGJMLKC": "Il2CppSystem.Collections.Generic.List`1<BNAILBMBKDK>",
+      "MMKIOHELDMA": "JFCLGFPOCCD",
+      "ECEEFEIAFOH": "HJDCGFHLHBI",
+      "AIDHCNKBDEE": "System.Int32",
+      "IIECCBMHJLK": "BNAILBMBKDK"
+    },
+    "ContainerToolWindow+BGCFMGPGCCC": {
+      "__1__state": "System.Int32",
+      "__4__this": "ContainerToolWindow",
+      "__8__1": "ContainerToolWindow+PNLIGJIABDM",
+      "_tool_5__2": "BNAILBMBKDK",
+      "_newTool_5__3": "BNAILBMBKDK"
+    },
+    "DACMCGLDEEH": {
+      "GJBAKKOKOCL": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2<ALGPFGEMFML,System.Int32>>",
+      "_DPJBMFAIPPG_k__BackingField": "System.Int32",
+      "_LJPNDPHCHGF_k__BackingField": "Blend.ApiSchema.Enum.BattleMemberType",
+      "_MJKNPDHJMLO_k__BackingField": "System.Int32",
+      "_CAHHHIBJMJM_k__BackingField": "System.Int32",
+      "_GCFPDAGDACB_k__BackingField": "System.Int32",
+      "_FEIJNMNFBIE_k__BackingField": "System.Int32",
+      "_IFGHLJJODIG_k__BackingField": "System.Int32",
+      "_FEECODKGCEH_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<BPEKJGJPNCO>",
+      "_EDOGGMMIOHN_k__BackingField": "System.Boolean",
+      "_HDNNFMBKCOF_k__BackingField": "System.Boolean",
+      "_NIKJLFFGDGF_k__BackingField": "System.Boolean",
+      "_JLENLDFCJKB_k__BackingField": "BHPJMGDLNNE",
+      "_NKADNMPGNCM_k__BackingField": "BHPJMGDLNNE",
+      "_DODBACNJODO_k__BackingField": "BBNGKKCENAE",
+      "_JJHFMGOAANP_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<AAODHOPGMLP>",
+      "_IOFFPGBEIBG_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<EJGGMDPNBBN>",
+      "_GCFBLJOGJNI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<ONLJOBBGNHI>",
+      "_PFEABKMFLPF_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<CFDKKHNDJJD>",
+      "_APGEGCADBKE_k__BackingField": "DANLKBKKHGF",
+      "_MJIAFEENOKG_k__BackingField": "DJFKNLNCLPM",
+      "_PHFPNFIOJIA_k__BackingField": "FOHKPBGBDNP",
+      "_GENIJDNMPMM_k__BackingField": "KNLAKPPGJBH",
+      "_ICMPGLFDFBO_k__BackingField": "JOBHGDLMMKC"
+    },
+    "DANLKBKKHGF": {
+      "_MEIFKOMGOCE_k__BackingField": "System.Int32",
+      "_LLIGAFJHBJL_k__BackingField": "System.Int32",
+      "_KDGLLFELHDN_k__BackingField": "System.Boolean"
+    },
+    "DJFKNLNCLPM": {
+      "_DCHBCLLGOPM_k__BackingField": "System.Int32",
+      "_ILBJFEDEJPB_k__BackingField": "System.Int32",
+      "_LFMHKEECGPM_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_OEGOMPPOFCN_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JOKKPKJNLDE>",
+      "_AICHFAJFCIM_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JKJNNCGPOIL>",
+      "_ANBLCJMJBLA_k__BackingField": "System.Boolean"
+    },
+    "DNDKEBECKMG": {
+      "_IBHMKGHFIMA_k__BackingField": "CNNGMEHPCHA",
+      "_MJHEPKGMOBL_k__BackingField": "IJJGGCPCMND",
+      "_COELJEKOJIE_k__BackingField": "System.Int32",
+      "_KMJNMONJNCB_k__BackingField": "System.Int32",
+      "_EAGBIDDKPFL_k__BackingField": "JHBONBLBFKK",
+      "_IIBKHNCICJF_k__BackingField": "CJFLDANIILJ",
+      "_OMLGGFBMJMM_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<IJLKGKMCCPL>",
+      "_NPOOJIKDBMC_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<HJGFOEOHPIH>"
+    },
+    "DOPGEEOGDCN": {
+      "_CNCHAMOCOKO_k__BackingField": "System.Boolean",
+      "_HOOCEMOLCPC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<MFGELPHAMPL>"
+    },
+    "EAEMAJLIPOP": {
+      "_DPJBMFAIPPG_k__BackingField": "System.Int32",
+      "_BAIBBLHCKGH_k__BackingField": "System.Int32",
+      "_PEGOBIOLFGB_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_HDFEBPMFBKK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_ADFJHFODNDP_k__BackingField": "System.Boolean",
+      "_PMFPKKLFGNK_k__BackingField": "System.Boolean"
+    },
+    "EICNKLEMNKG": {
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_LAPHGKNCMBG_k__BackingField": "System.Boolean",
+      "_MBNJFCNAGMI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GNLMFPFFBHB>",
+      "_OCPCPEMDNAF_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "_GICDMIPBEOC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>"
+    },
+    "EJGGMDPNBBN": {
+      "_IBCKPPLEKBD_k__BackingField": "System.Int32",
+      "_EGNFKCPMAHC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<EJGGMDPNBBN+CDHIJECFEGD>"
+    },
+    "EJGGMDPNBBN+CDHIJECFEGD": {
+      "_HFCCEKGHFLA_k__BackingField": "System.Int32",
+      "_DNPOKGPEPJM_k__BackingField": "System.Int32"
+    },
+    "ENJMFBMLIIC": {
+      "_MEIFKOMGOCE_k__BackingField": "System.Int64",
+      "_LLIGAFJHBJL_k__BackingField": "System.Int64",
+      "_NMKMCDPHGDM_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "FGGLBOCKLIJ": {
+      "_FCDDAOAMJKI_k__BackingField": "System.Int32",
+      "_PEGOBIOLFGB_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_NNKLIFLJKAA_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_HDFEBPMFBKK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_AJDPGIADIBH_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_FEPGLIKKPMP_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_BIOMFIGLEIK_k__BackingField": "Blend.ApiSchema.Enum.BattleBreakType",
+      "_LIBLPKLGNAA_k__BackingField": "System.Boolean",
+      "_MBPGPJPPAJE_k__BackingField": "System.Boolean",
+      "_POIKBIBOFMC_k__BackingField": "System.Boolean",
+      "_ADFJHFODNDP_k__BackingField": "System.Boolean",
+      "_JINPAKPLNAN_k__BackingField": "System.Boolean",
+      "_KLOBECANNGM_k__BackingField": "System.Boolean",
+      "_NLJFPEKPJAG_k__BackingField": "System.Boolean",
+      "_DOBOFHLAGBE_k__BackingField": "System.Double",
+      "_GIGBHJKFKOL_k__BackingField": "System.Boolean",
+      "_JOIIPENLGHM_k__BackingField": "System.Boolean",
+      "_NIKJLFFGDGF_k__BackingField": "System.Boolean"
+    },
+    "FGHNMGBOGHF": {
+      "OONGIHCEGJB": "Il2CppSystem.Collections.Generic.List`1<IBBCCMFKKHB>",
+      "_NCCNEIADCOD_k__BackingField": "HBFNAAPJCLG",
+      "_MHLKHKHBFEM_k__BackingField": "EMMHGCNFILF",
+      "_CEOPMCLKJLF_k__BackingField": "OAEGBHJGHDN",
+      "_KEOIAOODFNB_k__BackingField": "System.Int32",
+      "_KJKBHJDLFGH_k__BackingField": "System.Int32",
+      "_NEBFCBIFOKI_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<ACFODADLBFC>",
+      "_DPLMIBNLKEG_k__BackingField": "System.String",
+      "_AICGCMHMFMB_k__BackingField": "System.String",
+      "_EJDKJDPKCDI_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<EENJGLGDCIG>",
+      "_KOMMAHLIEAM_k__BackingField": "System.Int64",
+      "_GNMPHPIHOOB_k__BackingField": "System.Int64",
+      "_AFMOFCOPHMB_k__BackingField": "System.Int32",
+      "_OJEIALCCBMO_k__BackingField": "Il2CppSystem.Nullable`1<_ee847>"
+    },
+    "FOHKPBGBDNP": {
+      "_MDDLGBNJPJK_k__BackingField": "System.Int32",
+      "_KGJONLGLDPA_k__BackingField": "System.Boolean",
+      "_BEDFCHNMPEF_k__BackingField": "System.Int32",
+      "_NFGOAMLLKJE_k__BackingField": "System.Int32",
+      "_MDIIDNPBMAO_k__BackingField": "System.Int32",
+      "_JLLLEHANHPI_k__BackingField": "System.Boolean",
+      "_PMKFMCDOKGK_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "_NJKGOHKFPMF_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "_DMCOONBJJLD_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "GCKIKJHLMDO": {
+      "_KNHCCOEGEFG_k__BackingField": "System.Int32",
+      "_KLNELBLPDBO_k__BackingField": "System.Int32",
+      "_CCACJCONJNB_k__BackingField": "System.Int32",
+      "_CLNPNLBPLNP_k__BackingField": "System.String",
+      "_ODCNBKAMMBH_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_OAPJEHLOMIP_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_CCMADPILMBN_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "GHPNKPJAENF": {
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_LAPHGKNCMBG_k__BackingField": "System.Boolean",
+      "_MBNJFCNAGMI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GNLMFPFFBHB>",
+      "_OCPCPEMDNAF_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "_GICDMIPBEOC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>"
+    },
+    "GJOLIEKNJBM": {
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_LOCEOFINMLL_k__BackingField": "System.Int32",
+      "_DJIGPHNFBFO_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<CHDBPBEKIMO>",
+      "_GLICAMMLNBJ_k__BackingField": "System.Int32"
+    },
+    "GNLMFPFFBHB": {
+      "_FCDDAOAMJKI_k__BackingField": "System.Int32",
+      "_FKPCKIBNACF_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_PEGOBIOLFGB_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_NNKLIFLJKAA_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_DOBOFHLAGBE_k__BackingField": "System.Double",
+      "_AJDPGIADIBH_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_HDFEBPMFBKK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_FEPGLIKKPMP_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_BIOMFIGLEIK_k__BackingField": "Blend.ApiSchema.Enum.BattleBreakType",
+      "_JOIIPENLGHM_k__BackingField": "System.Boolean",
+      "_NLJFPEKPJAG_k__BackingField": "System.Boolean",
+      "_JINPAKPLNAN_k__BackingField": "System.Boolean",
+      "_KLOBECANNGM_k__BackingField": "System.Boolean",
+      "_KNCEFCOFLKH_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "_GDKNGGICCGE_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>",
+      "_HKFCGPFBEMA_k__BackingField": "System.Int32"
+    },
+    "HGMNGLJGEBO": {
+      "_CJDBBJJLEAL_k__BackingField": "Il2CppSystem.Nullable`1<Il2CppSystem.DateTime>",
+      "_EODGKLGOBPP_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JJPPPEBLGOK>"
+    },
+    "HKOJFHMFIDG": {
+      "MINAMBGKBFJ": "AGMNKCPPPCO",
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_LOCEOFINMLL_k__BackingField": "System.Int32",
+      "_BALLMEDPAOK_k__BackingField": "System.Int32",
+      "_GLICAMMLNBJ_k__BackingField": "System.Int32"
+    },
+    "HMIEBOKCGFE": {
+      "LONBAIBKDIF": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "GMBCIGDLAAF": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_CEIKPECFIFN_k__BackingField": "LACKKEMGIJD",
+      "_IPJJKDBADKJ_k__BackingField": "Blend.ApiSchema.Enum.BattleMemberType",
+      "_HBODHOIJADK_k__BackingField": "System.Int32",
+      "_CJMEIFKMNHF_k__BackingField": "System.Boolean",
+      "_PAMLEAFKLPI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "_PCDKHHAHCEK_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "_BOFMEKJAAOD_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "_NHAFNAAGEGL_k__BackingField": "MPLEDIDONGE",
+      "_MGOGNLKHJLC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<EAEMAJLIPOP>",
+      "_EIPEEJBOCHM_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PPIJGNABCIG>",
+      "_JIKPEADBIPJ_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GHPNKPJAENF>",
+      "_GNFKNFFJAPP_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<NJMCOBOGJJB>",
+      "_BCHLNHGMNLK_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OHAJIHIBNKH>",
+      "_BOKDDFPDCEB_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<EICNKLEMNKG>",
+      "_KHGIDHMEOON_k__BackingField": "System.Int64"
+    },
+    "JCDJDPMCAPB": {
+      "IFAMLFICDIK": "System.Boolean",
+      "EOLOGCJAJIL": "IJJGGCPCMND",
+      "LONBAIBKDIF": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "FFOELPPMBPG": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_CEIKPECFIFN_k__BackingField": "LACKKEMGIJD",
+      "_DJIHDJFLKNP_k__BackingField": "Blend.ApiSchema.Enum.BattleActionType",
+      "_ECDMHCJLFKG_k__BackingField": "System.Boolean",
+      "_IPJJKDBADKJ_k__BackingField": "Blend.ApiSchema.Enum.BattleMemberType",
+      "_HBODHOIJADK_k__BackingField": "System.Int32",
+      "_OJLIHMONAJG_k__BackingField": "System.Boolean",
+      "_AHGNKFDCMMA_k__BackingField": "System.Boolean",
+      "_BALLMEDPAOK_k__BackingField": "System.Int32",
+      "_OLIBJEACEFF_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_EHJEBBAIICH_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_MGGPJKMIEAC_k__BackingField": "System.Int32",
+      "_KKKLANMPFLB_k__BackingField": "Blend.ApiSchema.Enum.BattleSkillTargetMode",
+      "_GPGLMJMANKK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_CIKDNFDNPLB_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_HLGAOCLKFDM_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_PKEDADKAFFI_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_FKJBILOGKDO_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<FGGLBOCKLIJ>",
+      "_PAMLEAFKLPI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "_AGKMDGPGLIK_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "_PCDKHHAHCEK_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "_POFBIDPLPAK_k__BackingField": "System.Boolean",
+      "_KHGIDHMEOON_k__BackingField": "System.Int64",
+      "_KOEPOCJOLAN_k__BackingField": "System.Boolean",
+      "_KCGJJPJKDCG_k__BackingField": "System.Boolean"
+    },
+    "JJPPPEBLGOK": {
+      "_AJCAELOJDNI_k__BackingField": "System.Int32",
+      "_FOPEEJGNMOK_k__BackingField": "System.Int32",
+      "_JCNLPCLKHEI_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "ELIIPHNLBCO": "MMGMFDEMDLA",
+      "ILLEMGGPHOI": "MMGMFDEMDLA",
+      "OENJMECIDFB": "FOAFJDMHNLI"
+    },
+    "JKHFJKGHLHF": {
+      "_HFCCEKGHFLA_k__BackingField": "System.Int32",
+      "_LDGFGOBBBOE_k__BackingField": "System.Int32",
+      "_ONCEMGIOIEC_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_GBINIFBLFMH_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_PEGOBIOLFGB_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_HDFEBPMFBKK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_AJDPGIADIBH_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_DOBIMJFABNJ_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_EKBJBFCGNHD_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_FABLKEILMNN_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_HNFLNCNJNMD_k__BackingField": "System.Boolean",
+      "_ADFJHFODNDP_k__BackingField": "System.Boolean",
+      "_BLNDNLFDOEI_k__BackingField": "System.Boolean",
+      "_LNEPHENFNOK_k__BackingField": "System.Boolean",
+      "_NIKJLFFGDGF_k__BackingField": "System.Boolean",
+      "_NNJLOAICOFE_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>",
+      "_NFABDGKLFPH_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_EIKOLICKIMD_k__BackingField": "Blend.ApiSchema.Enum.BattleDealStateChangeResult",
+      "_DKMEIEDHPNE_k__BackingField": "ONLJOBBGNHI",
+      "_EHHJFIELGDM_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<ONLJOBBGNHI>",
+      "_OLIAJJOLBEN_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_MONJNEJDIJD_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_NNHGEGKCEBG_k__BackingField": "DOPGEEOGDCN",
+      "_FPBFAGKCIFJ_k__BackingField": "ENJMFBMLIIC",
+      "_LPMELHANCCK_k__BackingField": "LDILPBILJGE",
+      "_KIAFANKAOAN_k__BackingField": "System.Boolean",
+      "_BFFMMKPPHJD_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_KGGMBJCLPBK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "JKKEAMMOGHE": {
+      "IHBHHDMHPDH": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2<ALGPFGEMFML,Il2CppSystem.Nullable`1<System.Int32>>>",
+      "KIJIGHKJCDM": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2<ALGPFGEMFML,Il2CppSystem.Nullable`1<System.Int32>>>",
+      "ELOEFBHANPP": "Il2CppSystem.ValueTuple`2<ALGPFGEMFML,Il2CppSystem.Nullable`1<System.Int32>>",
+      "_HOOCEMOLCPC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GBOOPJABJOJ>",
+      "_BJEEJJFLLJB_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "_FHJGCCFFCFG_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "_IJMJOFENMBD_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_AECEHCIKMLF_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "_OECGJKOKCGD_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "JOBHGDLMMKC": {
+      "LDMAOMLEKMH": "KGJJICOMNCP",
+      "_HEMKGLHGGIC_k__BackingField": "System.Int32",
+      "_FJLPPOGBHKD_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "_BFKNNONLCOF_k__BackingField": "System.Int32",
+      "_ILJHFFLLJNP_k__BackingField": "System.Int32",
+      "_MMHFFKKLBHE_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "JOKKPKJNLDE": {
+      "_BALLMEDPAOK_k__BackingField": "System.Int32",
+      "_OLIBJEACEFF_k__BackingField": "System.Int32",
+      "_DNPOKGPEPJM_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_DOBFCKBOONI_k__BackingField": "System.Int32"
+    },
+    "KNLAKPPGJBH": {
+      "_OFGDEJGNFJG_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<EJGGMDPNBBN>",
+      "_MMHFFKKLBHE_k__BackingField": "System.Int32"
+    },
+    "LACKKEMGIJD": {
+      "_MHLFIMKEMOA_k__BackingField": "System.Int32",
+      "_EOMPGDIPCFL_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "_ICLAJOAFFFA_k__BackingField": "System.Int32",
+      "_FJCOHLEBCNE_k__BackingField": "System.Int32",
+      "_HOOCEMOLCPC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<DACMCGLDEEH>",
+      "_JPPNKHINOIP_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>",
+      "_NGFOGBLFMCJ_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<MMLMFGCGJEE>",
+      "_DIIOCHKPDIL_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GJOLIEKNJBM>",
+      "_GHEIKCOLLFI_k__BackingField": "System.Int32",
+      "_EBBNGHMKPCI_k__BackingField": "System.Int32",
+      "_GKBEHFHDBKL_k__BackingField": "CKPHFNPDGBA",
+      "_EMAJCMMDHHK_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<CFCLNEHOKPB>",
+      "_FPBFAGKCIFJ_k__BackingField": "ENJMFBMLIIC",
+      "_NPPFPAKAODK_k__BackingField": "JKKEAMMOGHE",
+      "_OJBLMJAPEPI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<HKOJFHMFIDG>"
+    },
+    "LDILPBILJGE": {
+      "_HBODHOIJADK_k__BackingField": "System.Int32",
+      "_BALLMEDPAOK_k__BackingField": "System.Int32",
+      "_MGGPJKMIEAC_k__BackingField": "System.Int32",
+      "_FKJBILOGKDO_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<FGGLBOCKLIJ>",
+      "_HLGAOCLKFDM_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_PKEDADKAFFI_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "MFGELPHAMPL": {
+      "_DPJBMFAIPPG_k__BackingField": "System.Int32",
+      "_OGNHAHOGFLP_k__BackingField": "System.Int32"
+    },
+    "MIPJCECFKPM": {
+      "_NCCNEIADCOD_k__BackingField": "HKDHLBBJGIM",
+      "_DPLMIBNLKEG_k__BackingField": "System.String",
+      "_BKPDPCKPJFC_k__BackingField": "JIBNBBPDIAD",
+      "_BFKNNONLCOF_k__BackingField": "System.Int32",
+      "_PBLLDECJBCP_k__BackingField": "ACFODADLBFC",
+      "_LPKJFDHGCLO_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<PKBGEBFKGJJ>",
+      "_NIAGDNLFPIL_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<FAJHJOMIDBJ>",
+      "_CIKMDCCMAHK_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_OJEIALCCBMO_k__BackingField": "Il2CppSystem.Nullable`1<_ee847>"
+    },
+    "MMGMFDEMDLA": {
+      "HLHEEFMCNCM": "Blend.UserData.GrowboardState",
+      "_HLIBEKMOKNK_k__BackingField": "System.Boolean",
+      "_PLOCPHGLJFP_k__BackingField": "KHKKADNDINF",
+      "_BLFMGKAFNOH_k__BackingField": "KHKKADNDINF",
+      "_IJGIHCNGBFA_k__BackingField": "KHKKADNDINF",
+      "_MPOLNFLPIAN_k__BackingField": "Blend.UserData.Memoria",
+      "_MGCCHBLDDED_k__BackingField": "System.Boolean",
+      "MEHFGOEBGFG": "System.Boolean",
+      "LBHFALJPJAO": "AGAJFINGPKJ",
+      "KNNOOLGBIHF": "BABNDCGGEAB",
+      "NCGFBHHDPPO": "JFOHDDCEAEJ",
+      "LPHHKAHGCNK": "EAOONFHLEKA",
+      "PJMBOFADFBL": "EAOONFHLEKA",
+      "CGNNAPIEENC": "EAOONFHLEKA",
+      "OJAMAKPFKLF": "GCKKHBHJPHO",
+      "HOHFGEHPOPG": "ALBJLHDKLAC",
+      "OPELOMEHBJH": "Il2CppSystem.Collections.Generic.List`1<CCLJPBHNDPL>",
+      "CEFLKDDGGFH": "Il2CppSystem.Collections.Generic.List`1<NLPPHEPPDLH>",
+      "FDOAPMBKOMB": "Blend.UserData.Recipe",
+      "HEDOJNJOAIK": "System.Int32",
+      "_DCHBCLLGOPM_k__BackingField": "System.Int32",
+      "_FEDEHFBAAHP_k__BackingField": "System.Int32",
+      "_HBAACHCGDDD_k__BackingField": "System.Int32",
+      "_NDECMFNCJEM_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_NHMGPFAHBPI_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_HBOIMMGHGOF_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_EJAMGAKDABN_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_GMCJAILLMNH_k__BackingField": "System.Int32",
+      "_PDNEIGLCOIE_k__BackingField": "System.Int32",
+      "_JIKMMMLJGKC_k__BackingField": "System.Int32",
+      "_FEFJHCKMDPH_k__BackingField": "System.Int32",
+      "_BENJOMNIEOO_k__BackingField": "System.Int32",
+      "_IMFIGKIDCHP_k__BackingField": "System.Int32",
+      "_MBLNNCAOMCI_k__BackingField": "System.Int32",
+      "_JJLLJDJOLBA_k__BackingField": "System.Int32",
+      "_IEAPBBCJELM_k__BackingField": "System.Int32",
+      "_JDAFIFHJHAH_k__BackingField": "System.Int32",
+      "_NJEKFOFPOKD_k__BackingField": "System.Int32",
+      "_JAHGCGOGAMA_k__BackingField": "System.Int32",
+      "_BFLDINCACCH_k__BackingField": "System.Int32",
+      "_DNJHALICEPN_k__BackingField": "System.Int32",
+      "_CLJJKIHEGBP_k__BackingField": "System.Int32",
+      "_KNLABIGFKKM_k__BackingField": "System.Int32",
+      "_JENPLDFLBOD_k__BackingField": "System.Int32",
+      "_CIGPKJHLODP_k__BackingField": "System.Int32",
+      "_HMHGNJGGJFH_k__BackingField": "System.Int32",
+      "_JAKCBMCCBHP_k__BackingField": "System.Int32",
+      "_PJIHABPFKCG_k__BackingField": "System.Int32",
+      "_IEJPDFFNPNA_k__BackingField": "System.Int32",
+      "_GMEFOLMFFJD_k__BackingField": "System.Boolean",
+      "_JOGIHBKMKKK_k__BackingField": "System.Boolean",
+      "_CCIJAACIKOI_k__BackingField": "System.Boolean",
+      "_AMPJBLICPAO_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_AKCHHJGKNPO_k__BackingField": "System.Boolean",
+      "_FFALDHCEFKF_k__BackingField": "System.Boolean",
+      "_ILBCHBLOFKK_k__BackingField": "System.Boolean",
+      "_DDCHGMKIEPH_k__BackingField": "Il2CppSystem.Nullable`1<Il2CppSystem.DateTime>"
+    },
+    "MMLMFGCGJEE": {
+      "_DPJBMFAIPPG_k__BackingField": "System.Int32",
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_FADEFMMJDBF_k__BackingField": "System.Int32",
+      "_LJPNDPHCHGF_k__BackingField": "Blend.ApiSchema.Enum.BattleTimelineUnitType",
+      "_NAFGEIBPKMP_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_OJIHFHNIPLD_k__BackingField": "System.Boolean"
+    },
+    "MPLEDIDONGE": {
+      "_PEGOBIOLFGB_k__BackingField": "Il2CppSystem.Nullable`1<System.Int64>",
+      "_JOIIPENLGHM_k__BackingField": "System.Boolean",
+      "_PCDKHHAHCEK_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>"
+    },
+    "NAKLKNNBDMC": {
+      "JCFLKHGGACH": "Blend.UserData.Recipe",
+      "NGKGLIBNPCM": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<Il2CppSystem.ValueTuple`2<JFCLGFPOCCD,System.Int32>>",
+      "JKBFGCEOACA": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "_BPIJBFDCCIK_k__BackingField": "NEMHPEAJKFF",
+      "_DIFKGCIAHBK_k__BackingField": "System.Int32",
+      "ODOJELOGOIG": "System.Int32",
+      "GJHHNLBCJDM": "System.Int32"
+    },
+    "NCFKMOKLODO": {
+      "LONBAIBKDIF": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>",
+      "_GCGPLAGAOOD_k__BackingField": "System.Int32",
+      "_CEIKPECFIFN_k__BackingField": "LACKKEMGIJD",
+      "_PCDKHHAHCEK_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<JKHFJKGHLHF>"
+    },
+    "NHEIMMIAMJO": {
+      "CIHHEGKEOED": "BattleStateVariables",
+      "DDHFCNJJNGM": "BattleUnitConditionControl",
+      "OMJHJKLJGJM": "IAKOGAEEOOC",
+      "EJIDBLHEBNI": "BattleUnitTimelineControl",
+      "KACMCAGJPLP": "BattleUnitDamageControl",
+      "DLHMKEBENAD": "BattleUnitMoveControl",
+      "AJDOKPAONGN": "GCNOLOEMKPL",
+      "MMELJBOFGCL": "GCNOLOEMKPL",
+      "IBMGADMNEGH": "Il2CppSystem.Collections.Generic.Dictionary`2<System.Int32,System.Int32>",
+      "FLPGPEGNCME": "Il2CppSystem.Collections.Generic.Dictionary`2<System.Int32,Il2CppSystem.Tuple`2<System.Int32,System.Boolean>>",
+      "LFOANAGBMHA": "Il2CppSystem.Collections.Generic.List`1<DAEHEDNDEEF>",
+      "_DPLMIBNLKEG_k__BackingField": "System.String",
+      "_ILAMKMPAAKI_k__BackingField": "System.String",
+      "_IKJIFKJEPKL_k__BackingField": "DLFJOBIEIHF",
+      "_FKIIDEBCPON_k__BackingField": "DLFJOBIEIHF",
+      "_HLHNEGBOGEN_k__BackingField": "IBMOFPKMIBK",
+      "_GAPOPBJAOMI_k__BackingField": "EEGNOAJAJCB",
+      "_BKMFJGAJBII_k__BackingField": "System.Int32",
+      "_FPNFFAJBLCC_k__BackingField": "System.Int32",
+      "_NHNGMNDFPGC_k__BackingField": "System.Int64",
+      "_KELNBPDGDNG_k__BackingField": "System.Int64",
+      "_AHHHIKDDMDA_k__BackingField": "System.Boolean",
+      "_NFIMKCMHGIO_k__BackingField": "System.Int64",
+      "GKCGPKOPBJO": "System.Single",
+      "_AFBKBPGHAAP_k__BackingField": "System.Single",
+      "_OOIOIKEDFCF_k__BackingField": "System.Single",
+      "_HFHKBJCKIPI_k__BackingField": "DIFKNEHILKI",
+      "_AKPBCEPFBEL_k__BackingField": "NFFLGLCFJFC",
+      "_ACOOGLOBFLJ_k__BackingField": "UnityEngine.Vector3",
+      "_IKFKOKDHMLD_k__BackingField": "UnityEngine.Vector3",
+      "_KKFMOCDNELD_k__BackingField": "UnityEngine.Vector3",
+      "_EPNOCCFKJDK_k__BackingField": "UnityEngine.Vector3",
+      "_DPNGMOPJOFM_k__BackingField": "System.Int32",
+      "_NPBNBIDACIB_k__BackingField": "System.Int64",
+      "_KAGIGBNIOFL_k__BackingField": "System.Int64",
+      "_AKKAIFGHMIH_k__BackingField": "System.Int64",
+      "_JEMOHBAPJCA_k__BackingField": "System.Int64",
+      "_DGLAJOAGAKC_k__BackingField": "System.Int64",
+      "_DMKAIAPAEKM_k__BackingField": "System.Int64",
+      "_IPJNFNJOLGN_k__BackingField": "System.Int64",
+      "_GHMCFEOCDAE_k__BackingField": "System.Int64",
+      "_OMAKMCKOPLE_k__BackingField": "System.Int64",
+      "_HCKOBOGFMDB_k__BackingField": "System.Int64",
+      "_AJCENBFIHNA_k__BackingField": "System.Int64",
+      "_ALBKMBKHBCJ_k__BackingField": "System.Int64",
+      "_JKBPJCLLPMP_k__BackingField": "System.Int64",
+      "_PIHGHODNOHB_k__BackingField": "System.Int64",
+      "_OPMBONDPMFL_k__BackingField": "System.Int64",
+      "_LLMCGCKOADA_k__BackingField": "System.Int64",
+      "_GOINMCECAPH_k__BackingField": "System.Int64",
+      "_ABKHFOBLLMG_k__BackingField": "System.Int64",
+      "_OPAAOKOGKCJ_k__BackingField": "System.Int64",
+      "_BKAOLPBDNND_k__BackingField": "System.Int64",
+      "_GPKPFNIMAEJ_k__BackingField": "System.Int64",
+      "_GFAGEAKNMCN_k__BackingField": "System.Int32",
+      "_CAHHHIBJMJM_k__BackingField": "System.Int64",
+      "_MJKNPDHJMLO_k__BackingField": "System.Int64",
+      "_CKIFIAJJKLF_k__BackingField": "System.Int32",
+      "_IGHICBLLELD_k__BackingField": "System.Single",
+      "_ELBHDELMHOM_k__BackingField": "BLJBEHACPAM",
+      "_NCPFGJAFDCG_k__BackingField": "System.Int32",
+      "_FEIJNMNFBIE_k__BackingField": "System.Int32",
+      "_OBOKIHGCAMI_k__BackingField": "System.Int32",
+      "_NFAILBDPEKP_k__BackingField": "System.Int32",
+      "_LGBNBCKFCEA_k__BackingField": "System.Int32",
+      "_IFGHLJJODIG_k__BackingField": "System.Int64",
+      "_DAHBICNNOHC_k__BackingField": "System.Int32",
+      "_NKADNMPGNCM_k__BackingField": "BHPJMGDLNNE",
+      "_GJAEBNHFALM_k__BackingField": "System.Int32",
+      "_JLENLDFCJKB_k__BackingField": "BHPJMGDLNNE",
+      "_ANBLCJMJBLA_k__BackingField": "System.Boolean",
+      "_KGMBAPBPEFJ_k__BackingField": "System.Boolean",
+      "_FBLKLMKLPFM_k__BackingField": "System.Boolean",
+      "_APIPMDBADAO_k__BackingField": "System.Boolean",
+      "_KGJONLGLDPA_k__BackingField": "System.Boolean",
+      "_PDEIIAGDOPM_k__BackingField": "System.Boolean",
+      "_KKICBKKMFLI_k__BackingField": "System.Boolean",
+      "_KAFDHDGPMDB_k__BackingField": "System.Boolean",
+      "_EBEMDCJGDOI_k__BackingField": "System.Boolean",
+      "_HDINHODNPFO_k__BackingField": "System.Boolean",
+      "_KNEKNEAAIOG_k__BackingField": "System.Boolean",
+      "_BNLGOCLIKMK_k__BackingField": "System.Boolean",
+      "_ODKBDGGMIBJ_k__BackingField": "System.Boolean",
+      "_BKDEGDJPJCL_k__BackingField": "System.Boolean",
+      "_IFKBMNOKANN_k__BackingField": "System.Boolean",
+      "_ADFBEAAHCMN_k__BackingField": "System.Boolean",
+      "_PMPBDNHEKBF_k__BackingField": "System.Boolean",
+      "_AFLBLJNLFAB_k__BackingField": "System.Boolean",
+      "_FEJKBPBINMB_k__BackingField": "System.Boolean",
+      "_PDJAHBBJLLG_k__BackingField": "System.Boolean",
+      "AFGEJHBPHIH": "System.Boolean",
+      "_OFBENBJFLMD_k__BackingField": "System.Boolean",
+      "_LPIIHJOLIKJ_k__BackingField": "System.Int32",
+      "_OPFOGELLIAH_k__BackingField": "System.Boolean",
+      "_NEOFEHKPFPC_k__BackingField": "System.Boolean",
+      "_MJPHLNDMMDI_k__BackingField": "System.Boolean",
+      "IFJPFMMPMCA": "System.Boolean",
+      "_OMAIJFMCPPE_k__BackingField": "BattleMoveControl+OHPEILOEEIM",
+      "_PKCPKAMAFCH_k__BackingField": "NHEIMMIAMJO",
+      "_AMELBJBGFCM_k__BackingField": "System.Int32",
+      "NKCLGCOJLEI": "UnityEngine.Vector3",
+      "OFJELAMLOLC": "UnityEngine.Vector3",
+      "EHDNBKDIAIB": "UnityEngine.Vector3",
+      "LOJIMGGCEEI": "UnityEngine.Vector3",
+      "FHDPNPDBGAK": "UnityEngine.Vector3",
+      "ICNHFKBCLNB": "UnityEngine.Vector3",
+      "KGLPBLOPJHB": "UnityEngine.Vector3",
+      "NGKHMOEABGA": "UnityEngine.Vector3",
+      "_KADFMPFOGNL_k__BackingField": "AEIAINKEEOO",
+      "KCJKEJCDDGE": "Il2CppSystem.Collections.Generic.List`1<System.String>",
+      "FJJNGKDMDGD": "System.Int64",
+      "IAGOIDCHIEF": "System.Boolean",
+      "ELFKENAPCFJ": "GCNOLOEMKPL",
+      "OCIPKHBPJOM": "UnityEngine.Vector3",
+      "OBPDHPMJLBP": "System.Single",
+      "_DONONCBPBNJ_k__BackingField": "System.Boolean",
+      "_IFLMBOMIJJA_k__BackingField": "System.Boolean",
+      "_MNHEFKOOGNP_k__BackingField": "UnityEngine.Vector3",
+      "_MHHMNDPHOBC_k__BackingField": "UnityEngine.Vector3",
+      "_DDDFCKFPGME_k__BackingField": "PBPLLFJDOMG",
+      "_BKOEPOOJFBH_k__BackingField": "PBPLLFJDOMG"
+    },
+    "NJMCOBOGJJB": {
+      "_EHJEBBAIICH_k__BackingField": "System.Int32",
+      "_BALLMEDPAOK_k__BackingField": "System.Int32",
+      "_LAPHGKNCMBG_k__BackingField": "System.Boolean",
+      "_MBNJFCNAGMI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GNLMFPFFBHB>",
+      "_OCPCPEMDNAF_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "_GICDMIPBEOC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>",
+      "_APPBBJALNEP_k__BackingField": "System.Int32",
+      "_AHGNKFDCMMA_k__BackingField": "System.Boolean",
+      "_JEKDBKDCACD_k__BackingField": "Blend.ApiSchema.Enum.BattleTimelineTargetTurnRange"
+    },
+    "OFCMCAEPJPG+AFHIAKBEGIB": {
+      "__1__state": "System.Int32",
+      "selectionInfo": "NAKLKNNBDMC"
+    },
+    "OHAJIHIBNKH": {
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_LAPHGKNCMBG_k__BackingField": "System.Boolean",
+      "_MBNJFCNAGMI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GNLMFPFFBHB>",
+      "_OCPCPEMDNAF_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "_GICDMIPBEOC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>"
+    },
+    "OIGMPNFDKMM": {
+      "_DPJBMFAIPPG_k__BackingField": "System.Int32",
+      "_GECHFELGJNJ_k__BackingField": "System.Int32",
+      "_FADEFMMJDBF_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_AOGGJEGABKG_k__BackingField": "Blend.ApiSchema.Enum.BattleTimelineMoveReason",
+      "_OHEEDFEGMHD_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_JECHCHKNIKM_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "OJEECMDJAAC": {
+      "_CEIKPECFIFN_k__BackingField": "LACKKEMGIJD"
+    },
+    "OLJAEFPIMBE": {
+      "DPOAOGJOHLM": "Il2CppSystem.Collections.Generic.List`1<OHOCHBPLHAC>",
+      "_NHMJMFJOOJL_k__BackingField": "System.Int32",
+      "_JMBLFDKBJNE_k__BackingField": "System.Int32",
+      "_AAJAAKGHEKO_k__BackingField": "System.Int32",
+      "_GIIFOJENKAD_k__BackingField": "System.Int32",
+      "KMFOLJOJEHB": "System.Int32"
+    },
+    "ONLJOBBGNHI": {
+      "_BAIBBLHCKGH_k__BackingField": "System.Int32",
+      "_DNPOKGPEPJM_k__BackingField": "System.Int32",
+      "_KJKBHJDLFGH_k__BackingField": "System.Int32",
+      "_BFKNNONLCOF_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_PAFNMMGGMMA_k__BackingField": "System.Boolean",
+      "_FMLOHHGMPCG_k__BackingField": "System.Boolean",
+      "_FCDDAOAMJKI_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_KLNLJMABPKH_k__BackingField": "System.Boolean",
+      "_DKNNDENIHNB_k__BackingField": "System.Boolean",
+      "_NDDGMNBCGIN_k__BackingField": "System.Boolean",
+      "_OLJKELHELED_k__BackingField": "System.Boolean",
+      "_KHLBIAAFHDF_k__BackingField": "System.Boolean"
+    },
+    "PJMHFKIGALB": {
+      "_LDLCABKDAMB_k__BackingField": "System.Int32",
+      "_LKIDFKDOEIP_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>"
+    },
+    "PLCHDHONCDJ": {
+      "_EEGOOHEJDBC_k__BackingField": "System.Int32",
+      "_HBAACHCGDDD_k__BackingField": "System.Int32",
+      "_EAGBIDDKPFL_k__BackingField": "System.Int32",
+      "_ODCNBKAMMBH_k__BackingField": "System.Int32"
+    },
+    "PPIJGNABCIG": {
+      "_OLIBJEACEFF_k__BackingField": "System.Int32",
+      "_BALLMEDPAOK_k__BackingField": "System.Int32",
+      "_LAPHGKNCMBG_k__BackingField": "System.Boolean",
+      "_MBNJFCNAGMI_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GNLMFPFFBHB>",
+      "_OCPCPEMDNAF_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<OIGMPNFDKMM>",
+      "_GICDMIPBEOC_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>",
+      "_APPBBJALNEP_k__BackingField": "System.Int32",
+      "_AHGNKFDCMMA_k__BackingField": "System.Boolean"
+    },
+    "ResearchMenuWindow": {
+      "CANOKPINOLN": "System.Int32",
+      "DIBAMLLPGAE": "MIPJCECFKPM",
+      "DJHFPMDAKGJ": "Il2CppSystem.Collections.Generic.List`1<JIBNBBPDIAD>",
+      "HMPJGJNLOIM": "ACFODADLBFC"
+    },
+    "ResearchMenuWindow+ACFKNHHLBON": {
+      "__1__state": "System.Int32",
+      "__4__this": "ResearchMenuWindow",
+      "increaseLevel": "System.Int32",
+      "_before_5__2": "Blend.UserData.ResearchGroup"
+    },
+    "ShipEnhanceRecipeSelectWindow": {
+      "HAKBONBJCPH": "OAEGBHJGHDN",
+      "AIDHCNKBDEE": "System.Int32",
+      "DLBLONAJLGN": "Il2CppSystem.Collections.Generic.List`1<FGHNMGBOGHF>",
+      "NEDAPBAACAI": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<OFLJFCOLGGK>",
+      "EKMLHDKGIPF": "System.Single",
+      "DEBAILHHICC": "System.Int32",
+      "COPKLHBNJGK": "System.Single",
+      "BFHPHDJNCHK": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<LLAAOOAIPLN>"
+    },
+    "ShipEnhanceRecipeSelectWindow+BNKKLLKGCMI": {
+      "__1__state": "System.Int32",
+      "__4__this": "ShipEnhanceRecipeSelectWindow",
+      "__8__1": "ShipEnhanceRecipeSelectWindow+POCOMGKDAII",
+      "shipPart": "FGHNMGBOGHF",
+      "_beforeLevel_5__2": "System.Int32"
+    },
+    "ShipEnhanceRecipeSelectWindow+DCNDGOJLEBN": {
+      "__1__state": "System.Int32",
+      "__4__this": "ShipEnhanceRecipeSelectWindow",
+      "__8__1": "ShipEnhanceRecipeSelectWindow+PJAOAKFOFOH",
+      "shipPart": "FGHNMGBOGHF",
+      "_beforeLevelLimit_5__2": "System.Int32"
+    },
+    "SynthesisCombinationRankDisplay": {
+      "EOMMNPBFNBK": "AppWindowBase",
+      "LHKAPIFOLAC": "NAKLKNNBDMC",
+      "HDPJAKPCIEO": "JJPPPEBLGOK",
+      "ILLHEBFJBKN": "NEMHPEAJKFF",
+      "BHHNHDNCHCB": "System.Int32"
+    },
+    "SynthesisResultDialog": {
+      "IGOCFCLMJAC": "Blend.UserData.Recipe",
+      "KFODIHEOGEN": "Il2CppSystem.Collections.Generic.List`1<Il2CppSystem.ValueTuple`2<BNAILBMBKDK,OHOCHBPLHAC>>",
+      "NLCMKBLEHJC": "Il2CppSystem.Collections.Generic.List`1<HNBAKABFPEF>",
+      "IGILLOEEFJK": "Il2CppSystem.Collections.Generic.List`1<OHOCHBPLHAC>",
+      "HDDCHBOLKHK": "KHKLMKBLIMA",
+      "PJJILJNPOPM": "KHKLMKBLIMA",
+      "FLHMNIPBDEH": "KHKLMKBLIMA",
+      "LHKAPIFOLAC": "NAKLKNNBDMC",
+      "_KDCDKCDJCHJ_k__BackingField": "System.Boolean"
+    },
+    "SynthesisResultWindow": {
+      "BGLOPLJDGOC": "OLJAEFPIMBE",
+      "LHKAPIFOLAC": "NAKLKNNBDMC",
+      "_KDCDKCDJCHJ_k__BackingField": "System.Boolean"
+    },
+    "SynthesisResultWindow+BJMBBFODAJE": {
+      "__1__state": "System.Int32",
+      "__4__this": "SynthesisResultWindow",
+      "_rewards_5__2": "Il2CppSystem.Collections.Generic.IList`1<OHOCHBPLHAC>",
+      "__7__wrap2": "Il2CppSystem.Collections.Generic.List`1+Enumerator<SynthesisResultItemIcon>",
+      "_icon_5__4": "SynthesisResultItemIcon",
+      "_i_5__5": "System.Int32"
+    },
+    "SynthesisResultWindow+IOGPMCNFMKP": {
+      "__1__state": "System.Int32",
+      "__4__this": "SynthesisResultWindow",
+      "rewards": "Il2CppSystem.Collections.Generic.IList`1<OHOCHBPLHAC>"
+    },
+    "IAKOGAEEOOC": {
+      "NONLCDPNJKN": "NHEIMMIAMJO",
+      "CIHHEGKEOED": "BattleStateVariables",
+      "GIMFELIMHAD": "KIBOOBBLMHI",
+      "HFADOHPHHCI": "ANBHPMNFOPM",
+      "DFLLEBMKGPH": "System.Boolean",
+      "MLMPHAGOIBP": "Il2CppSystem.Collections.Generic.List`1<IAKOGAEEOOC+KFODNHINDJN>"
+    },
+    "GCNOLOEMKPL": {
+      "CIHHEGKEOED": "BattleStateVariables",
+      "FCMHKNLJDMF": "MotionBase+OCMNNMEIKNN",
+      "_GONPAAGGKAD_k__BackingField": "System.Int32",
+      "_KOECLFIGEMP_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<UnityEngine.GameObject>",
+      "_AOMJPGAMDPH_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<GCNOLOEMKPL+CAIPAKNIDDF>",
+      "_HONDCGNCHJP_k__BackingField": "UnityEngine.Vector3",
+      "_KDMKGJFDHFG_k__BackingField": "UnityEngine.Quaternion",
+      "_KPLBFPKICFF_k__BackingField": "System.Single",
+      "_EEOBHKFIDAF_k__BackingField": "OGJNOOODKBK",
+      "_APIPMDBADAO_k__BackingField": "System.Boolean",
+      "_PGIDIOMFEHD_k__BackingField": "System.Boolean",
+      "_DELJHLDPLIO_k__BackingField": "System.Boolean",
+      "_PIEDONOMJNG_k__BackingField": "System.Boolean",
+      "_CEFCMCOFEBI_k__BackingField": "System.Boolean",
+      "DCCBBNOCAEB": "System.Boolean",
+      "DICAFEPBAHN": "Il2CppSystem.Collections.Generic.List`1<System.String>"
+    },
+    "BattleUnitDamageControl": {
+      "m_selfUnit": "NHEIMMIAMJO",
+      "EKGOGPFOHNH": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<System.Int32>",
+      "ABAKNBOMDOJ": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<System.Int32>",
+      "LBHOEKPLFGH": "System.Single",
+      "EGJNBMAAEIP": "System.Single",
+      "PKODMOEFPCF": "System.Boolean",
+      "MNKEGHNJDIB": "System.Boolean",
+      "JDPPAFDIDGE": "System.Int32",
+      "AOMKHGMOIJM": "System.Int32"
+    },
+    "BattleUnitTimelineControl": {
+      "m_selfUnit": "NHEIMMIAMJO",
+      "m_battleStateVariables": "BattleStateVariables",
+      "m_timelineControl": "BattleTimelineControl",
+      "DBMECOIDPGO": "Il2CppSystem.Collections.Generic.List`1<NACHLMPIJDK>",
+      "DPCPIOLJPEP": "NACHLMPIJDK",
+      "CBMIOKAIJHM": "BattleUnitTimelineControl+LHJINPPIDLC",
+      "HEAEPANNLDI": "BattleUnitTimelineControl+MBHEKIMBEHD",
+      "PCBCNLFOHCD": "BattleUnitTimelineControl+MBHEKIMBEHD",
+      "NAPMPMHCILL": "System.Boolean",
+      "DGBOKFJHCGN": "System.Boolean",
+      "HPKOKJBLGKO": "Il2CppSystem.Collections.Generic.List`1<UnityEngine.Timeline.IMarker>",
+      "DEDHKEEFAEM": "Il2CppSystem.Collections.Generic.List`1<System.Int32>",
+      "PFGCKEICBNG": "System.Int32",
+      "KIJFJAIFFPA": "System.Int32",
+      "KLJKDIKILAM": "System.Int32",
+      "JALAFOONBJJ": "System.Boolean",
+      "_KKPDDFEALML_k__BackingField": "System.Boolean"
+    },
+    "BattleUnitMoveControl": {
+      "m_selfUnit": "NHEIMMIAMJO",
+      "m_battleStateVariables": "BattleStateVariables",
+      "GDGCCPBMOOL": "BattleUnitMoveControl+JPOMNKKPIFC",
+      "FFGDCMCGKCP": "System.Int32",
+      "KHNPLGEBAHG": "UnityEngine.Vector3",
+      "FIDFAKMBJCM": "UnityEngine.Vector3",
+      "BHBLHCMEIMI": "Il2CppSystem.Collections.Generic.List`1<UnityEngine.Vector3>",
+      "IAKGFLGAOHO": "System.Single",
+      "JFHHNPIGOPG": "System.Single",
+      "FMDFPOOJJFJ": "System.Single",
+      "BHPDKAINIGG": "System.Single",
+      "ODNDGNEOCPD": "System.Single",
+      "HLMGBENBLNJ": "UnityEngine.Quaternion",
+      "EPEIPLOKFME": "UnityEngine.Quaternion",
+      "_BDIABOAFKGH_k__BackingField": "System.Boolean",
+      "_LKANBMPGIKF_k__BackingField": "System.Boolean",
+      "_ONOBNOIMAGD_k__BackingField": "System.Boolean",
+      "_OAIMGDPJDCN_k__BackingField": "System.Boolean",
+      "_KEAJGDIGDFG_k__BackingField": "System.Boolean",
+      "_OPIBBNEOCGG_k__BackingField": "System.Boolean",
+      "_FPKDDPPJAII_k__BackingField": "System.Boolean",
+      "_EEFPDELOAHC_k__BackingField": "System.Boolean",
+      "_LDCHPHECEHE_k__BackingField": "System.Boolean",
+      "_HPHONAGCOLA_k__BackingField": "System.Boolean",
+      "JHOFFKAOEEI": "Il2CppSystem.Collections.Generic.List`1<BattleUnitMoveControl+NCANMNIBHAI>",
+      "OBGOHKMOGIO": "BattleUnitMoveControl+CABEEDBJFKD",
+      "_KLKMGOKBHKG_k__BackingField": "System.Single",
+      "_HDFCHGGBMFI_k__BackingField": "System.Single",
+      "_OJGIAOFDPIB_k__BackingField": "System.Single",
+      "_CNIGIICDBPF_k__BackingField": "System.Single"
+    },
+    "BattleTurnActionDataset": {
+      "m_dataList": "Il2CppSystem.Collections.Generic.List`1<BattleTurnActionData>"
+    },
+    "SignalHost": {
+      "effectID": "System.Int64",
+      "SEID": "System.Int64",
+      "actionID": "DAEHEDNDEEF",
+      "m_soundSetting": "SoundSetting",
+      "m_hitWeight": "System.Int32",
+      "_IsSkipEffect_k__BackingField": "System.Boolean",
+      "m_Time": "System.Double"
+    },
+    "EDLOCNJHDKH": {
+      "CIHHEGKEOED": "BattleStateVariables",
+      "JIDECCGLDHL": "Il2CppSystem.Collections.Generic.List`1<EDLOCNJHDKH+NNIFBOGDDPO>",
+      "BEKFBCKCBOC": "System.Single",
+      "PEPBOIBAJBO": "ADKHOOIOIMN",
+      "KOBFLMDFOCM": "System.Int64",
+      "_JLPOLICLKEP_k__BackingField": "System.Boolean",
+      "_NIGEMDHCIGM_k__BackingField": "System.Boolean",
+      "_DNOLEKEKDPH_k__BackingField": "System.Boolean",
+      "_IAFACGKECMO_k__BackingField": "System.Boolean",
+      "FODBAAIMPAP": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "ICOKNDHFLEE": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "DLJMLCFEEJM": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "CDMNGMFDFLG": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "FAPNGBHLKGJ": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "LKAFOHLJPAA": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "NEJJOGDEEPI": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "EMLFBMNNBAL": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "NBBICPHNLEN": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "EKHBGCPKCIO": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "JCJNCLJBCOC": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "NEOAOHJMPFG": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "EIGDMGOCBJK": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "ACMPLLOABDE": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "OFFNJGDNPGF": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "NFJHPNPPNKF": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "BDBAMKPHJDK": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "NDJOKBBLELH": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "DBPBIJLGDHG": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "DPCEIKHCBFJ": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "NEBFMNMEDCB": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "LNDAKNJFFNP": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "LGPIBACIPMK": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "ADBKGJOCDDE": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "FCGIGPBDCMH": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>",
+      "HAKHNHBKGOE": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray`1<KBKDJEONBGF>"
+    },
+    "LIAHKJACBDJ": {
+      "CIHHEGKEOED": "BattleStateVariables",
+      "CIMPLHFFGAM": "Il2CppSystem.Collections.Generic.List`1<MMLMFGCGJEE>",
+      "BGKOGNJHDGD": "Il2CppSystem.Collections.Generic.List`1<PJMHFKIGALB>"
+    },
+    "GNFAEODJFGH": {
+      "KPGCEKEFECC": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<KEMCGNKMCKL>"
+    },
+    "KEMCGNKMCKL": {
+      "_AHDEJMGNNFK_k__BackingField": "System.Single",
+      "_OKPCHFEAIFA_k__BackingField": "System.Single",
+      "_LJPNDPHCHGF_k__BackingField": "BattleMoveControl+BGCJHDEGCBF",
+      "IIMLOAOPKAE": "Il2CppSystem.Collections.Generic.Dictionary`2<System.Int32,AJKGBHKAEPL>"
+    },
+    "AJKGBHKAEPL": {
+      "_KJKBHJDLFGH_k__BackingField": "System.Int32"
+    },
+    "AEIAINKEEOO": {},
+    "NACHLMPIJDK": {
+      "_KHHOEMEBPDN_k__BackingField": "System.Int64",
+      "_MOEFEJMNNPD_k__BackingField": "BJCGPLBACKM",
+      "_PGIPFBCKANA_k__BackingField": "UnityEngine.Playables.PlayableAsset",
+      "_KMLNAEHMGPG_k__BackingField": "NHEIMMIAMJO",
+      "_OEPPMNOAGEB_k__BackingField": "Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray`1<NHEIMMIAMJO>",
+      "_JPECKMLDDDN_k__BackingField": "Il2CppSystem.Collections.Generic.List`1<NHEIMMIAMJO>",
+      "_BHKFFFLAFLH_k__BackingField": "System.Boolean",
+      "_CPIPOCOGKPG_k__BackingField": "System.Boolean",
+      "_CGAIECEEFAK_k__BackingField": "System.Boolean",
+      "_MEABBDINLPO_k__BackingField": "System.Boolean",
+      "_KNEHBOGACBG_k__BackingField": "System.Boolean",
+      "_BMKHKEHMJKC_k__BackingField": "System.Boolean",
+      "_LFMIMKPENLP_k__BackingField": "System.Boolean",
+      "_BJFAFLJDKFP_k__BackingField": "System.Boolean",
+      "_KCGOCHGFNLB_k__BackingField": "System.Boolean",
+      "_CDAACFMGEIM_k__BackingField": "System.Boolean",
+      "_PMMKELCOEGH_k__BackingField": "System.Boolean",
+      "_NENMIPMOEBH_k__BackingField": "FAIAELJGJDL",
+      "_DHDOOGFDGNC_k__BackingField": "Il2CppSystem.Nullable`1<System.Int32>",
+      "_CEBGGICMEOI_k__BackingField": "Il2CppSystem.Nullable`1<UnityEngine.Vector3>"
+    },
+    "Il2CppSystem.DateTime": {
+      "_dateData": "System.UInt64"
+    },
+    "AGAJFINGPKJ": {
+      "LFBCFGFBDNI": "Il2CppSystem.Nullable`1<System.Boolean>",
+      "_NCCNEIADCOD_k__BackingField": "DLFJOBIEIHF",
+      "_LAMAAAPGCPJ_k__BackingField": "IGPLPIMKJDJ",
+      "_DPLMIBNLKEG_k__BackingField": "System.String",
+      "_IIKCOHDBMGF_k__BackingField": "System.String",
+      "_NELCFHOPOHB_k__BackingField": "System.String",
+      "_OJFONGHOOBG_k__BackingField": "System.String",
+      "_JEKELPLPKNF_k__BackingField": "PANILJJHCGP",
+      "_NKCLPPONMOG_k__BackingField": "PANILJJHCGP",
+      "_JLENLDFCJKB_k__BackingField": "BLILGFLOGMO",
+      "_DODBACNJODO_k__BackingField": "MFFICBDCNPN",
+      "_HCGADACPIMD_k__BackingField": "BECHJHEONNH",
+      "_HEMAFDGKBPJ_k__BackingField": "KGGGJAIPNOD",
+      "_DLLHFCDEAOL_k__BackingField": "KGGGJAIPNOD",
+      "_EOCLIJJIKFL_k__BackingField": "Il2CppSystem.Nullable`1<KGGGJAIPNOD>",
+      "_LDDAJILGGFP_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BJCGPLBACKM>",
+      "_PAJMPKINMBN_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BJCGPLBACKM>",
+      "_GDHFFFAEAFG_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BJCGPLBACKM>",
+      "_GFIAPDJJJDN_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BJCGPLBACKM>",
+      "_CBPIOACGEGI_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BJCGPLBACKM>",
+      "_NBLIBEPFCFA_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BJCGPLBACKM>",
+      "_OHCMKPGHBGE_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<BJCGPLBACKM>",
+      "_HDIAONGACDH_k__BackingField": "Il2CppSystem.Nullable`1<BJCGPLBACKM>",
+      "_OIHOFNIEFJA_k__BackingField": "Il2CppSystem.Nullable`1<BJCGPLBACKM>",
+      "_GAIHPGFFOCO_k__BackingField": "Il2CppSystem.Nullable`1<BJCGPLBACKM>",
+      "_DILKBPPAABH_k__BackingField": "System.Boolean",
+      "_DKKOFJBFHDE_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<KICHKMKMBPP>",
+      "_EJAOLNJDKJL_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<KICHKMKMBPP>",
+      "_OMKBOJNGFNH_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<KICHKMKMBPP>",
+      "_NPDIBKBJKPC_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<KICHKMKMBPP>",
+      "_EMOPMAFDBDK_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<KICHKMKMBPP>",
+      "_AMMCPNHGNNA_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<KICHKMKMBPP>",
+      "_AKPBCEPFBEL_k__BackingField": "NFFLGLCFJFC",
+      "_DBIFAAIOAOG_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<ANBHPMNFOPM>",
+      "_CAHGPOBNDMN_k__BackingField": "CIBENGLDBCD",
+      "_BAKCKLPBJHF_k__BackingField": "JILCNBKGDLM",
+      "_BEPPOCKMPCM_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<NLHJKAINJDD>",
+      "_EKCJDNKIEKD_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<LNGDGIJHLAI>",
+      "_AMHDAPPGMOG_k__BackingField": "JILCNBKGDLM",
+      "_IGONPHANPJO_k__BackingField": "JCCIPLHMGOA",
+      "_EIENDLOOGEM_k__BackingField": "MOMICKEIEGC",
+      "_OJEIALCCBMO_k__BackingField": "Il2CppSystem.Nullable`1<_ee847>",
+      "_FBEIAAPELBI_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<CAJJKLAKPHH>",
+      "_CBLOOGHBCON_k__BackingField": "System.Int64",
+      "_AGOGGFGJFLN_k__BackingField": "System.Int64",
+      "_BCLDBECIFPN_k__BackingField": "GAAALOMKLKI",
+      "_AICGCMHMFMB_k__BackingField": "System.String",
+      "_COFLFDINFDK_k__BackingField": "System.String",
+      "_EFFCLEBIMLJ_k__BackingField": "System.Boolean",
+      "_HGNPHBMOOND_k__BackingField": "FHGHEHJAECO",
+      "_HFHKBJCKIPI_k__BackingField": "DIFKNEHILKI",
+      "_CMAEJNFMJLD_k__BackingField": "System.Int64",
+      "_OKPDDLGMHLN_k__BackingField": "System.String",
+      "_BIJECACHLIE_k__BackingField": "AGAJFINGPKJ+PBACIPLMBAH",
+      "_MHHPKAMPGAF_k__BackingField": "Il2CppSystem.Collections.Generic.IReadOnlyList`1<GDGLMCPEGJG>",
+      "_LNCMPMNGIMJ_k__BackingField": "AGAJFINGPKJ+MNOGONNPBGC",
+      "_NBCOADEEABK_k__BackingField": "Il2CppSystem.Nullable`1<PMANLANKAMI>",
+      "_AAKLMBABDJD_k__BackingField": "System.String"
+    },
+    "LANAGMCAFDC": {
+      "JDIGBMHGKGE": "KAKLKJIIIHB",
+      "KLOCDBHMCPE": "PLIHKAHEAEN",
+      "NPDAHOJLFGI": "System.Boolean"
+    },
+    "_ee847": {
+      "m_value": "_67f24"
+    },
+    "_67f24": {
+      "e": "System.Int64",
+      "s": "System.Int64",
+      "c": "System.Int32"
+    }
+  },
+  "enums": {
+    "EEGNOAJAJCB": "System.Int32",
+    "DMPCHKOKCLP": "System.Int32",
+    "KICHKMKMBPP": "System.Int32",
+    "IGPLPIMKJDJ": "System.Int32",
+    "OGECOPJMALJ": "System.Int32",
+    "BMIJIFJHBCA": "System.Int32",
+    "NLHJKAINJDD": "System.Int32",
+    "HJGFOEOHPIH": "System.Int32",
+    "DLFJOBIEIHF": "System.Int32",
+    "PANILJJHCGP": "System.Int32",
+    "BECHJHEONNH": "System.Int32",
+    "CIBENGLDBCD": "System.Int32",
+    "PMANLANKAMI": "System.Int32",
+    "GDGLMCPEGJG": "System.Int32",
+    "IBMOFPKMIBK": "System.Int32",
+    "LNGDGIJHLAI": "System.Int32",
+    "FAIAELJGJDL": "System.Int32",
+    "KGGGJAIPNOD": "System.Int32",
+    "INMGPDGGIIE": "System.Int32",
+    "DGLGAKOEEEE": "System.Int32",
+    "AHLCJLNECIM": "System.Int32",
+    "HOIFNPIPOFP": "System.Int32",
+    "MOMICKEIEGC": "System.Int32",
+    "FFFKNOKFAIH": "System.Int32",
+    "AHLDLNGEEFE": "System.Int32",
+    "HKDHLBBJGIM": "System.Int32",
+    "FAJHJOMIDBJ": "System.Int32",
+    "JIBNBBPDIAD": "System.Int32",
+    "JCCIPLHMGOA": "System.Int32",
+    "DEOICFBIKKL": "System.Int32",
+    "HBFNAAPJCLG": "System.Int32",
+    "BJCGPLBACKM": "System.Int32",
+    "EENJGLGDCIG": "System.Int32",
+    "JILCNBKGDLM": "System.Int32",
+    "GAAALOMKLKI": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleActionType": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleAutoType": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleBreakType": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleDealStateChangeResult": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleMemberType": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleSkillTargetMode": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleStatus": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleTimelineMoveReason": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleTimelineTargetTurnRange": "System.Int32",
+    "Blend.ApiSchema.Enum.BattleTimelineUnitType": "System.Int32"
+  },
+  "interfaces": [
+    "ALGPFGEMFML",
+    "FCMCKDCGGEB",
+    "HNBAKABFPEF",
+    "KAKLKJIIIHB",
+    "LHPKCPHOCPA",
+    "MCLNPPGMLGH",
+    "PLIHKAHEAEN"
+  ]
+}

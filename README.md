@@ -68,7 +68,9 @@ Privacy mode is disabled by default. To enable it, close the game and edit `BepI
 
 The setting is read at startup. Invalid or unreadable configuration stops capture before recording begins.
 
-Privacy mode retains qualified gameplay progress and numeric inputs/results while removing credentials, personal identifiers and profile details. Original bodies, headers, free-form logs and unaudited native snapshot values are omitted; native call identities remain. The manifest declares the mode and recording gaps. Recorded gameplay can still identify a player, so this mode does not guarantee anonymity.
+Privacy mode removes credentials, personal identifiers and profile details. From 1.4.2, it retains qualified Battle and Atelier inputs, results and state, alongside API gameplay progress. Native protobuf messages retain a filtered decoded view. Original bodies, headers, free-form logs and unqualified fields remain omitted. The manifest declares the mode, and filtered records report omissions. Recorded gameplay can still identify a player, so this mode does not guarantee anonymity.
+
+Version 1.4.1 omitted all native snapshot values when privacy was enabled. Those recordings still contain useful API gameplay results, but the omitted values cannot be recovered from them. Use 1.4.2 or later for new privacy-enabled research captures. Capture coverage depends on the actions played and fields observed; a valid ZIP does not certify every mechanic.
 
 Keep `enabled` set to `false` to preserve full original data for research or a possible future account-progress import. Privacy-filtered captures have less data and cannot promise a complete account import. Enabling the setting affects new recordings; it does not change old captures or the game's separate BepInEx/Unity log files.
 
