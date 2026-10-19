@@ -4,7 +4,30 @@
   "gameassembly_sha256": "35868ee52cb199b018e2ced962dd233a9f4d200a7e5d8e9903e7f4607f21f5ea",
   "metadata_sha256": "af138395b956bc835f99b2fd140a4c5015781e56c9cab3052bdb7e69065cc9b0",
   "declarations_source_sha256": "fe5fe81dd605610f71f1a74afb28577cb5845ae1c38e660adb7f573dea3ed7ba",
-  "policy": "reviewed_gameplay_native_fields_exact_signature_no_strings_or_original_bytes",
+  "policy": "pinned_runtime_declarations_with_targeted_personal_and_session_redaction",
+  "sensitive_fields": {
+    "Blend.UserData.Profile": [
+      "_Name_k__BackingField",
+      "_Memo_k__BackingField"
+    ],
+    "Blend.ApiSchema.Model.Profile": ["name_", "memo_"],
+    "GNMFFNOALPJ": ["_DPLMIBNLKEG_k__BackingField"],
+    "CHINDJANGKH": ["_DPLMIBNLKEG_k__BackingField"],
+    "UserStatusData": [
+      "_BirthYear_k__BackingField",
+      "_BirthMonth_k__BackingField"
+    ],
+    "LNKBBKAOHEL": ["_PPFPMKJEMOL_k__BackingField"],
+    "Blend.UserData.BulkMail": [
+      "_Subject_k__BackingField",
+      "_Body_k__BackingField"
+    ],
+    "Blend.UserData.MailParams": [
+      "_Subject_k__BackingField",
+      "_Body_k__BackingField",
+      "_SerialCode_k__BackingField"
+    ]
+  },
   "types": {
     "AAODHOPGMLP": {
       "_BAIBBLHCKGH_k__BackingField": "System.Int32",
@@ -2047,7 +2070,8 @@
     "PLIHKAHEAEN"
   ],
   "interface_implementations": {
-    "FCMCKDCGGEB": ["BattleTimelineMoveControl"]
+    "FCMCKDCGGEB": ["BattleTimelineMoveControl"],
+    "PLIHKAHEAEN": ["NHBCPNDOJGK"]
   },
   "excluded_types": {
     "BattleTurnActionData": "presentation_rotation_motion_not_gameplay_state",

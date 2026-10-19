@@ -8,9 +8,11 @@ Captures stay on your PC until you share them. Anyone receiving a capture can re
 
 Set `enabled` to `true` in `BepInEx/config/AtelierCapture.Privacy.json` while the game is closed, then restart it. The default is `false`.
 
-Enabled mode retains qualified numeric gameplay progress, quantities, catalog and owned-entity references, ordered inputs/results and typed timestamps. It excludes account and device identifiers, credentials, profile details and arbitrary text. Original body bytes, unknown fields, headers, URLs, free-form diagnostics and startup log copies are omitted.
+From 1.4.3, enabled mode retains known nonpersonal gameplay progress, public game text, profile selections/settings, catalog and owned-entity linkage, ordered/repeated inputs/results and typed timestamps. It redacts identified account/device identifiers, credentials, birth fields and user-written profile/preset text. Status/error JSON and known protocol headers retain their nonpersonal fields; account/session header values are removed. Request operation GUIDs remain for correlation and are separate from authenticated session tokens.
 
-In 1.4.1, privacy mode also omitted every native snapshot value. From 1.4.2, qualified Battle and Atelier gameplay arguments, results and state remain, including a filtered decoded view of native protobuf messages. Public probability values, asset and store-product references, and numeric mail-template parameters also remain where their exact field contract is qualified. Unsupported fields have explicit omissions. The manifest records the policy version; a policy-1 recording cannot recover values it omitted.
+Original opaque bodies, unknown protocol fields, opaque personal mail/payment text, unqualified byte content and free-form log/exception copies remain omitted. Native protobuf messages retain a filtered decoded view. Omissions are explicit; the recorder does not substitute an unsafe original if filtering fails.
+
+Privacy-enabled 1.4.1 recordings omitted every native snapshot value. Version 1.4.2 restored much of that gameplay but still omitted some public text and unlisted fields. Use 1.4.3 or later for new privacy-enabled research captures. The manifest records the policy version; old captures cannot recover values that were omitted.
 
 The retained progress can still be recognizable. This setting does not guarantee anonymity, erase existing captures or alter the game's external BepInEx/Unity log files. Recovery in privacy mode leaves older full or unknown-policy recordings untouched. Full original capture remains useful for research and a possible future account-progress import; filtered captures have explicit omissions and cannot promise a complete import.
 

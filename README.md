@@ -57,7 +57,7 @@ A capture covers only what you played. Hooks that couldn't be installed, failed 
 > [!WARNING]
 > By default, captures contain account data, login credentials and session tokens. Bodies, decoded fields and headers are saved without redaction. The plugin keeps recordings on your PC and doesn't upload them, but anyone you send a capture to can read that data. See [Account and session data recorded](https://github.com/LightCyan01/Resleriana-Capture/blob/main/docs/account-and-session-data.md) for the fields and where they are stored.
 
-### Optional privacy mode (1.4.1)
+### Optional privacy mode
 
 Privacy mode is disabled by default. To enable it, close the game and edit `BepInEx/config/AtelierCapture.Privacy.json`:
 
@@ -69,9 +69,11 @@ Privacy mode is disabled by default. To enable it, close the game and edit `BepI
 
 The setting is read at startup. Invalid or unreadable configuration stops capture before recording begins.
 
-Privacy mode removes credentials, personal identifiers and profile details. From 1.4.2, it retains qualified Battle and Atelier inputs, results and state, alongside API gameplay progress. Native protobuf messages retain a filtered decoded view. Original bodies, headers, free-form logs and unqualified fields remain omitted. The manifest declares the mode, and filtered records report omissions. Recorded gameplay can still identify a player, so this mode does not guarantee anonymity.
+From 1.4.3, privacy mode redacts identified account and device identifiers, session credentials, payment credentials, birth data and personal profile text. It keeps gameplay progress and preferences, public game text, Battle and Atelier inputs/results/state, repeated observations, and request correlation. Status/version-error responses retain their public fields; account/session headers are removed while known protocol headers remain.
 
-Version 1.4.1 omitted all native snapshot values when privacy was enabled. Those recordings still contain useful API gameplay results, but the omitted values cannot be recovered from them. Use 1.4.2 or later for new privacy-enabled research captures. Capture coverage depends on the actions played and fields observed; a valid ZIP does not certify every mechanic.
+Original opaque bodies, unknown protocol fields, opaque personal text and unqualified byte content remain unavailable in privacy mode. Decoded native protobuf messages retain their nonpersonal fields. Free-form log copies and exception details are omitted because they can contain identifiers or credentials. The manifest declares the policy, and filtered records report omissions. Retained gameplay can still identify a player, so this mode does not guarantee anonymity.
+
+Privacy-enabled 1.4.1 recordings omitted all native snapshot values; 1.4.2 also omitted some nonpersonal fields and public text. Use 1.4.3 or later for new privacy-enabled captures. Previously omitted data cannot be recovered from those ZIPs. Coverage still depends on the actions played and fields observed; a valid archive does not certify every mechanic.
 
 Keep `enabled` set to `false` to preserve full original data for research or a possible future account-progress import. Privacy-filtered captures have less data and cannot promise a complete account import. Enabling the setting affects new recordings; it does not change old captures or the game's separate BepInEx/Unity log files.
 

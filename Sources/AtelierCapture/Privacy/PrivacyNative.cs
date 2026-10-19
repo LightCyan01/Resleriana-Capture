@@ -14,6 +14,9 @@ internal static class PrivacyNative
     private static readonly ConcurrentDictionary<string, string?> Containers = new(
         StringComparer.Ordinal
     );
+    private static readonly ConcurrentDictionary<string, string> FieldNames = new(
+        StringComparer.Ordinal
+    );
     private static readonly Lazy<Catalog> Fields = new(Load);
     private static readonly Lazy<Dictionary<string, Signature>> Hooks = new(() =>
         Plugin
@@ -32,6 +35,36 @@ internal static class PrivacyNative
         "presentation_controller_state_not_observed",
         "presentation_view_state_not_observed",
         "scheduler_callback_state_not_observed",
+    };
+    private static readonly HashSet<string> PersonalFieldNames = new(StringComparer.Ordinal)
+    {
+        "userid",
+        "privateuserid",
+        "playerid",
+        "accountid",
+        "steamid",
+        "steamuserid",
+        "platformaccountid",
+        "deviceid",
+        "advertisingid",
+        "idfa",
+        "idfv",
+        "accountuuid",
+        "sessionuuid",
+        "deviceuuid",
+        "sessionid",
+        "sessionkey",
+        "sessiontoken",
+        "accesstoken",
+        "refreshtoken",
+        "authtoken",
+        "authorization",
+        "password",
+        "passcode",
+        "email",
+        "emailaddress",
+        "phonenumber",
+        "ipaddress",
     };
 
     internal static IEnumerable<string> InterfaceDeclarations(string concreteType) =>
@@ -54,6 +87,10 @@ internal static class PrivacyNative
         var source = (Read(value, "nodes") as IEnumerable<SnapshotNode> ?? []).ToDictionary(node =>
             node.id
         );
+        var declaredTypes = source
+            .Values.Where(node => node.RuntimeDeclarationsQualified && node.PrivacyType is not null)
+            .Select(node => node.PrivacyType!)
+            .ToHashSet(StringComparer.Ordinal);
         var pending = new Queue<SnapshotNode>();
         var kept = new HashSet<int>();
         var nodes = new List<Node>();
@@ -72,19 +109,24 @@ internal static class PrivacyNative
 
         bool IsNodeType(string type) =>
             catalog.Types.ContainsKey(type)
+            || declaredTypes.Contains(type)
             || type.StartsWith("Blend.ApiSchema.Model.", StringComparison.Ordinal)
             || type.StartsWith("Blend.ApiSchema.Api.", StringComparison.Ordinal)
             || Container(type) is not null
             || TupleField(type, "Item1") is not null
             || TupleField(type, "key") is not null;
 
-        object? Copy(object? input, string type)
+        object? Copy(object? input, string type, bool declarationsQualified = false)
         {
             type = Unwrap(type);
             if (input is null)
                 return null;
-            if (type == "System.String" || type == "System.Char")
-                return Omit("privacy_native_text_or_bytes");
+            if (type is "System.String" or "System.Char")
+                return
+                    declarationsQualified
+                    && (type == "System.String" ? input is string : input is char)
+                    ? input
+                    : Omit("privacy_native_text_or_bytes");
             if (input is NativeReference reference)
             {
                 if (
@@ -96,7 +138,9 @@ internal static class PrivacyNative
                 )
                     return Omit("privacy_native_reference_unqualified");
                 return new NativeReference(
-                    IsNodeType(reference.type) || reference.type == "UserDataManager"
+                    declarationsQualified
+                    || IsNodeType(reference.type)
+                    || reference.type == "UserDataManager"
                         ? reference.type
                         : type,
                     reference.lifetime_id,
@@ -169,7 +213,14 @@ internal static class PrivacyNative
                     currentField =
                         "$argument[" + index.ToString(CultureInfo.InvariantCulture) + "]";
                     return index < hook.Parameters.Length
-                        ? Copy(input, hook.Parameters[index])
+                        ? Copy(
+                            input,
+                            hook.Parameters[index],
+                            owner == "Battle"
+                                && boundary == "BattleStateVariables.ItemSkillExec"
+                                && index == 4
+                                && hook.Parameters[index] == "System.String"
+                        )
                         : Omit("privacy_native_argument_unqualified");
                 }
             )
@@ -180,13 +231,22 @@ internal static class PrivacyNative
         {
             var type = node.PrivacyType!;
             var output = new Dictionary<string, object?>(StringComparer.Ordinal);
-            var element = Container(type);
+            var element =
+                Container(type)
+                ?? (
+                    node.RuntimeDeclarationsQualified
+                    && node.ElementType is not ("System.Byte" or "System.SByte")
+                        ? node.ElementType
+                        : null
+                );
             catalog.Types.TryGetValue(type, out var fields);
             currentNode = node.id;
             foreach (var field in node.fields)
             {
                 var declared = node.Declarations?.GetValueOrDefault(field.Key);
-                var expected = fields?.GetValueOrDefault(field.Key) ?? TupleField(type, field.Key);
+                var expected = node.RuntimeDeclarationsQualified
+                    ? declared
+                    : fields?.GetValueOrDefault(field.Key) ?? TupleField(type, field.Key);
                 if (declared is null || expected is null || declared != expected)
                 {
                     currentField = expected is null ? "$unknown" : field.Key;
@@ -194,7 +254,15 @@ internal static class PrivacyNative
                     continue;
                 }
                 currentField = field.Key;
-                output[field.Key] = Copy(field.Value, expected);
+                output[field.Key] = SensitiveField(
+                    catalog,
+                    type,
+                    node.AssignableTypes,
+                    field.Key,
+                    expected
+                )
+                    ? Omit("privacy_personal_or_session_field")
+                    : Copy(field.Value, expected, node.RuntimeDeclarationsQualified);
             }
             object?[]? items = null;
             if (node.items is not null)
@@ -203,7 +271,11 @@ internal static class PrivacyNative
                 if (element is null || node.ElementType != element)
                     Omit("privacy_native_collection_unqualified");
                 else
-                    items = node.items.Select(item => Copy(item, element)).ToArray();
+                    items = node
+                        .items.Select(item =>
+                            Copy(item, element, node.RuntimeDeclarationsQualified)
+                        )
+                        .ToArray();
             }
             var protobuf = node.FilteredProtobufQualified ? node.filtered_protobuf : null;
             protobufFieldsOmitted |= node.privacy_omissions is { Count: > 0 };
@@ -273,6 +345,25 @@ internal static class PrivacyNative
             request_id = Id(Read(value, "request_id")),
             attempt_id = Id(Read(value, "attempt_id")),
             response_id = Id(Read(value, "response_id")),
+            operation_id = CapturePrivacy.Operation(Read(value, "operation_id")),
+            identity_proof = CapturePrivacy.IdentityProof(Read(value, "identity_proof")),
+            route = CapturePrivacy.KnownRoute(Read(value, "route")),
+            declared_route = hook.Route,
+            role = hook.Role,
+            origin = Read(value, "origin") is "Official" or "Private" or "unknown"
+                ? Read(value, "origin")
+                : null,
+            origin_proof = Read(value, "origin_proof") is NativeObservationOriginProof originProof
+                ? new
+                {
+                    originProof.qualified_edges,
+                    scoped_callback_proof = CapturePrivacy.IdentityProof(
+                        originProof.scoped_callback_proof
+                    ),
+                }
+                : null,
+            elapsed_ms = CapturePrivacy.NonnegativeNumber(Read(value, "elapsed_ms")),
+            snapshot_ms = CapturePrivacy.NonnegativeNumber(Read(value, "snapshot_ms")),
             status = "incomplete",
             complete = false,
             copied_fields_complete = false,
@@ -296,7 +387,7 @@ internal static class PrivacyNative
                     or "no_proven_native_operation"
                 ? (string?)Read(value, "correlation_gap")
                 : null,
-            projection_contract = "privacy_qualified_native_gameplay_v2",
+            projection_contract = "privacy_qualified_native_gameplay_v3",
             snapshot_schema = 2,
             snapshot_contracts = contracts
                 .OrderBy(item => item.Key)
@@ -435,11 +526,7 @@ internal static class PrivacyNative
         if (split is null)
             return null;
         var (name, arguments) = split.Value;
-        if (
-            arguments.Any(argument =>
-                argument is "System.String" or "System.Byte" or "System.SByte" or "System.Char"
-            )
-        )
+        if (arguments.Any(argument => argument is "System.Byte" or "System.SByte"))
             return null;
         if (
             arguments.Length == 1
@@ -529,6 +616,43 @@ internal static class PrivacyNative
         return catalog;
     }
 
+    private static bool SensitiveField(
+        Catalog catalog,
+        string owner,
+        IReadOnlyList<string>? bases,
+        string name,
+        string type
+    )
+    {
+        if (
+            catalog.SensitiveFields.GetValueOrDefault(owner)?.Contains(name, StringComparer.Ordinal)
+            == true
+        )
+            return true;
+        if (bases is not null)
+            foreach (var parent in bases)
+                if (
+                    catalog
+                        .SensitiveFields.GetValueOrDefault(parent)
+                        ?.Contains(name, StringComparer.Ordinal) == true
+                )
+                    return true;
+        var normalized = FieldNames.GetOrAdd(
+            name,
+            static field =>
+            {
+                var bare = field.EndsWith("_k__BackingField", StringComparison.Ordinal)
+                    ? field[..^16]
+                    : field;
+                return bare.Trim('_', '<', '>')
+                    .Replace("_", "", StringComparison.Ordinal)
+                    .ToLowerInvariant();
+            }
+        );
+        return PersonalFieldNames.Contains(normalized)
+            || normalized == "token" && type is "System.String" or "System.Byte[]";
+    }
+
     private sealed record Node(
         int id,
         int contract_id,
@@ -547,7 +671,9 @@ internal static class PrivacyNative
         string Returns,
         string System = "Battle",
         string Boundary = "",
-        string Variant = "entry_exit"
+        string Variant = "entry_exit",
+        string? Role = null,
+        string? Route = null
     );
 
     private sealed record AtelierSignatures(Signature[] Hooks);
@@ -561,6 +687,8 @@ internal static class PrivacyNative
         Dictionary<string, string> Enums,
         string[] Interfaces,
         [property: JsonPropertyName("interface_implementations")]
-            Dictionary<string, string[]> InterfaceImplementations
+            Dictionary<string, string[]> InterfaceImplementations,
+        [property: JsonPropertyName("sensitive_fields")]
+            Dictionary<string, string[]> SensitiveFields
     );
 }

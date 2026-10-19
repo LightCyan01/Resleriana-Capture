@@ -2,78 +2,210 @@
   "schema": 1,
   "descriptor": "atelier-resleriana-2.16.0.protoset",
   "descriptor_sha256": "96264797a38e2643be227ebe68e625fcf5e01dd4ff5ef01d2e08a1771a4ddbff",
-  "policy": "known_numeric_gameplay_no_arbitrary_strings_bytes_or_profile",
-  "excluded_messages": [
-    "blend.api.AdvertisingIdUpdateRequest",
-    "blend.api.AuthSignInRequest",
-    "blend.api.AuthSignInResponse",
-    "blend.api.AuthSignUpAppleRequest",
-    "blend.api.AuthSignUpAppleResponse",
-    "blend.api.AuthSignUpGoogleRequest",
-    "blend.api.AuthSignUpGoogleResponse",
-    "blend.api.AuthSignUpPasscodeRequest",
-    "blend.api.AuthSignUpPasscodeResponse",
-    "blend.api.AuthSignUpRequest",
-    "blend.api.AuthSignUpResponse",
-    "blend.api.DebugKtidLinkRequest",
-    "blend.api.KtidWebTokenResponse",
-    "blend.api.ProfileUpdateCharaHomeFavoriteCharacterListRequest",
-    "blend.api.ProfileUpdateFavoriteBattleToolsRequest",
-    "blend.api.ProfileUpdateFavoriteCharacterRequest",
-    "blend.api.ProfileUpdateFavoritePartyRequest",
-    "blend.api.ProfileUpdateMemoRequest",
-    "blend.api.ProfileUpdateNameRequest",
-    "blend.api.ProfileUpdateSelectedHomeIdRequest",
-    "blend.api.PurchaseSessionPublishRequest",
-    "blend.api.PurchaseSessionStartRequest",
-    "blend.api.PurchaseSessionStartResponse",
-    "blend.api.PurchaseVerifyRequest",
-    "blend.api.RefundInfoGetCountryCodeResponse",
-    "blend.api.RefundInfoGetRequest",
-    "blend.api.RefundInfoGetResponse",
-    "blend.api.UserLinkAppleRequest",
-    "blend.api.UserLinkGoogleRequest",
-    "blend.api.UserLinksListResponse",
-    "blend.api.UserUpdateBirthdateRequest",
-    "blend.api.UserUpdateLanguageRequest",
-    "blend.api.WebSessionTokenResponse",
-    "blend.model.DamageContestTopRank",
-    "blend.model.InvitationCode",
-    "blend.model.LegendChallengeTopRank",
-    "blend.model.Profile",
-    "blend.model.UserName"
-  ],
+  "policy": "known_protocol_fields_with_explicit_personal_data_redactions",
+  "excluded_messages": [],
   "excluded_fields": [
+    "blend.api.AdvertisingIdUpdateRequest.adid",
+    "blend.api.AdvertisingIdUpdateRequest.gps_adid",
+    "blend.api.AdvertisingIdUpdateRequest.idfa",
+    "blend.api.AuthSignInRequest.device_model",
+    "blend.api.AuthSignInRequest.device_secret",
+    "blend.api.AuthSignInRequest.device_token",
+    "blend.api.AuthSignInRequest.device_unique_id",
+    "blend.api.AuthSignInResponse.session_token",
+    "blend.api.AuthSignInResponse.user_id",
+    "blend.api.AuthSignUpAppleRequest.device_model",
+    "blend.api.AuthSignUpAppleRequest.device_secret",
+    "blend.api.AuthSignUpAppleRequest.device_unique_id",
+    "blend.api.AuthSignUpAppleRequest.id_token",
+    "blend.api.AuthSignUpAppleResponse.user_id",
+    "blend.api.AuthSignUpAppleResponse.user_name",
+    "blend.api.AuthSignUpGoogleRequest.code",
+    "blend.api.AuthSignUpGoogleRequest.code_verifier",
+    "blend.api.AuthSignUpGoogleRequest.device_model",
+    "blend.api.AuthSignUpGoogleRequest.device_secret",
+    "blend.api.AuthSignUpGoogleRequest.device_unique_id",
+    "blend.api.AuthSignUpGoogleRequest.id_token",
+    "blend.api.AuthSignUpGoogleResponse.user_id",
+    "blend.api.AuthSignUpGoogleResponse.user_name",
+    "blend.api.AuthSignUpPasscodeRequest.device_model",
+    "blend.api.AuthSignUpPasscodeRequest.device_secret",
+    "blend.api.AuthSignUpPasscodeRequest.device_unique_id",
+    "blend.api.AuthSignUpPasscodeRequest.passcode",
+    "blend.api.AuthSignUpPasscodeRequest.user_id",
+    "blend.api.AuthSignUpPasscodeResponse.user_name",
+    "blend.api.AuthSignUpRequest.device_model",
+    "blend.api.AuthSignUpRequest.device_secret",
+    "blend.api.AuthSignUpRequest.device_unique_id",
+    "blend.api.AuthSignUpResponse.user_id",
+    "blend.api.DebugKtidLinkRequest.ktid",
     "blend.api.EquipmentPresetUpdateNameRequest.name",
-    "blend.api.EventDamageContestResponse.top_ranks",
-    "blend.api.EventLegendChallengeResponse.top_ranks",
-    "blend.api.EventTopResponse.invitation_codes",
     "blend.api.InvitationCreateResponse.invitation_code",
     "blend.api.InvitationReceiveRequest.invitation_code",
-    "blend.api.UserLogInResponse.auto_download_asset_size_limit_mb",
-    "blend.api.UserLogInResponse.created_at",
-    "blend.api.UserLogInResponse.ktstore",
-    "blend.model.BattleContext.start_txid",
+    "blend.api.KtidWebTokenResponse.token",
+    "blend.api.ProfileUpdateMemoRequest.memo",
+    "blend.api.ProfileUpdateNameRequest.name",
+    "blend.api.PurchaseSessionPublishRequest.data_signature",
+    "blend.api.PurchaseSessionPublishRequest.failure_reason",
+    "blend.api.PurchaseSessionPublishRequest.purchase_data",
+    "blend.api.PurchaseSessionPublishRequest.purchase_session_id",
+    "blend.api.PurchaseSessionPublishRequest.receipt",
+    "blend.api.PurchaseSessionPublishRequest.transaction_id",
+    "blend.api.PurchaseSessionStartResponse.purchase_session_id",
+    "blend.api.PurchaseSessionStartResponse.transaction_id",
+    "blend.api.PurchaseVerifyRequest.data_signature",
+    "blend.api.PurchaseVerifyRequest.purchase_data",
+    "blend.api.PurchaseVerifyRequest.purchase_session_id",
+    "blend.api.PurchaseVerifyRequest.transaction_id",
+    "blend.api.RefundInfoGetRequest.device_model",
+    "blend.api.RefundInfoGetRequest.device_secret",
+    "blend.api.RefundInfoGetRequest.device_token",
+    "blend.api.RefundInfoGetRequest.device_unique_id",
+    "blend.api.RefundInfoGetResponse.inquiry_form_url",
+    "blend.api.RefundInfoGetResponse.refund_code",
+    "blend.api.RefundInfoGetResponse.refund_request_form_url",
+    "blend.api.RefundInfoGetResponse.user_id",
+    "blend.api.RefundInfoGetResponse.user_name",
+    "blend.api.UserLinkAppleRequest.id_token",
+    "blend.api.UserLinkGoogleRequest.code",
+    "blend.api.UserLinkGoogleRequest.code_verifier",
+    "blend.api.UserLinkGoogleRequest.id_token",
+    "blend.api.UserUpdateBirthdateRequest.month",
+    "blend.api.UserUpdateBirthdateRequest.year",
+    "blend.api.WebSessionTokenResponse.token",
     "blend.model.BulkMail.body",
     "blend.model.BulkMail.subject",
     "blend.model.EquipmentPreset.name",
-    "blend.model.KeyTask.name",
+    "blend.model.InvitationCode.invitation_code",
     "blend.model.MailParams.body",
     "blend.model.MailParams.serial_code",
     "blend.model.MailParams.subject",
-    "blend.model.PurchaseStep.description",
-    "blend.model.PurchaseStep.name",
-    "blend.model.Resources.profile",
-    "blend.model.ShopGemList.admob_unit_id",
+    "blend.model.Profile.memo",
+    "blend.model.Profile.name",
     "blend.model.Status.birth_month",
     "blend.model.Status.birth_year",
-    "blend.model.Status.is_invited"
+    "blend.model.UserName.name",
+    "capture.json.Status.device_auth"
   ],
+  "redaction_reasons": {
+    "blend.api.AdvertisingIdUpdateRequest.adid": "advertising_identifier",
+    "blend.api.AdvertisingIdUpdateRequest.gps_adid": "advertising_identifier",
+    "blend.api.AdvertisingIdUpdateRequest.idfa": "advertising_identifier",
+    "blend.api.AuthSignInRequest.device_model": "personal_device_data",
+    "blend.api.AuthSignInRequest.device_secret": "device_credential",
+    "blend.api.AuthSignInRequest.device_token": "personal_device_data",
+    "blend.api.AuthSignInRequest.device_unique_id": "personal_device_data",
+    "blend.api.AuthSignInResponse.session_token": "session_credential",
+    "blend.api.AuthSignInResponse.user_id": "account_identifier",
+    "blend.api.AuthSignUpAppleRequest.device_model": "personal_device_data",
+    "blend.api.AuthSignUpAppleRequest.device_secret": "device_credential",
+    "blend.api.AuthSignUpAppleRequest.device_unique_id": "personal_device_data",
+    "blend.api.AuthSignUpAppleRequest.id_token": "account_link_credential",
+    "blend.api.AuthSignUpAppleResponse.user_id": "account_identifier",
+    "blend.api.AuthSignUpAppleResponse.user_name": "personal_profile_text",
+    "blend.api.AuthSignUpGoogleRequest.code": "account_link_credential",
+    "blend.api.AuthSignUpGoogleRequest.code_verifier": "account_link_credential",
+    "blend.api.AuthSignUpGoogleRequest.device_model": "personal_device_data",
+    "blend.api.AuthSignUpGoogleRequest.device_secret": "device_credential",
+    "blend.api.AuthSignUpGoogleRequest.device_unique_id": "personal_device_data",
+    "blend.api.AuthSignUpGoogleRequest.id_token": "account_link_credential",
+    "blend.api.AuthSignUpGoogleResponse.user_id": "account_identifier",
+    "blend.api.AuthSignUpGoogleResponse.user_name": "personal_profile_text",
+    "blend.api.AuthSignUpPasscodeRequest.device_model": "personal_device_data",
+    "blend.api.AuthSignUpPasscodeRequest.device_secret": "device_credential",
+    "blend.api.AuthSignUpPasscodeRequest.device_unique_id": "personal_device_data",
+    "blend.api.AuthSignUpPasscodeRequest.passcode": "account_transfer_credential",
+    "blend.api.AuthSignUpPasscodeRequest.user_id": "account_identifier",
+    "blend.api.AuthSignUpPasscodeResponse.user_name": "personal_profile_text",
+    "blend.api.AuthSignUpRequest.device_model": "personal_device_data",
+    "blend.api.AuthSignUpRequest.device_secret": "device_credential",
+    "blend.api.AuthSignUpRequest.device_unique_id": "personal_device_data",
+    "blend.api.AuthSignUpResponse.user_id": "account_identifier",
+    "blend.api.DebugKtidLinkRequest.ktid": "account_identifier",
+    "blend.api.EquipmentPresetUpdateNameRequest.name": "personal_profile_text",
+    "blend.api.InvitationCreateResponse.invitation_code": "personal_invitation_code",
+    "blend.api.InvitationReceiveRequest.invitation_code": "personal_invitation_code",
+    "blend.api.KtidWebTokenResponse.token": "session_credential",
+    "blend.api.ProfileUpdateMemoRequest.memo": "personal_profile_text",
+    "blend.api.ProfileUpdateNameRequest.name": "personal_profile_text",
+    "blend.api.PurchaseSessionPublishRequest.data_signature": "payment_credential",
+    "blend.api.PurchaseSessionPublishRequest.failure_reason": "opaque_personal_text",
+    "blend.api.PurchaseSessionPublishRequest.purchase_data": "payment_credential",
+    "blend.api.PurchaseSessionPublishRequest.purchase_session_id": "payment_identifier",
+    "blend.api.PurchaseSessionPublishRequest.receipt": "payment_credential",
+    "blend.api.PurchaseSessionPublishRequest.transaction_id": "payment_identifier",
+    "blend.api.PurchaseSessionStartResponse.purchase_session_id": "payment_identifier",
+    "blend.api.PurchaseSessionStartResponse.transaction_id": "payment_identifier",
+    "blend.api.PurchaseVerifyRequest.data_signature": "payment_credential",
+    "blend.api.PurchaseVerifyRequest.purchase_data": "payment_credential",
+    "blend.api.PurchaseVerifyRequest.purchase_session_id": "payment_identifier",
+    "blend.api.PurchaseVerifyRequest.transaction_id": "payment_identifier",
+    "blend.api.RefundInfoGetRequest.device_model": "personal_device_data",
+    "blend.api.RefundInfoGetRequest.device_secret": "device_credential",
+    "blend.api.RefundInfoGetRequest.device_token": "personal_device_data",
+    "blend.api.RefundInfoGetRequest.device_unique_id": "personal_device_data",
+    "blend.api.RefundInfoGetResponse.inquiry_form_url": "personal_account_url",
+    "blend.api.RefundInfoGetResponse.refund_code": "refund_credential",
+    "blend.api.RefundInfoGetResponse.refund_request_form_url": "personal_account_url",
+    "blend.api.RefundInfoGetResponse.user_id": "account_identifier",
+    "blend.api.RefundInfoGetResponse.user_name": "personal_profile_text",
+    "blend.api.UserLinkAppleRequest.id_token": "account_link_credential",
+    "blend.api.UserLinkGoogleRequest.code": "account_link_credential",
+    "blend.api.UserLinkGoogleRequest.code_verifier": "account_link_credential",
+    "blend.api.UserLinkGoogleRequest.id_token": "account_link_credential",
+    "blend.api.UserUpdateBirthdateRequest.month": "personal_birth_data",
+    "blend.api.UserUpdateBirthdateRequest.year": "personal_birth_data",
+    "blend.api.WebSessionTokenResponse.token": "session_credential",
+    "blend.model.BulkMail.body": "opaque_personal_text",
+    "blend.model.BulkMail.subject": "opaque_personal_text",
+    "blend.model.EquipmentPreset.name": "personal_profile_text",
+    "blend.model.InvitationCode.invitation_code": "personal_invitation_code",
+    "blend.model.MailParams.body": "opaque_personal_text",
+    "blend.model.MailParams.serial_code": "redemption_credential",
+    "blend.model.MailParams.subject": "opaque_personal_text",
+    "blend.model.Profile.memo": "personal_profile_text",
+    "blend.model.Profile.name": "personal_profile_text",
+    "blend.model.Status.birth_month": "personal_birth_data",
+    "blend.model.Status.birth_year": "personal_birth_data",
+    "blend.model.UserName.name": "personal_profile_text",
+    "capture.json.Status.device_auth": "device_credential"
+  },
   "messages": {
+    "blend.api.AdvertisingIdUpdateRequest": {},
     "blend.api.AtelierResearchRequest": {
       "group_id": "int32",
       "count": "int32"
     },
+    "blend.api.AuthSignInRequest": {},
+    "blend.api.AuthSignInResponse": {
+      "device_changed": "bool",
+      "language": "int32"
+    },
+    "blend.api.AuthSignUpAppleRequest": {
+      "execute": "bool"
+    },
+    "blend.api.AuthSignUpAppleResponse": {
+      "language": "int32",
+      "is_deleted": "bool"
+    },
+    "blend.api.AuthSignUpGoogleRequest": {
+      "execute": "bool"
+    },
+    "blend.api.AuthSignUpGoogleResponse": {
+      "language": "int32",
+      "is_deleted": "bool"
+    },
+    "blend.api.AuthSignUpPasscodeRequest": {
+      "execute": "bool"
+    },
+    "blend.api.AuthSignUpPasscodeResponse": {
+      "language": "int32",
+      "is_deleted": "bool"
+    },
+    "blend.api.AuthSignUpRequest": {
+      "language": "google.protobuf.Int32Value"
+    },
+    "blend.api.AuthSignUpResponse": {},
     "blend.api.AutoConversionEntry": {
       "valuable_item_id": "int32",
       "converted_quantity": "int32"
@@ -225,6 +357,7 @@
     "blend.api.DebugExplorationFinishRequest": {
       "quest_id": "int32"
     },
+    "blend.api.DebugKtidLinkRequest": {},
     "blend.api.DebugLoginBonusListResponse": {
       "login_bonuses": "[]blend.model.LoginBonus"
     },
@@ -290,12 +423,14 @@
       "episode_id": "int32"
     },
     "blend.api.EventDamageContestResponse": {
+      "top_ranks": "[]blend.model.DamageContestTopRank",
       "rank": "blend.model.DamageContestRank"
     },
     "blend.api.EventLegendChallengeRequest": {
       "episode_id": "int32"
     },
     "blend.api.EventLegendChallengeResponse": {
+      "top_ranks": "[]blend.model.LegendChallengeTopRank",
       "rank": "blend.model.LegendChallengeRank",
       "border_rank_scores": "[]blend.model.BorderRankScore"
     },
@@ -304,6 +439,7 @@
     },
     "blend.api.EventTopResponse": {
       "changed_resources": "blend.model.Resources",
+      "invitation_codes": "[]blend.model.InvitationCode",
       "invitation_mission_states": "[]blend.model.InvitationMissionState",
       "damage_contest_rank": "blend.model.DamageContestRank",
       "legend_challenge_ranks": "[]blend.model.LegendChallengeRank"
@@ -525,6 +661,7 @@
       "changed_resources": "blend.model.Resources",
       "rewards": "[]blend.model.Reward"
     },
+    "blend.api.KtidWebTokenResponse": {},
     "blend.api.LoginBonusReceiveResponse": {
       "login_bonuses": "[]blend.model.LoginBonus",
       "changed_resources": "blend.model.Resources",
@@ -651,6 +788,42 @@
       "deleted_resources": "blend.model.ResourceEntities",
       "rewards": "[]blend.model.Reward"
     },
+    "blend.api.ProfileUpdateCharaHomeFavoriteCharacterListRequest": {
+      "character_id": "int32"
+    },
+    "blend.api.ProfileUpdateFavoriteBattleToolsRequest": {
+      "battle_tool_entity_ids": "[]int64"
+    },
+    "blend.api.ProfileUpdateFavoriteCharacterRequest": {
+      "character_id": "int32"
+    },
+    "blend.api.ProfileUpdateFavoritePartyRequest": {
+      "character1_id": "google.protobuf.Int32Value",
+      "character2_id": "google.protobuf.Int32Value",
+      "character3_id": "google.protobuf.Int32Value",
+      "character4_id": "google.protobuf.Int32Value",
+      "character5_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.ProfileUpdateMemoRequest": {},
+    "blend.api.ProfileUpdateNameRequest": {},
+    "blend.api.ProfileUpdateSelectedHomeIdRequest": {
+      "selected_home_id": "google.protobuf.Int32Value",
+      "selected_chara_home_slot_id": "google.protobuf.Int32Value"
+    },
+    "blend.api.PurchaseSessionPublishRequest": {
+      "event_type": "string",
+      "product_id": "google.protobuf.StringValue",
+      "client_currency": "google.protobuf.StringValue",
+      "client_price": "google.protobuf.DoubleValue"
+    },
+    "blend.api.PurchaseSessionStartRequest": {
+      "shop_product_id": "int32"
+    },
+    "blend.api.PurchaseSessionStartResponse": {},
+    "blend.api.PurchaseVerifyRequest": {
+      "client_currency": "google.protobuf.StringValue",
+      "client_price": "google.protobuf.DoubleValue"
+    },
     "blend.api.QuestBattleRentalPartyStartRequest": {
       "quest_id": "int32"
     },
@@ -734,6 +907,14 @@
       "changed_resources": "blend.model.Resources",
       "learned_recipe_ids": "[]int32",
       "learning_rewards": "[]blend.model.Reward"
+    },
+    "blend.api.RefundInfoGetCountryCodeResponse": {
+      "country_code": "int32"
+    },
+    "blend.api.RefundInfoGetRequest": {},
+    "blend.api.RefundInfoGetResponse": {
+      "paid_gem_num": "int32",
+      "free_gem_num": "int32"
     },
     "blend.api.RentalPartyBattleToolsSetRequest": {
       "fixed_party_id": "int32",
@@ -930,12 +1111,26 @@
     "blend.api.TotalBattleResetPanelRequest": {
       "total_battle_panel_id": "int32"
     },
+    "blend.api.UserLinkAppleRequest": {},
+    "blend.api.UserLinkGoogleRequest": {},
+    "blend.api.UserLinksListResponse": {
+      "apple": "bool",
+      "google": "bool"
+    },
     "blend.api.UserLogInResponse": {
       "resources": "blend.model.Resources",
       "master_data": "blend.model.MasterData",
       "battle_resume_status": "enum:blend.enum.battle_resume_status.BattleResumeStatus",
-      "tool_conversion_limit_count": "int32"
+      "created_at": "google.protobuf.Timestamp",
+      "tool_conversion_limit_count": "int32",
+      "auto_download_asset_size_limit_mb": "int32",
+      "ktstore": "bool"
     },
+    "blend.api.UserUpdateBirthdateRequest": {},
+    "blend.api.UserUpdateLanguageRequest": {
+      "language": "int32"
+    },
+    "blend.api.WebSessionTokenResponse": {},
     "blend.model.BattleAbility": {
       "ability_id": "int32",
       "effects": "[]blend.model.BattleAbility.EffectParams"
@@ -1044,6 +1239,7 @@
       "quest_id": "int32",
       "exploration_area_id": "int32",
       "gacha_battle_id": "int32",
+      "start_txid": "string",
       "party_number": "google.protobuf.Int32Value",
       "gacha_id": "google.protobuf.Int32Value",
       "rental_fixed_party_id": "google.protobuf.Int32Value"
@@ -1560,6 +1756,16 @@
       "border_total_damage": "google.protobuf.Int64Value",
       "show_previous_ranking": "bool"
     },
+    "blend.model.DamageContestTopRank": {
+      "rank": "int32",
+      "favorite_character_id": "int32",
+      "name": "blend.model.UserName",
+      "rarity1_emblem_count": "int32",
+      "rarity2_emblem_count": "int32",
+      "rarity3_emblem_count": "int32",
+      "total_damage": "int64",
+      "is_mine": "bool"
+    },
     "blend.model.Emblem": {
       "emblem_id": "int32",
       "rarity": "int32",
@@ -1598,8 +1804,8 @@
       "id": "int32",
       "start_at": "google.protobuf.Timestamp",
       "end_at": "google.protobuf.Timestamp",
-      "bgm_path_hash": "int64",
-      "ui_asset_path_hash": "int64"
+      "ui_asset_path_hash": "string",
+      "bgm_path_hash": "string"
     },
     "blend.model.ExpeditionState": {
       "number": "int32",
@@ -1664,16 +1870,16 @@
       "character_count": "int32",
       "memoria_count": "int32",
       "character_skin_count": "int32",
-      "percent_rate_per_card": "decimal_string"
+      "percent_rate_per_card": "string"
     },
     "blend.model.GachaMixedWishListRateSet": {
       "gacha_id": "int32",
+      "selected_card_rate": "string",
+      "non_selected_card_rate": "string",
       "dynamic_rows": "[]blend.model.GachaMixedWishListRate",
       "rows": "[]blend.model.GachaRate",
       "summaries": "[]blend.model.GachaRateSummary",
-      "pickup_total_character_ids": "[]int32",
-      "non_selected_card_rate": "decimal_string",
-      "selected_card_rate": "decimal_string"
+      "pickup_total_character_ids": "[]int32"
     },
     "blend.model.GachaNotification": {
       "gacha_category": "int32",
@@ -1683,8 +1889,8 @@
     },
     "blend.model.GachaRate": {
       "gacha_rate_id": "int32",
-      "cards": "[]blend.model.GachaCard",
-      "percent_rate_per_card": "decimal_string"
+      "percent_rate_per_card": "string",
+      "cards": "[]blend.model.GachaCard"
     },
     "blend.model.GachaRateSet": {
       "gacha_rate_set_id": "int32",
@@ -1697,7 +1903,7 @@
     "blend.model.GachaRateSummary": {
       "card_type": "int32",
       "rarity": "int32",
-      "percent_rate": "decimal_string"
+      "percent_rate": "string"
     },
     "blend.model.GachaWishListSelectedHistory": {
       "step": "int32",
@@ -1771,6 +1977,9 @@
       "count": "int32",
       "is_new": "bool"
     },
+    "blend.model.InvitationCode": {
+      "invitation_id": "int32"
+    },
     "blend.model.InvitationMissionState": {
       "invitation_id": "int32",
       "invitation_mission_id": "int32",
@@ -1788,7 +1997,8 @@
     },
     "blend.model.KeyTask": {
       "condition_id": "int32",
-      "count": "int32"
+      "count": "int32",
+      "name": "string"
     },
     "blend.model.LegendChallengeRank": {
       "episode_id": "google.protobuf.Int64Value",
@@ -1796,6 +2006,16 @@
       "next_rank_range_id": "google.protobuf.Int32Value",
       "border_total_score": "google.protobuf.Int64Value",
       "best_total_score": "google.protobuf.Int64Value"
+    },
+    "blend.model.LegendChallengeTopRank": {
+      "rank": "int32",
+      "favorite_character_id": "int32",
+      "name": "blend.model.UserName",
+      "rarity1_emblem_count": "int32",
+      "rarity2_emblem_count": "int32",
+      "rarity3_emblem_count": "int32",
+      "total_score": "int64",
+      "is_mine": "bool"
     },
     "blend.model.LoginBonus": {
       "login_bonus_id": "int32",
@@ -1924,10 +2144,24 @@
       "total_friendship_point": "int32",
       "received_closeness_rewards": "int32"
     },
+    "blend.model.Profile": {
+      "favorite_character_id": "int32",
+      "favorite_party_character1_id": "google.protobuf.Int32Value",
+      "favorite_party_character2_id": "google.protobuf.Int32Value",
+      "favorite_party_character3_id": "google.protobuf.Int32Value",
+      "favorite_party_character4_id": "google.protobuf.Int32Value",
+      "favorite_party_character5_id": "google.protobuf.Int32Value",
+      "favorite_battle_tool_entity_ids": "[]int32",
+      "selected_home_id": "google.protobuf.Int32Value",
+      "selected_chara_home_slot_id": "google.protobuf.Int32Value",
+      "chara_home_favorite_character_ids": "[]int32"
+    },
     "blend.model.PurchaseStep": {
       "store_product_id": "google.protobuf.Int32Value",
       "reward_set_id": "google.protobuf.Int32Value",
       "costs": "[]blend.model.Resource",
+      "name": "google.protobuf.StringValue",
+      "description": "google.protobuf.StringValue",
       "daily_pass_id": "google.protobuf.Int32Value",
       "gacha_id": "google.protobuf.Int32Value",
       "is_serial_code_exchange_product": "bool"
@@ -2096,6 +2330,7 @@
       "party_members": "[]blend.model.PartyMember",
       "chara_home_backgrounds": "[]blend.model.CharaHomeBackground",
       "present_states": "[]blend.model.PresentState",
+      "profile": "blend.model.Profile",
       "quest_states": "[]blend.model.QuestState",
       "recipes": "[]blend.model.Recipe",
       "recipe_count_reward_states": "[]blend.model.RecipeCountRewardState",
@@ -2176,6 +2411,7 @@
     "blend.model.ShopGemList": {
       "shop_products": "[]blend.model.ShopProduct",
       "store_products": "[]blend.model.StoreProduct",
+      "admob_unit_id": "string",
       "shop_wheel_products": "[]blend.model.ShopWheelProduct"
     },
     "blend.model.ShopPieceExchangeState": {
@@ -2260,6 +2496,7 @@
       "dishes_when_updated": "int32",
       "dish_idleness": "int32",
       "dishes_updated_at": "google.protobuf.Timestamp",
+      "is_invited": "bool",
       "minimum_character_level": "int32",
       "spare_stamina_acc_seconds": "int32",
       "expedition_max_count": "int32",
@@ -2268,20 +2505,20 @@
     },
     "blend.model.StoreProduct": {
       "id": "int32",
+      "product_id": "google.protobuf.StringValue",
       "money_amount": "int32",
       "free_amount": "int32",
       "price": "google.protobuf.DoubleValue",
-      "product_id": "product_identifier",
-      "currency": "currency_code"
+      "currency": "google.protobuf.StringValue"
     },
     "blend.model.StoreProductPrice": {
       "id": "int32",
+      "ios_product_id": "google.protobuf.StringValue",
+      "android_product_id": "google.protobuf.StringValue",
+      "steam_product_id": "google.protobuf.StringValue",
       "price": "float",
       "money_amount": "int32",
-      "free_amount": "int32",
-      "android_product_id": "product_identifier",
-      "ios_product_id": "product_identifier",
-      "steam_product_id": "product_identifier"
+      "free_amount": "int32"
     },
     "blend.model.StreetState": {
       "quest_id": "int32",
@@ -2300,8 +2537,8 @@
     },
     "blend.model.Title": {
       "id": "int32",
-      "bgm_path_hash": "int64",
-      "timeline_asset_path_hash": "int64"
+      "timeline_asset_path_hash": "string",
+      "bgm_path_hash": "string"
     },
     "blend.model.ToolEntity": {
       "type": "int32",
@@ -2325,12 +2562,28 @@
       "id": "int32",
       "rank": "int32"
     },
+    "blend.model.UserName": {},
     "blend.model.Wallet": {
       "free": "int32",
       "paid": "int32",
       "ktstore_paid": "int32"
     },
-    "google.protobuf.Empty": {}
+    "google.protobuf.Empty": {},
+    "capture.json.Status": {
+      "terms_of_service_version": "string",
+      "gdpr_privacy_policy_version": "string",
+      "title": "capture.json.Title"
+    },
+    "capture.json.Title": {
+      "bgm_path_hash": "string",
+      "timeline_asset_path_hash": "string",
+      "id": "int32"
+    },
+    "capture.json.Error": {
+      "code": "string",
+      "master_data_version": "string",
+      "asset_version": "string"
+    }
   },
   "enums": {
     "blend.enum.battle_action_type.BattleActionType": {
