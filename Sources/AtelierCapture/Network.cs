@@ -92,23 +92,12 @@ internal static partial class Network
     }
 
     // One lock for the read and the bind, so the parent's binding cannot change in between.
-    internal static void InheritBinding(object parent, object child, string qualifiedEdge)
+    internal static void InheritEnvironment(object parent, object child, string qualifiedEdge)
     {
-        NetworkContext? context;
         bool ambiguous;
         lock (Sync)
-        {
-            (context, var environment) = Objects.Lookup(parent);
-            ambiguous = context is not null
-                ? Objects.Bind(child, context, qualifiedEdge)
-                : environment is not null
-                    && Objects.BindEnvironment(child, environment.IsPrivate, qualifiedEdge);
-        }
-        if (!ambiguous)
-            return;
-        if (context is not null)
-            ContextAmbiguous(child, context);
-        else
+            ambiguous = Objects.InheritEnvironment(parent, child, qualifiedEdge);
+        if (ambiguous)
             EnvironmentAmbiguous(child, qualifiedEdge);
     }
 

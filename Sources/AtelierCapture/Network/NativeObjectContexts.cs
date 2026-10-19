@@ -50,6 +50,15 @@ internal sealed class NativeObjectContexts
 
     internal NativeBindingState State(object? value) => Live(value)?.State ?? default;
 
+    internal bool InheritEnvironment(object parent, object child, string qualifiedEdge)
+    {
+        var source = Live(parent);
+        if (source is null || !source.Origin.HasEvidence)
+            return false;
+        _ = Token(child);
+        return bindings[Pointer(child)].Context.InheritEnvironment(source, qualifiedEdge);
+    }
+
     internal bool Bind(object value, NetworkContext context, string qualifiedEdge)
     {
         _ = Token(value);
@@ -130,6 +139,16 @@ internal sealed class ContextBinding
 
     internal NativeBindingState State =>
         new(Current, Ambiguous, Origin.Proof.IsPrivate, Origin.Proof.Ambiguous, Origin.HasEvidence);
+
+    internal bool InheritEnvironment(ContextBinding parent, string qualifiedEdge)
+    {
+        // Shared gameplay children can outlive the request that first exposed them.
+        if (!parent.Origin.HasEvidence)
+            return false;
+        var wasOriginAmbiguous = Origin.Proof.Ambiguous;
+        Origin.Bind(parent.Origin.Proof.IsPrivate, qualifiedEdge);
+        return !wasOriginAmbiguous && Origin.Proof.Ambiguous;
+    }
 
     internal void InvalidateOperation()
     {

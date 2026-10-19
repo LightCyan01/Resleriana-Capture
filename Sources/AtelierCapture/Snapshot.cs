@@ -760,7 +760,7 @@ internal sealed class Snapshot
     )
     {
         if (child is Il2CppObjectBase)
-            Network.InheritBinding(
+            Network.InheritEnvironment(
                 parent,
                 child,
                 ChildEdges.GetOrAdd(

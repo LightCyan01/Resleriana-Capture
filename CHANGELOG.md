@@ -7,6 +7,7 @@
 - Reduce snapshot allocation and encoding work while retaining repeated observations and all recorded gameplay values.
 - Hide the null-Transform cloth warning from the console while retaining the original warning and occurrence counts in captures.
 - Allow localization data updates without failing recorder compatibility checks.
+- Avoid false request-ownership errors when gameplay snapshots share native objects, preserving their fields and proven API links.
 
 ## 1.4.2
 
