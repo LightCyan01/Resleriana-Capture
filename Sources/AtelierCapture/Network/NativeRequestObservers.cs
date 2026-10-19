@@ -13,6 +13,16 @@ internal static partial class Network
         __state = state;
         if (state is null)
             return;
+        if (IsAssetDownload((object)__instance, out var assetVersion))
+        {
+            state.Excluded = true;
+            if (AssetTraffic.ObserveSend(assetVersion))
+                Plugin.Writer.EmitBootstrap(
+                    "asset_download_version",
+                    new AssetDownloadVersion(assetVersion)
+                );
+            return;
+        }
         Observe(
             "request",
             commits =>
@@ -138,7 +148,7 @@ internal static partial class Network
         IDisposable? __state
     )
     {
-        if (__state is null)
+        if (__state is null or ExcludedRequestScope)
             return;
         Observe(
             "request_entity_materialized",
@@ -170,7 +180,7 @@ internal static partial class Network
     {
         try
         {
-            if (__nativeFault && __state is not null)
+            if (__nativeFault && __state is { Excluded: false })
                 Observe(
                     "request_exception",
                     commits =>
@@ -221,8 +231,8 @@ internal static partial class Network
 
     private static void Completed(object __instance, out IDisposable? __state)
     {
-        __state = Plugin.BeginNativeCallback();
-        if (__state is null)
+        BeginRequestCallback(__instance, out __state);
+        if (__state is null or ExcludedRequestScope)
             return;
         Observe(
             "request_complete",
@@ -405,7 +415,7 @@ internal static partial class Network
 
     private static void StateChanged(object __instance, IDisposable? __state)
     {
-        if (__state is null)
+        if (__state is null or ExcludedRequestScope)
             return;
         Observe(
             "transport_state",

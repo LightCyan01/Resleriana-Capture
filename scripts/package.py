@@ -18,9 +18,10 @@ CONFIGURATION_VALUES = {
 CONFIGURATION_CONTRACT = [{"path": "BepInEx/config/BepInEx.cfg", "section": "IL2CPP", "key": key, "value": value}
                           for key, value in CONFIGURATION_VALUES.items()]
 LOCALIZATION_CONFIG = "BepInEx/config/AtelierResleriana.Plugin.Localization.cfg"
-CONFIGURATION_CONTRACT.append({"path": LOCALIZATION_CONFIG, "section": "Data", "key": "AutoUpdate", "value": "false"})
 PRIVACY_CONFIG = "BepInEx/config/AtelierCapture.Privacy.json"
 MUTABLE_CONFIG_FILES = {"BepInEx/config/BepInEx.cfg", LOCALIZATION_CONFIG, PRIVACY_CONFIG}
+MUTABLE_DATA_FILES = {"BepInEx/plugins/Resources/LocalizationData.json"}
+MUTABLE_RUNTIME_FILES = MUTABLE_CONFIG_FILES | MUTABLE_DATA_FILES
 
 
 def parse_version(value):
@@ -102,7 +103,7 @@ def validate_stage(stage):
         if path.stat().st_size != entry["size"] or sha256(path) != entry["sha256"]:
             raise ValueError(f"Runtime certificate file mismatch: {name}")
         covered.add(name)
-    expected = {name for name in files if not name.startswith("Licenses/") and name not in {"README.md", "BepInEx/plugins/capture-runtime.json"} and name not in MUTABLE_CONFIG_FILES}
+    expected = {name for name in files if not name.startswith("Licenses/") and name not in {"README.md", "BepInEx/plugins/capture-runtime.json"} and name not in MUTABLE_RUNTIME_FILES}
     if covered != expected:
         raise ValueError("Runtime certificate does not cover the complete installed load graph")
     configuration = (stage / "doorstop_config.ini").read_text()

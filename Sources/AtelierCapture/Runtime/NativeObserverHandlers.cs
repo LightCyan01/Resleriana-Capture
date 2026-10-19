@@ -9,16 +9,19 @@ internal sealed class NativeObserverHandlers
     private readonly Action<NativeObservationSnapshot, Invocation>? returned;
     private readonly Action<NativeObservationSnapshot, Invocation>? leave;
     private readonly int argumentCount;
+    private readonly Func<NativeObservationSnapshot, bool>? exclude;
 
     internal NativeObserverHandlers(
         MethodBase target,
         Type owner,
         string? prefix,
         string? postfix,
-        string? finalizer
+        string? finalizer,
+        Func<NativeObservationSnapshot, bool>? exclude = null
     )
     {
         argumentCount = target.GetParameters().Length;
+        this.exclude = exclude;
         enter = Bind(target, owner, prefix, true);
         returned = Bind(target, owner, postfix, false);
         leave = Bind(target, owner, finalizer, false);
@@ -41,11 +44,22 @@ internal sealed class NativeObserverHandlers
         }
         try
         {
-            Plugin.Observe(
+            if (exclude is not null)
+                try
+                {
+                    invocation.Snapshot = frame.Materialize();
+                    invocation.BypassCapture = exclude(invocation.Snapshot);
+                }
+                catch
+                {
+                    invocation.Snapshot = null;
+                }
+            Observe(
+                invocation,
                 "native_entry_observer",
                 () =>
                 {
-                    invocation.Snapshot = frame.Materialize();
+                    invocation.Snapshot ??= frame.Materialize();
                     enter?.Invoke(invocation.Snapshot, invocation);
                 }
             );
@@ -62,7 +76,8 @@ internal sealed class NativeObserverHandlers
         if (state is not Invocation invocation)
             return;
         invocation.Snapshot = null;
-        Plugin.Observe(
+        Observe(
+            invocation,
             "native_return_observer",
             () =>
             {
@@ -78,7 +93,11 @@ internal sealed class NativeObserverHandlers
             return;
         invocation.NativeFault = true;
         invocation.Snapshot = null;
-        Plugin.Observe("native_fault_observer", () => invocation.Snapshot = frame.Materialize());
+        Observe(
+            invocation,
+            "native_fault_observer",
+            () => invocation.Snapshot = frame.Materialize()
+        );
     }
 
     internal void Leave(object? state)
@@ -100,7 +119,7 @@ internal sealed class NativeObserverHandlers
         }
         try
         {
-            Plugin.Observe("native_observer_leave", Finish);
+            Observe(invocation, "native_observer_leave", Finish);
         }
         finally
         {
@@ -117,6 +136,14 @@ internal sealed class NativeObserverHandlers
                 invocation.OwnerState = null;
             }
         }
+    }
+
+    private static void Observe(Invocation invocation, string kind, Action action)
+    {
+        if (invocation.BypassCapture)
+            action();
+        else
+            Plugin.Observe(kind, action);
     }
 
     private static Action<NativeObservationSnapshot, Invocation>? Bind(
@@ -216,6 +243,7 @@ internal sealed class NativeObserverHandlers
         internal NativeObservationSnapshot? Snapshot;
         public object? OwnerState;
         public bool NativeFault;
+        internal bool BypassCapture;
         internal int Disposed;
     }
 }

@@ -16,7 +16,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import zipfile
 
-from package import CONFIGURATION_CONTRACT, CONFIGURATION_VALUES, LOCALIZATION_CONFIG, MUTABLE_CONFIG_FILES, PRIVACY_CONFIG, ROOT, install_file, parse_version, sha256, validate_stage
+from package import CONFIGURATION_CONTRACT, CONFIGURATION_VALUES, LOCALIZATION_CONFIG, MUTABLE_RUNTIME_FILES, PRIVACY_CONFIG, ROOT, install_file, parse_version, sha256, validate_stage
 
 BEPINEX_COMMIT = "5b766a3b7f6c164d4798924a93f3acf4db769d06"
 INTEROP_COMMIT = "dbda1cb353b0f4253345dc45136d170b9e50a5a0"
@@ -498,7 +498,7 @@ def self_check():
         (stage / LOCALIZATION_CONFIG).write_text("[Data]\nAutoUpdate = false\n")
         (stage / PRIVACY_CONFIG).write_text('{"enabled":false}\n')
         records = [{"path": name, "sha256": sha256(stage / name), "size": (stage / name).stat().st_size}
-                   for name in sorted(names) if name not in MUTABLE_CONFIG_FILES]
+                   for name in sorted(names) if name not in MUTABLE_RUNTIME_FILES]
         certificate = {"schema": 1, "runtime_major": 10, "runtime_version": RUNTIME_VERSION,
                        "runtime_files": records, "supported_client": SUPPORTED_CLIENT, "configuration_contract": CONFIGURATION_CONTRACT}
         certificate_path = stage / "BepInEx/plugins/capture-runtime.json"
@@ -518,11 +518,9 @@ def self_check():
         (stage / LOCALIZATION_CONFIG).write_text("[Data]\nAutoUpdate = false\n[General]\nLanguage = en\nDialogueFontSize = 36\n")
         validate_stage(stage)
         (stage / LOCALIZATION_CONFIG).write_text("[Data]\nAutoUpdate = true\n")
-        try:
-            validate_stage(stage)
-            raise AssertionError("Localization data auto-update accepted")
-        except ValueError:
-            pass
+        validate_stage(stage)
+        (stage / "BepInEx/plugins/Resources/LocalizationData.json").write_text('{"updated_translation":true}')
+        validate_stage(stage)
         (stage / LOCALIZATION_CONFIG).write_text("[Data]\nAutoUpdate = false\n")
         (stage / "BepInEx/plugins/AtelierCapture.dll").write_bytes(b"tampered")
         try:
@@ -663,7 +661,7 @@ def main():
     runtime_files = [{"path": path.relative_to(stage).as_posix(), "sha256": sha256(path), "size": path.stat().st_size}
                      for path in sorted(stage.rglob("*")) if path.is_file()
                      and path.relative_to(stage).parts[0] != "Licenses" and path.name != "README.md"
-                     and path.relative_to(stage).as_posix() not in MUTABLE_CONFIG_FILES]
+                     and path.relative_to(stage).as_posix() not in MUTABLE_RUNTIME_FILES]
     certificate = {"schema": 1, "runtime_major": 10, "runtime_version": RUNTIME_VERSION,
                    "runtime_files": runtime_files, "supported_client": SUPPORTED_CLIENT, "source_digest": source_digest,
                    "configuration_contract": CONFIGURATION_CONTRACT}

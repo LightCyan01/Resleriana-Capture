@@ -209,6 +209,9 @@ internal sealed class NativeApiBindings
 
     internal string? ReadDescriptorId(object value) => (string?)descriptorId.GetValue(value);
 
+    internal string? ReadRequestMethod(object request) =>
+        requestMethod.Invoke(request, null)?.ToString();
+
     internal byte[] ReadMessageBinary(object message)
     {
         var nativeBytes =
@@ -337,14 +340,14 @@ internal sealed class NativeApiBindings
         Plugin.ObserveNative(
             State,
             typeof(Network),
-            "BeginNativeCallback",
+            "BeginRequestCallback",
             "StateChanged",
             "EndNativeCallback"
         );
         Plugin.ObserveNative(
             EntityBody,
             typeof(Network),
-            "BeginNativeCallback",
+            "BeginRequestCallback",
             "EntityMaterialized",
             "EndNativeCallback"
         );

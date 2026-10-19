@@ -1,5 +1,8 @@
 # Resleriana Capture
 
+> [!WARNING]
+> Capturing may cause lag or stuttering, especially during battles or on slower PCs.
+
 Resleriana Capture records API traffic from Atelier Resleriana (JP) on Steam, and saves each play session as a ZIP on your PC. The package also includes the English translation from [Localization 2.0.0](https://github.com/ongandrew/AtelierResleriana/releases/tag/2.0.0).
 
 ## Requirements
@@ -25,8 +28,6 @@ IL2CPPInteropAssembliesPath = {BepInEx}
 ```
 
 The package includes the Unity 2022.3.62 base libraries, so BepInEx doesn't download them.
-
-In `BepInEx/config/AtelierResleriana.Plugin.Localization.cfg`, set `AutoUpdate = false` under `[Data]`. This keeps the translation data at the version the package was checked with. Leave your language and other options as they are.
 
 ## Captures
 

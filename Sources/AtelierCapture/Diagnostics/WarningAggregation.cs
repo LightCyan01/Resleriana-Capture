@@ -47,6 +47,8 @@ internal enum DiagnosticFamily
 
 internal sealed class WarningAggregation(DiagnosticFamily family = DiagnosticFamily.Warning)
 {
+    private const string ClothWarning =
+        "Adding null Transform to TransformAccessArray will result in degraded performance.";
     private readonly object gate = new();
     private readonly Dictionary<Key, State> warnings = new();
     private long staged;
@@ -151,7 +153,7 @@ internal sealed class WarningAggregation(DiagnosticFamily family = DiagnosticFam
             staged = stagedTotal;
             PublishStatus();
             // Deferred saves finish after the console sink runs; the disk log still keeps every repeat.
-            if (repeated && family == DiagnosticFamily.Warning)
+            if (family == DiagnosticFamily.Warning && (repeated || IsClothWarning(record)))
                 suppressConsole();
             return () =>
             {
@@ -171,6 +173,14 @@ internal sealed class WarningAggregation(DiagnosticFamily family = DiagnosticFam
             };
         }
     }
+
+    private static bool IsClothWarning(CaptureDiagnostic record) =>
+        record.source == "Unity"
+        && (
+            record.message == ClothWarning
+            || record.message.StartsWith(ClothWarning + "\n", StringComparison.Ordinal)
+            || record.message.StartsWith(ClothWarning + "\r\n", StringComparison.Ordinal)
+        );
 
     internal CaptureWarningSummary[] Summaries() =>
         Summaries(state => new CaptureWarningSummary(

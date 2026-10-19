@@ -1,10 +1,19 @@
+using System.Collections.Concurrent;
 using System.Globalization;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace AtelierCapture;
 
 internal static class PrivacyNative
 {
+    private static readonly ConcurrentDictionary<
+        string,
+        (string Name, string[] Arguments)?
+    > GenericTypes = new(StringComparer.Ordinal);
+    private static readonly ConcurrentDictionary<string, string?> Containers = new(
+        StringComparer.Ordinal
+    );
     private static readonly Lazy<Catalog> Fields = new(Load);
     private static readonly Lazy<Dictionary<string, Signature>> Hooks = new(() =>
         Plugin
@@ -47,7 +56,7 @@ internal static class PrivacyNative
         );
         var pending = new Queue<SnapshotNode>();
         var kept = new HashSet<int>();
-        var nodes = new List<object>();
+        var nodes = new List<Node>();
         var protobufFieldsOmitted = false;
         var contracts = new Dictionary<int, object>();
         var gaps = new Dictionary<(int? Node, string Field, string Reason), long>();
@@ -211,41 +220,39 @@ internal static class PrivacyNative
                 || node.filtered_protobuf is not null && !node.FilteredProtobufQualified
             )
                 Omit("privacy_native_protobuf_unavailable");
-            var omittedFields = node
-                .fields.Keys.Where(name => !output.ContainsKey(name))
-                .Where(name => fields?.ContainsKey(name) == true)
-                .ToArray();
-            contracts.TryAdd(
-                node.contract_id,
-                new
-                {
-                    id = node.contract_id,
-                    type,
-                    excluded_fields = omittedFields
-                        .Select(name => name + ":privacy_mode")
-                        .ToArray(),
-                    unavailable_fields = node.unavailable_fields is { Count: > 0 }
-                        ? new[] { "native_fields_unavailable" }
-                        : Array.Empty<string>(),
-                }
-            );
+            if (!contracts.ContainsKey(node.contract_id))
+                contracts.Add(
+                    node.contract_id,
+                    new
+                    {
+                        id = node.contract_id,
+                        type,
+                        excluded_fields = node
+                            .fields.Keys.Where(name => !output.ContainsKey(name))
+                            .Where(name => fields?.ContainsKey(name) == true)
+                            .Select(name => name + ":privacy_mode")
+                            .ToArray(),
+                        unavailable_fields = node.unavailable_fields is { Count: > 0 }
+                            ? new[] { "native_fields_unavailable" }
+                            : Array.Empty<string>(),
+                    }
+                );
             if (node.lineage_failures is { Count: > 0 })
             {
                 currentField = "$lineage";
                 Omit("native_lineage_unverified");
             }
             nodes.Add(
-                new
-                {
+                new Node(
                     node.id,
                     node.contract_id,
-                    fields = output,
+                    output,
                     items,
-                    filtered_protobuf = protobuf,
+                    protobuf,
                     representation,
-                    privacy_omissions = node.privacy_omissions,
-                    lifetime_id = Id(node.lifetime_id),
-                }
+                    node.privacy_omissions,
+                    Id(node.lifetime_id)
+                )
             );
         }
         var failures = (Read(value, "failures") as IEnumerable<SnapshotFailure> ?? [])
@@ -362,6 +369,23 @@ internal static class PrivacyNative
 
     private static bool Number(object value, string type, out object? result)
     {
+        if (
+            type switch
+            {
+                "System.Byte" => value is byte,
+                "System.SByte" => value is sbyte,
+                "System.Int16" => value is short,
+                "System.UInt16" => value is ushort,
+                "System.Int32" => value is int,
+                "System.UInt32" => value is uint,
+                "System.Decimal" => value is decimal,
+                _ => false,
+            }
+        )
+        {
+            result = value;
+            return true;
+        }
         result = null;
         var text =
             value as string
@@ -372,11 +396,6 @@ internal static class PrivacyNative
             );
         if (text is null || text.Length == 0 || text.Length > 64 || text.Any(char.IsWhiteSpace))
             return false;
-        if (type == "System.Decimal" && value is decimal)
-        {
-            result = value;
-            return true;
-        }
         if (
             !decimal.TryParse(
                 text,
@@ -408,7 +427,9 @@ internal static class PrivacyNative
         return true;
     }
 
-    private static string? Container(string type)
+    private static string? Container(string type) => Containers.GetOrAdd(type, ParseContainer);
+
+    private static string? ParseContainer(string type)
     {
         var split = Generic(type);
         if (split is null)
@@ -466,7 +487,10 @@ internal static class PrivacyNative
             : null;
     }
 
-    private static (string Name, string[] Arguments)? Generic(string type)
+    private static (string Name, string[] Arguments)? Generic(string type) =>
+        GenericTypes.GetOrAdd(type, ParseGeneric);
+
+    private static (string Name, string[] Arguments)? ParseGeneric(string type)
     {
         var start = type.IndexOf('<');
         if (start < 0 || !type.EndsWith('>'))
@@ -504,6 +528,18 @@ internal static class PrivacyNative
             throw new InvalidDataException("Native privacy field declarations are unavailable.");
         return catalog;
     }
+
+    private sealed record Node(
+        int id,
+        int contract_id,
+        Dictionary<string, object?> fields,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] object?[]? items,
+        JsonNode? filtered_protobuf,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+            string? representation,
+        IReadOnlyList<PrivacyPayload.Omission>? privacy_omissions,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? lifetime_id
+    );
 
     private sealed record Signature(
         string Type,
