@@ -31,6 +31,12 @@ internal static partial class Network
         __state = state;
         if (state is null)
             return;
+        if (IsAssetDownload(__instance, out _))
+        {
+            state.Excluded = true;
+            state.EnterContext();
+            return;
+        }
         Observe(
             "request_headers_begin",
             commits =>
@@ -55,6 +61,11 @@ internal static partial class Network
 
     private static void HeaderGroupWriting(string? __0, NativeValues? __1, out IDisposable? __state)
     {
+        if (headerSend?.Excluded == true)
+        {
+            __state = null;
+            return;
+        }
         __state = Plugin.BeginNativeCallback();
         if (__state is null)
             return;
@@ -96,7 +107,7 @@ internal static partial class Network
     {
         try
         {
-            if (__state is not null)
+            if (__state is { Excluded: false })
                 Observe(
                     "request_headers_end",
                     commits =>
@@ -144,6 +155,7 @@ internal static partial class Network
         internal RequestLedger.Attempt? Attempt;
         internal readonly List<HeaderGroup> Groups = new();
         internal long Ordinal;
+        internal bool Excluded;
 
         internal void EnterContext()
         {

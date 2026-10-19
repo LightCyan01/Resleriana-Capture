@@ -21,6 +21,10 @@ internal sealed class Snapshot
     private static readonly ConcurrentDictionary<Type, string[]> PrivacyAssignments = new();
     private static readonly ConcurrentDictionary<
         Type,
+        (string Name, string? Element)
+    > PrivacyTypes = new();
+    private static readonly ConcurrentDictionary<
+        Type,
         Func<object, IEnumerable<object?>>
     > Collections = new();
     private readonly DetachedSnapshot graph;
@@ -427,11 +431,15 @@ internal sealed class Snapshot
         var type = original.GetType();
         var declarations =
             source.Fields.Count == 0 ? null : PrivacyDeclarations.GetOrAdd(type, DeclaredFields);
+        var privacyType = PrivacyTypes.GetOrAdd(
+            type,
+            static type => (RuntimeCompatibility.SignatureType(type), CollectionElement(type))
+        );
         return source with
         {
-            PrivacyType = RuntimeCompatibility.SignatureType(type),
+            PrivacyType = privacyType.Name,
             Declarations = declarations,
-            ElementType = source.Items is null ? null : CollectionElement(type),
+            ElementType = source.Items is null ? null : privacyType.Element,
             AssignableTypes = PrivacyAssignments.GetOrAdd(type, AssignableTypes),
             Protobuf = null,
             ProtobufFallback = null,
@@ -567,7 +575,7 @@ internal sealed class Snapshot
                             ? ManagedItems(managed, original)
                             : Collections
                                 .GetOrAdd(projectedType, CollectionReader)(original)
-                                .Select(item => ReadChild(original, () => item)),
+                                .Select(item => ReadChild(original, item)),
                         child =>
                             NativeProjection.Reference(
                                 NativeObjectType.ClassName(child),
@@ -591,7 +599,7 @@ internal sealed class Snapshot
                             ? managed.Cast<object?>()
                             : Collections.GetOrAdd(projectedType, CollectionReader)(original)
                     ).Select(item =>
-                        ReadChild(original, () => item, null, scoped.Reference, scoped.Declaration)
+                        ReadChild(original, item, null, scoped.Reference, scoped.Declaration)
                     ),
                 Excluded: ["qualified_collection_item_state:" + scoped.Reference.StateContract]
             );
@@ -610,7 +618,7 @@ internal sealed class Snapshot
                         ? ManagedItems(managed, value)
                         : Collections
                             .GetOrAdd(type, CollectionReader)(value)
-                            .Select(item => ReadChild(value, () => item))
+                            .Select(item => ReadChild(value, item))
             );
         NativeFieldPolicy.RequireSemanticOwner(type);
         if (NativeProtobuf.IsMessage(type))
@@ -628,7 +636,7 @@ internal sealed class Snapshot
                         .Where(f => f.Get is not null)
                         .Select(f => new SnapshotMember(
                             f.Name,
-                            () => ReadChild(value, () => f.Get!(value), f)
+                            () => ReadChild(value, f.Get!(value), f)
                         ))
                         .ToArray(),
                 Lineage: () => BindProtobufChildren(value)
@@ -649,7 +657,7 @@ internal sealed class Snapshot
         var members = projection
             .Readers.Select(f => new SnapshotMember(
                 f.Name,
-                () => ReadChild(value, () => f.Get!(value), f)
+                () => ReadChild(value, f.Get!(value), f)
             ))
             .ToList();
         object? FieldValue(string name) => fields.Single(f => f.Name == name).Get!(value);
@@ -658,7 +666,7 @@ internal sealed class Snapshot
                 .Derived(type, FieldValue)
                 .Select(member => new SnapshotMember(
                     member.Name,
-                    () => ReadChild(value, member.Read)
+                    () => ReadChild(value, member.Read())
                 ))
         );
         return new(
@@ -740,18 +748,17 @@ internal sealed class Snapshot
                     + "."
                     + name
             );
-        return ReadChild(owner, () => field.Get(owner));
+        return ReadChild(owner, field.Get(owner));
     }
 
     private static object? ReadChild(
         object parent,
-        Func<object?> read,
+        object? child,
         Field? field = null,
         NativeEdgeReference? itemReference = null,
         Type? itemDeclaration = null
     )
     {
-        var child = read();
         if (child is Il2CppObjectBase)
             Network.InheritBinding(
                 parent,
@@ -984,7 +991,7 @@ internal sealed class Snapshot
     private static IEnumerable<object?> ManagedItems(IEnumerable value, object parent)
     {
         foreach (var item in value)
-            yield return ReadChild(parent, () => item);
+            yield return ReadChild(parent, item);
     }
 
     private static IEnumerable<object?> ReadList<T>(object value)

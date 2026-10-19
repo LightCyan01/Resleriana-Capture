@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace AtelierCapture;
 
-internal sealed record SnapshotMember(string Name, Func<object?> Read);
+internal readonly record struct SnapshotMember(string Name, Func<object?> Read);
 
 internal sealed record SnapshotSource(
     string Type,

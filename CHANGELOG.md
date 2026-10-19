@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.3
+
+- Skip per-request recording of verified official CDN assets, avoiding unnecessary capture writes and false missing-body errors during bulk downloads.
+- Retain asset version details and separate counts of excluded download send calls while preserving gameplay API, Battle and Atelier recording.
+- Reduce snapshot allocation and encoding work while retaining repeated observations and all recorded gameplay values.
+- Hide the null-Transform cloth warning from the console while retaining the original warning and occurrence counts in captures.
+- Allow localization data updates without failing recorder compatibility checks.
+
 ## 1.4.2
 
 - Fix privacy mode discarding native Battle and Atelier gameplay inputs, results and state. Retain qualified values and references while filtering personal data.

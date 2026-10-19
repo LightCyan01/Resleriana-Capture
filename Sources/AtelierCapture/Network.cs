@@ -136,6 +136,7 @@ internal static partial class Network
         {
             binding_complete = snapshot.binding_complete && !closed,
             native_observers_closed = closed,
+            asset_downloads = AssetTraffic.Snapshot(),
         };
     }
 
@@ -284,7 +285,7 @@ internal static partial class Network
     {
         try
         {
-            if (__nativeFault && __state is not null)
+            if (__nativeFault && __state is not null and not ExcludedRequestScope)
                 Observe(
                     "native_api_fault",
                     _ =>
@@ -588,7 +589,8 @@ internal static partial class Network
         string assignment_stage_status = "unsupported_shared_native_body",
         string entity_stage_status = "observed_at_unique_consumers",
         string decoder_result_stage_status = "observed_at_original_native_return",
-        bool complete = false
+        bool complete = false,
+        AssetDownloadSummary? asset_downloads = null
     );
 
     private sealed record Descriptor(
@@ -603,6 +605,7 @@ internal static partial class Network
     {
         private IDisposable scope = PushContext(null);
         internal RequestLedger.Attempt? Attempt;
+        internal bool Excluded;
 
         internal void SetContext()
         {

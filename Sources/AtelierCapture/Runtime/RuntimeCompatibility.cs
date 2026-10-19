@@ -198,8 +198,6 @@ internal sealed class RuntimeCompatibility
             [("BepInEx/config/BepInEx.cfg", "IL2CPP", "GlobalMetadataPath")] =
                 "{GameDataPath}/il2cpp_data/Metadata/global-metadata.dat",
             [("BepInEx/config/BepInEx.cfg", "IL2CPP", "IL2CPPInteropAssembliesPath")] = "{BepInEx}",
-            [("BepInEx/config/AtelierResleriana.Plugin.Localization.cfg", "Data", "AutoUpdate")] =
-                "false",
         };
         if (entries.Length != expected.Count)
             throw new RuntimeCompatibilityException("configuration_contract");
@@ -256,7 +254,6 @@ internal sealed class RuntimeCompatibility
                         identity.Item3 switch
                         {
                             "UnityBaseLibrariesSource" => "offline_unity_source",
-                            "AutoUpdate" => "localization_data_auto_update",
                             _ => "interop_input_configuration",
                         }
                     );
@@ -275,8 +272,9 @@ internal sealed class RuntimeCompatibility
         return new
         {
             files = identities.ToArray(),
-            required_contract = "offline_unity_libraries_2022.3.62_pinned_metadata_interop_paths_and_localization_data",
+            required_contract = "offline_unity_libraries_2022.3.62_pinned_metadata_interop_paths",
             logging_preferences = "user_owned_mutable",
+            localization_preferences = "user_owned_mutable",
         };
     }
 

@@ -116,6 +116,20 @@ internal sealed class CapturePrivacy(bool enabled)
         {
             if (kind is "request" or "response")
                 result = Api(kind, value);
+            else if (
+                kind == "asset_download_version"
+                && value is AssetDownloadVersion asset
+                && AssetDownloads.ValidVersion(asset.version)
+            )
+                result = asset;
+            else if (
+                kind == "asset_download_summary"
+                && value is AssetDownloadSummary summary
+                && summary.versions.All(entry =>
+                    AssetDownloads.ValidVersion(entry.version) && entry.observed_send_calls >= 0
+                )
+            )
+                result = summary;
             else if (kind == "raw_body")
                 result = new
                 {

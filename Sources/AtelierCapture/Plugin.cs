@@ -302,6 +302,14 @@ public sealed class Plugin : BasePlugin
                 AppDomain.CurrentDomain.ProcessExit -= OnProcessExit;
                 try
                 {
+                    try
+                    {
+                        Network.SaveAssetDownloadSummary();
+                    }
+                    catch (Exception error)
+                    {
+                        ClosingFailure("asset_download_summary", error);
+                    }
                     Writer?.Dispose();
                 }
                 finally
@@ -419,7 +427,14 @@ public sealed class Plugin : BasePlugin
             + ")";
         try
         {
-            var handlers = new NativeObserverHandlers(target, owner, prefix, postfix, finalizer);
+            var handlers = new NativeObserverHandlers(
+                target,
+                owner,
+                prefix,
+                postfix,
+                finalizer,
+                owner == typeof(Network) ? Network.AssetFilter(target) : null
+            );
             NativeHooks.Add(
                 PassiveNativeHook.Install(
                     target,

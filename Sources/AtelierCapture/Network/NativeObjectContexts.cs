@@ -9,6 +9,11 @@ internal sealed class NativeObjectContexts
     private readonly List<long> replacedTokens = new();
     private long nextToken;
 
+    internal long? ExistingToken(object value) =>
+        bindings.TryGetValue(Pointer(value), out var binding) && binding.Alive
+            ? binding.Token
+            : null;
+
     internal long Token(object value)
     {
         var pointer = Pointer(value);

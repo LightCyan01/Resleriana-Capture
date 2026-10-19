@@ -26,7 +26,7 @@ IL2CPPInteropAssembliesPath = {BepInEx}
 
 The package includes the Unity 2022.3.62 base libraries, so BepInEx doesn't download them.
 
-In `BepInEx/config/AtelierResleriana.Plugin.Localization.cfg`, set `AutoUpdate = false` under `[Data]`. This keeps the translation data at the version the package was checked with. Leave your language and other options as they are.
+In `BepInEx/config/AtelierResleriana.Plugin.Localization.cfg`, `AutoUpdate = true` under `[Data]` enables translation-data updates. It is enabled by default. The recorder supports updated translation data; leave your language and other options as they are.
 
 ## Captures
 
