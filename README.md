@@ -1,5 +1,8 @@
 # Resleriana Capture
 
+> [!WARNING]
+> Capturing may cause lag or stuttering, especially during battles or on slower PCs.
+
 Resleriana Capture records API traffic from Atelier Resleriana (JP) on Steam, and saves each play session as a ZIP on your PC. The package also includes the English translation from [Localization 2.0.0](https://github.com/ongandrew/AtelierResleriana/releases/tag/2.0.0).
 
 ## Requirements
