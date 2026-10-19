@@ -24,17 +24,10 @@ internal static class PrivacyPayload
         ["google.protobuf.UInt64Value"] = "uint64",
         ["google.protobuf.FloatValue"] = "float",
         ["google.protobuf.DoubleValue"] = "double",
+        ["google.protobuf.StringValue"] = "string",
     };
     private static readonly Regex Timestamp = new(
         @"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.[0-9]{1,9})?(Z|[+-]\d{2}:\d{2})$",
-        RegexOptions.CultureInvariant | RegexOptions.NonBacktracking
-    );
-    private static readonly Regex DecimalText = new(
-        @"\A(?:0|[1-9][0-9]*)(?:\.[0-9]+)?\z",
-        RegexOptions.CultureInvariant | RegexOptions.NonBacktracking
-    );
-    private static readonly Regex ProductIdentifier = new(
-        @"\A[A-Za-z0-9][A-Za-z0-9._-]{0,127}\z",
         RegexOptions.CultureInvariant | RegexOptions.NonBacktracking
     );
 
@@ -98,9 +91,7 @@ internal static class PrivacyPayload
                         or "uint64"
                         or "float"
                         or "double"
-                        or "decimal_string"
-                        or "product_identifier"
-                        or "currency_code"
+                        or "string"
                 || type == "google.protobuf.Timestamp"
                 || type.StartsWith("enum:", StringComparison.Ordinal)
                     && catalog.enums.ContainsKey(type[5..]);
@@ -173,11 +164,14 @@ internal static class PrivacyPayload
                 {
                     if (!fields.TryGetValue(member.Key, out var childType))
                     {
-                        var known = catalog.Excluded.Contains((type, member.Key));
+                        var known = catalog.Redactions.TryGetValue(
+                            (type, member.Key),
+                            out var reason
+                        );
                         Missing(
                             type,
                             known ? member.Key : "$unknown",
-                            known ? "excluded_schema_field" : "unqualified_field_name"
+                            known ? reason! : "unqualified_field_name"
                         );
                         continue;
                     }
@@ -203,19 +197,10 @@ internal static class PrivacyPayload
     private static bool Scalar(JsonValue value, string type, Catalog catalog)
     {
         var kind = value.GetValueKind();
+        if (type == "string")
+            return kind == JsonValueKind.String;
         if (type == "bool")
             return kind is JsonValueKind.True or JsonValueKind.False;
-        if (type == "decimal_string")
-            return kind == JsonValueKind.String
-                && value.GetValue<string>() is { Length: > 0 and <= 128 } decimalText
-                && DecimalText.IsMatch(decimalText);
-        if (type == "product_identifier")
-            return kind == JsonValueKind.String
-                && ProductIdentifier.IsMatch(value.GetValue<string>());
-        if (type == "currency_code")
-            return kind == JsonValueKind.String
-                && value.GetValue<string>() is { Length: 3 } currency
-                && currency.All(character => character is >= 'A' and <= 'Z');
         if (type == "google.protobuf.Timestamp")
         {
             if (kind != JsonValueKind.String)
@@ -339,16 +324,18 @@ internal static class PrivacyPayload
                 continue;
             var owner = excluded[..split];
             var field = excluded[(split + 1)..];
-            catalog.Excluded.Add((owner, field));
+            var reason = catalog.redaction_reasons?.GetValueOrDefault(excluded) ?? "personal_data";
+            catalog.Redactions.Add((owner, field), reason);
             var parts = field.Split('_');
-            catalog.Excluded.Add(
+            catalog.Redactions.TryAdd(
                 (
                     owner,
                     parts[0]
                         + string.Concat(
                             parts.Skip(1).Select(part => char.ToUpperInvariant(part[0]) + part[1..])
                         )
-                )
+                ),
+                reason
             );
         }
         return catalog;
@@ -359,9 +346,10 @@ internal static class PrivacyPayload
         string descriptor_sha256,
         string[] excluded_fields,
         Dictionary<string, Dictionary<string, string>> messages,
-        Dictionary<string, Dictionary<string, int>> enums
+        Dictionary<string, Dictionary<string, int>> enums,
+        Dictionary<string, string>? redaction_reasons = null
     )
     {
-        internal HashSet<(string Owner, string Field)> Excluded { get; } = [];
+        internal Dictionary<(string Owner, string Field), string> Redactions { get; } = [];
     }
 }

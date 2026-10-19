@@ -2,6 +2,8 @@
 
 ## 1.4.3
 
+- Narrow privacy filtering to identified personal and credential fields, retaining public text, profile preferences and the existing typed gameplay observations.
+- Preserve nonpersonal status/error responses, protocol headers, request correlation and structured recorder failure details in privacy captures.
 - Skip per-request recording of verified official CDN assets, avoiding unnecessary capture writes and false missing-body errors during bulk downloads.
 - Retain asset version details and separate counts of excluded download send calls while preserving gameplay API, Battle and Atelier recording.
 - Reduce snapshot allocation and encoding work while retaining repeated observations and all recorded gameplay values.

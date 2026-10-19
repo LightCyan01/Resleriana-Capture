@@ -5,6 +5,8 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
 namespace AtelierCapture;
 
+internal sealed record ApiCaptureGap(string capture_status, string reason, object details);
+
 internal static partial class Network
 {
     private static readonly object Sync = new();
@@ -509,16 +511,7 @@ internal static partial class Network
 
     private static void Gap(NetworkContext? context, string reason, object details)
     {
-        Emit(
-            context,
-            "api_capture_incomplete",
-            new
-            {
-                capture_status = "incomplete",
-                reason,
-                details,
-            }
-        );
+        Emit(context, "api_capture_incomplete", new ApiCaptureGap("incomplete", reason, details));
         Plugin.ReportFailure("api_" + reason, new InvalidDataException(reason));
     }
 

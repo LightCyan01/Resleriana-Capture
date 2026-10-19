@@ -235,7 +235,12 @@ internal sealed partial class SessionWriter : IDisposable
             try
             {
                 source.InitialStatus =
-                    privacy.Enabled ? privacy.Status
+                    privacy.Enabled
+                        ? privacy.Status(
+                            sourceIndex == ProcessSource
+                                ? null
+                                : status(sourceIndex == PrivateSource)
+                        )
                     : sourceIndex == ProcessSource ? new { scope = "process" }
                     : status(sourceIndex == PrivateSource);
             }
@@ -1311,7 +1316,7 @@ internal sealed partial class SessionWriter : IDisposable
             {
                 for (var i = 0; i < 2; i++)
                     sources[i].FinalStatus = privacy.Enabled
-                        ? privacy.Status
+                        ? privacy.Status(status(i == PrivateSource))
                         : status(i == PrivateSource);
             }
             catch (Exception ex)

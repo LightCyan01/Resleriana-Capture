@@ -23,7 +23,8 @@ internal sealed record SnapshotSource(
     IReadOnlyDictionary<string, string>? Declarations = null,
     string? ElementType = null,
     Func<JsonNode?>? FilteredProtobuf = null,
-    IReadOnlyList<string>? AssignableTypes = null
+    IReadOnlyList<string>? AssignableTypes = null,
+    bool RuntimeDeclarationsQualified = false
 );
 
 internal sealed class SnapshotNode(int id, string type)
@@ -67,6 +68,9 @@ internal sealed class SnapshotNode(int id, string type)
 
     [JsonIgnore]
     internal IReadOnlyList<string>? AssignableTypes { get; set; }
+
+    [JsonIgnore]
+    internal bool RuntimeDeclarationsQualified { get; set; }
 
     [JsonIgnore]
     public IReadOnlyList<string>? excluded_fields { get; internal set; }
@@ -140,6 +144,7 @@ internal sealed class DetachedSnapshot(
             node.Declarations = source.Declarations;
             node.ElementType = source.ElementType;
             node.AssignableTypes = source.AssignableTypes;
+            node.RuntimeDeclarationsQualified = source.RuntimeDeclarationsQualified;
             if (source.Lineage is { } readLineage)
             {
                 try

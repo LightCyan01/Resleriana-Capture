@@ -6,6 +6,11 @@ using System.Text.Json.Serialization;
 
 namespace AtelierCapture;
 
+internal sealed record NativeObservationOriginProof(
+    IReadOnlyList<string> qualified_edges,
+    string? scoped_callback_proof
+);
+
 internal static class Battle
 {
     [ThreadStatic]
@@ -425,11 +430,10 @@ internal static class Battle
                         origin = state.Environment is null ? "unknown"
                         : state.Environment.Value ? "Private"
                         : "Official",
-                        origin_proof = new
-                        {
-                            qualified_edges = state.EnvironmentEdges,
-                            scoped_callback_proof = context?.IdentityProof,
-                        },
+                        origin_proof = new NativeObservationOriginProof(
+                            state.EnvironmentEdges,
+                            context?.IdentityProof
+                        ),
                         route = context?.Route,
                         declared_route = state.Hook.Route,
                         // Owner stability across the copy is unqualified, so no observation is complete.

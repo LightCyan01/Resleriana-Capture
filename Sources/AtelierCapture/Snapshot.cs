@@ -441,6 +441,7 @@ internal sealed class Snapshot
             Declarations = declarations,
             ElementType = source.Items is null ? null : privacyType.Element,
             AssignableTypes = PrivacyAssignments.GetOrAdd(type, AssignableTypes),
+            RuntimeDeclarationsQualified = true,
             Protobuf = null,
             ProtobufFallback = null,
             FilteredProtobuf = source.Protobuf is null
