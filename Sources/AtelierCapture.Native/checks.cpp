@@ -9,8 +9,10 @@
 #include <stdexcept>
 #include <thread>
 #include <vector>
+#include <source_location>
 #include "bridge.h"
 #include "checks.h"
+#include "patch.h"
 
 static std::atomic<std::uint64_t> assertions;
 static std::atomic<int> calls;
@@ -45,7 +47,13 @@ static_assert(sizeof(CancellationToken) == 8 && alignof(CancellationToken) == 8)
 static_assert(sizeof(NativeTask) == 16 && alignof(NativeTask) == 8 && offsetof(NativeTask, token) == 8);
 
 struct Guard { ~Guard() noexcept { ++destructors; } };
-static void require(bool value) { ++assertions; if (!value) throw std::runtime_error("native fixture invariant"); }
+static void require(bool value, std::source_location location = std::source_location::current()) {
+    ++assertions;
+    if (!value) {
+        std::fprintf(stderr, "native fixture invariant at %s:%u\n", location.file_name(), location.line());
+        throw std::runtime_error("native fixture invariant");
+    }
+}
 
 static void original_begin(void* self, void* method) {
     const auto incoming_error = GetLastError();
@@ -66,12 +74,53 @@ static void original_begin(void* self, void* method) {
         reinterpret_cast<void(__cdecl*)(void*,void*)>(cross_reentry)(receiver_memory, expected_method);
         should_reenter = true;
     }
-    if (self) ++receiver_memory[0];
+    if (self) std::atomic_ref<std::uint64_t>(receiver_memory[0]).fetch_add(1);
     if (should_throw) fixture_throw(fault_identity);
 }
 
 using DobbyPrepare = int(__cdecl*)(void*,void*,void**);
 using DobbyAction = int(__cdecl*)(void*);
+
+struct GuardedFixture {
+    void* source;
+    unsigned char original[16];
+    unsigned char patched[16];
+};
+static GuardedFixture guarded_sources[4];
+static unsigned guarded_count;
+static HMODULE dobby_module;
+static std::uint32_t dobby_size;
+
+static void prepare_guarded(void* source, void* target, DobbyPrepare prepare, void** gateway) {
+    require(guarded_count < 4);
+    auto& item = guarded_sources[guarded_count++];
+    item.source = source;
+    std::memcpy(item.original, source, sizeof(item.original));
+    require(prepare(source, target, gateway) == 0 && *gateway);
+    if (!dobby_module) {
+        require(GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            reinterpret_cast<LPCSTR>(prepare), &dobby_module) != FALSE);
+        const auto dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(dobby_module);
+        const auto nt = reinterpret_cast<const IMAGE_NT_HEADERS64*>(reinterpret_cast<const char*>(dobby_module) + dos->e_lfanew);
+        dobby_size = nt->OptionalHeader.SizeOfImage;
+    }
+}
+
+static void commit_guarded(void* source) {
+    auto& item = guarded_sources[guarded_count - 1];
+    require(item.source == source);
+    const auto status = capture_commit_guarded(source, sizeof(item.original), item.original, dobby_module, dobby_size);
+    if (status) std::fprintf(stderr, "native guarded fixture commit status %d\n", status);
+    require(status == 0);
+    std::memcpy(item.patched, source, sizeof(item.patched));
+}
+
+static CaptureCallback provided_callback;
+static std::atomic<std::uint64_t> callback_count;
+static void __cdecl counted_callback(CaptureFrame* frame) noexcept {
+    ++callback_count;
+    provided_callback(frame);
+}
 
 #include "fixture-entries.inc"
 
@@ -97,9 +146,12 @@ extern "C" __declspec(dllexport) void __cdecl fixture_scramble_thread_state() no
 extern "C" __declspec(dllexport) std::uint64_t __cdecl fixture_run(
     CaptureCallback callback, DobbyPrepare prepare, DobbyAction commit, DobbyAction destroy, unsigned race) noexcept {
     try {
+        const bool retain = race >= 4;
+        if (retain) race -= 4;
         _mm_setcsr(0x1F80);
         std::fprintf(stderr, "native finite fixture starting\n");
-        run_entries(callback, prepare, commit);
+        provided_callback = callback;
+        run_entries(&counted_callback, prepare, commit);
         require(capture_find("not-in-catalog", "v:reference:") == -1);
         require(capture_find(identities_for_checks[0], "unsupported") == -1);
         reentry_slot = capture_find("BattleServerControl.SyncActionStart()", "v:reference:");
@@ -150,6 +202,42 @@ extern "C" __declspec(dllexport) std::uint64_t __cdecl fixture_run(
         if (race == 2) release_pause.store(true);
         if (race == 0) caller.join();
         closer.join();
+        if (retain) {
+            require(capture_forward_only(reentry_slot) == 0);
+            if (race != 0) { release_pause.store(true); release_second.store(true); caller.join(); }
+            const auto before = calls.load();
+            const auto observed = callback_count.load();
+            std::vector<std::thread> workers;
+            for (unsigned worker = 0; worker < 4; ++worker)
+                workers.emplace_back([] {
+                    for (unsigned i = 0; i < 100; ++i) {
+                        should_reenter = true;
+                        should_throw = i % 2 != 0;
+                        SetLastError(0x2222);
+                        bool caught = false;
+                        try {
+                            reinterpret_cast<void(__cdecl*)(void*,void*)>(reentry)(receiver_memory, expected_method);
+                        } catch (const FixtureException& error) {
+                            caught = true;
+                            require(error.identity == fault_identity && &error == fixture_exception_address());
+                        }
+                        require(caught == should_throw && GetLastError() == 0x4321 && _mm_getcsr() == 0x5F80);
+                        should_reenter = false;
+                        should_throw = false;
+                    }
+                });
+            for (auto& worker : workers) worker.join();
+            require(calls.load() == before + 1000 && callback_count.load() == observed);
+            require(capture_close(reentry_slot) == -2 && capture_restored(reentry_slot) == -2);
+            return assertions.load();
+        }
+        for (unsigned i = 0; i < guarded_count; ++i) {
+            auto& item = guarded_sources[i];
+            require(capture_restore_guarded(item.source, sizeof(item.original), item.patched,
+                item.original, dobby_module, dobby_size) == 0);
+            require(std::memcmp(item.source, item.original, sizeof(item.original)) == 0);
+            require(destroy(item.source) == 0);
+        }
         for (std::size_t index = 0; index < source_count; ++index) {
             require(capture_active(static_cast<int>(index)) == 0);
             if (static_cast<int>(index) == reentry_slot) require(destroy(sources[index]) == 0);

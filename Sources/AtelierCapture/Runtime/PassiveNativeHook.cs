@@ -38,6 +38,18 @@ internal sealed class PassiveNativeHook : IDisposable
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate int DobbyAction(nint source);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate nint LeafGateway(nint source, uint rva);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private unsafe delegate int GuardedCommit(
+        nint source,
+        uint span,
+        byte* expected,
+        nint module,
+        uint moduleSize
+    );
+
     private static readonly object Setup = new();
     private static readonly List<PassiveNativeHook> Roots = [];
     private static nint library;
@@ -46,10 +58,14 @@ internal sealed class PassiveNativeHook : IDisposable
     private static Entry? entry;
     private static Bind? bind;
     private static SlotAction? close;
-    private static SlotAction? restored;
+    private static SlotAction? forwardOnly;
     private static Prepare? prepare;
     private static DobbyAction? commit;
     private static DobbyAction? destroy;
+    private static GuardedCommit? guardedCommit;
+    private static LeafGateway? leafGateway;
+    private static uint dobbySize;
+    private static long sharedInvocation;
     private static JsonDocument? catalog;
     private static Exception? loadFailure;
     private static int closed;
@@ -70,8 +86,9 @@ internal sealed class PassiveNativeHook : IDisposable
     private readonly bool constructor;
     private readonly int slot;
     private readonly nint source;
+    private readonly NativeBodyPolicy? bodyPolicy;
+    private bool guardedPublished;
     private bool disposed;
-    private bool restoredSource;
 
     private PassiveNativeHook(
         MethodBase method,
@@ -89,6 +106,7 @@ internal sealed class PassiveNativeHook : IDisposable
         this.method = method;
         this.slot = slot;
         this.source = source;
+        bodyPolicy = NativeBodyPolicy.Create(method, source);
         enterObserver = enter;
         returnedObserver = returned;
         faultObserver = faulted;
@@ -202,6 +220,14 @@ internal sealed class PassiveNativeHook : IDisposable
                 prepared = true;
                 if (original == 0)
                     throw new InvalidDataException("Native observer prepared no original gateway.");
+                if (hook.bodyPolicy is { LeafRva: > 0 } leaf)
+                {
+                    original = leafGateway!(nativeSource, leaf.LeafRva);
+                    if (original == 0)
+                        throw new InvalidDataException(
+                            "Pinned native leaf gateway could not be qualified."
+                        );
+                }
                 Success(
                     bind!(
                         index,
@@ -213,12 +239,33 @@ internal sealed class PassiveNativeHook : IDisposable
                 );
                 published = true;
                 Roots.Add(hook);
-                Success(commit!(nativeSource), "native commit");
+                if (hook.bodyPolicy is { } policy)
+                {
+                    fixed (byte* expected = policy.OriginalBytes)
+                        Success(
+                            guardedCommit!(
+                                nativeSource,
+                                (uint)policy.Span,
+                                expected,
+                                dobby,
+                                dobbySize
+                            ),
+                            "guarded native commit"
+                        );
+                    hook.guardedPublished = true;
+                }
+                else
+                    Success(commit!(nativeSource), "native commit");
                 return hook;
             }
             catch
             {
-                if (published)
+                if (published && hook.bodyPolicy is not null && !hook.guardedPublished)
+                {
+                    // A refused publication retains its unused gateway rather than rewriting a changed source.
+                    hook.disposed = true;
+                }
+                else if (published)
                     hook.Dispose();
                 else if (prepared)
                     Success(destroy!(nativeSource), "failed native prepare cleanup");
@@ -253,7 +300,11 @@ internal sealed class PassiveNativeHook : IDisposable
             entry = Export<Entry>(library, "capture_entry");
             bind = Export<Bind>(library, "capture_bind");
             close = Export<SlotAction>(library, "capture_close");
-            restored = Export<SlotAction>(library, "capture_restored");
+            forwardOnly = Export<SlotAction>(library, "capture_forward_only");
+            guardedCommit = Export<GuardedCommit>(library, "capture_commit_guarded");
+            leafGateway = Export<LeafGateway>(library, "capture_leaf_gateway");
+            var header = Marshal.ReadInt32(dobby + 0x3c);
+            dobbySize = unchecked((uint)Marshal.ReadInt32(dobby + header + 24 + 56));
             prepare = Export<Prepare>(dobby, "DobbyPrepare");
             commit = Export<DobbyAction>(dobby, "DobbyCommit");
             destroy = Export<DobbyAction>(dobby, "DobbyDestroy");
@@ -343,8 +394,14 @@ internal sealed class PassiveNativeHook : IDisposable
             if (frame.Phase == NativeObservationPhase.Entering)
             {
                 invocation = new Invocation();
+                invocation.Classification = bodyPolicy?.Classify(frame);
                 var handle = GCHandle.Alloc(invocation);
                 frame.Token = GCHandle.ToIntPtr(handle);
+                if (invocation.Classification is { ObserveTarget: false })
+                {
+                    invocation.SharedId = Interlocked.Increment(ref sharedInvocation);
+                    invocation.Lease = Plugin.BeginNativeCallback();
+                }
             }
             else if (frame.Token != 0)
                 invocation = GCHandle.FromIntPtr(frame.Token).Target as Invocation;
@@ -358,17 +415,24 @@ internal sealed class PassiveNativeHook : IDisposable
                 }
                 finally
                 {
+                    invocation.Lease?.Dispose();
                     GCHandle.FromIntPtr(frame.Token).Free();
                     frame.Token = 0;
                     invocation.State = null;
                 }
                 return;
             }
+            if (invocation.Classification is { ObserveTarget: false } classification)
+            {
+                if (invocation.Lease is not null)
+                    RecordSharedCall(frame, invocation.SharedId, classification);
+                return;
+            }
             var captured = frame;
             var observation = new NativeObservation(
                 method,
                 frame.Phase,
-                () => Materialize(captured)
+                () => Materialize(captured, invocation.Classification)
             );
             try
             {
@@ -402,21 +466,65 @@ internal sealed class PassiveNativeHook : IDisposable
         }
     }
 
-    private NativeObservationSnapshot Materialize(NativeObservationFrame frame)
+    private NativeObservationSnapshot Materialize(
+        NativeObservationFrame frame,
+        NativeBodyClassification? classification = null
+    )
     {
         var values = new object?[arguments.Length];
         for (var index = 0; index < values.Length; index++)
             values[index] = arguments[index]
                 .Read(Marshal.ReadIntPtr(frame.Arguments, index * IntPtr.Size));
         var instance =
-            constructor && frame.Phase != NativeObservationPhase.Returned
+            bodyPolicy?.OmitReceiver == true
+            || classification is { ReceiverAvailable: false }
+            || constructor && frame.Phase != NativeObservationPhase.Returned
                 ? null
                 : receiver?.Read(frame.Receiver, true);
         var returned =
             frame.Phase == NativeObservationPhase.Returned && result is not null
                 ? result.Read(frame.Result)
                 : null;
-        return new(instance, values, returned);
+        return new(instance, values, returned, classification?.Alias);
+    }
+
+    private void RecordSharedCall(
+        NativeObservationFrame frame,
+        long id,
+        NativeBodyClassification classification
+    )
+    {
+        var phase = frame.Phase switch
+        {
+            NativeObservationPhase.Entering => "enter",
+            NativeObservationPhase.Returned => "exit",
+            NativeObservationPhase.Faulted => "exception",
+            _ => throw new InvalidDataException("Shared native phase is unavailable."),
+        };
+        var record = new NativeSharedBodyCall(
+            id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            bodyPolicy!.Boundary,
+            bodyPolicy.Aliases,
+            classification.Alias,
+            classification.Reason,
+            phase
+        );
+        Plugin.Observe(
+            "native_shared_body_call",
+            () =>
+            {
+                if (Network.CurrentContext?.IsPrivate is bool isPrivate)
+                    Plugin.Writer.Emit(
+                        isPrivate,
+                        false,
+                        "native_shared_body_call",
+                        record,
+                        systemId: "Recorder"
+                    );
+                else
+                    Plugin.Writer.EmitBootstrap("native_shared_body_call", record);
+            }
+        );
     }
 
     private static unsafe bool IsRedirected(nint source)
@@ -431,6 +539,9 @@ internal sealed class PassiveNativeHook : IDisposable
     private sealed class Invocation
     {
         internal object? State;
+        internal NativeBodyClassification? Classification;
+        internal IDisposable? Lease;
+        internal long SharedId;
     }
 
     private void Report(Exception error)
@@ -460,14 +571,8 @@ internal sealed class PassiveNativeHook : IDisposable
                 return;
             Success(close!(slot), "native close/drain");
             Volatile.Write(ref closed, 1);
-            foreach (var hook in Roots)
-            {
-                if (hook.restoredSource)
-                    continue;
-                Success(destroy!(hook.source), "native restore");
-                hook.restoredSource = true;
-            }
-            Success(restored!(slot), "native restored publication");
+            // Retain gateways until process exit; shutdown must not rewrite code under game threads.
+            Success(forwardOnly!(slot), "native forward-only publication");
             foreach (var hook in Roots)
                 hook.disposed = true;
         }

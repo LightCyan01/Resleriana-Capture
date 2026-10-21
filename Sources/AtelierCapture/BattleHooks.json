@@ -40,7 +40,11 @@
     "system": "Battle",
     "variant": "entry_exit",
     "boundary": "BattleServerControl.SyncAfterAction",
-    "activation_gap": "shared_native_body_unqualified"
+    "observed_boundary": "BattleServerControl.SyncAfterAction|PKHEFFANDOI",
+    "native_body_aliases": [
+      "BattleServerControl.SyncAfterAction()",
+      "BattleServerControl.PKHEFFANDOI()"
+    ]
   },
   {
     "type": "BattleServerControl",
@@ -492,8 +496,7 @@
     "is_static": false,
     "system": "Battle",
     "variant": "entry_exit",
-    "boundary": "BattleDamageControl.OnFlag",
-    "activation_gap": "tiny_native_stub_caller_register_contract_unqualified"
+    "boundary": "BattleDamageControl.OnFlag"
   },
   {
     "type": "BattleDamageControl",

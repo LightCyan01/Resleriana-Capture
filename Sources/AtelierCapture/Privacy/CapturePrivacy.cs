@@ -185,6 +185,8 @@ internal sealed class CapturePrivacy(bool enabled)
                 };
             else if (kind == "capture_status")
                 result = Status(value);
+            else if (kind == "native_shared_body_call" && value is NativeSharedBodyCall shared)
+                result = shared;
             else if (
                 kind == "unclassified_api_capture_incomplete"
                 && Read(value, "data") is ApiCaptureGap unclassified

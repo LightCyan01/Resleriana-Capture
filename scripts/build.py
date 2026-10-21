@@ -266,7 +266,7 @@ def build_native(workdir):
     linker = compiler.with_name("link.exe")
     output = directory / "AtelierCapture.Native.dll"
     arguments = [str(compiler), "/nologo", "/std:c++20", "/EHs", "/MT", "/O2", "/W4", "/WX", "/guard:cf", "/Brepro", "/LD",
-                 "/I" + str(directory), "/Fo" + str(directory) + "/", str(ROOT / "Sources/AtelierCapture.Native/bridge.cpp"),
+                 "/I" + str(directory), "/Fo" + str(directory) + "/", str(ROOT / "Sources/AtelierCapture.Native/bridge.cpp"), str(ROOT / "Sources/AtelierCapture.Native/patch.cpp"),
                  "/link", "/OUT:" + str(output), "/INCREMENTAL:NO", "/OPT:NOICF", "/DYNAMICBASE", "/NXCOMPAT", "/Brepro", "Synchronization.lib"]
     subprocess.run(arguments, cwd=directory, env=environment, check=True)
     dumpbin = compiler.with_name("dumpbin.exe")
@@ -325,12 +325,21 @@ def build_native_checks(directory, compiler, environment, rows):
         body.append("}")
         bodies += body
         patch = row["identity"] == "BattleServerControl.SyncActionStart()"
+        guarded = row["identity"] in (
+            "BattleServerControl.SyncAfterAction()",
+            "BattleDamageControl.OnFlag(BattleDamageControl+HJFPICAALFD&,BattleDamageControl+HJFPICAALFD)",
+            "PLCHDHONCDJ..ctor(Blend.ApiSchema.Model.Ship)",
+            "JJPPPEBLGOK..ctor(Blend.ApiSchema.Model.SynthesisCombinationRank)",
+        )
         preparation = [f"void* gateway = reinterpret_cast<void*>(&original_{index});"]
         if patch: preparation += [f"require(prepare(reinterpret_cast<void*>(&original_{index}), capture_entry(index), &gateway) == 0);"]
+        if guarded: preparation += [f"prepare_guarded(reinterpret_cast<void*>(&original_{index}), capture_entry(index), prepare, &gateway);"]
         runs += ["{", f"std::fprintf(stderr, \"native finite fixture slot {index}\\n\");", f"const auto index = capture_find({json.dumps(row['identity'])}, {json.dumps(row['shape'])}); require(index == {index});", *preparation,
                  f"require(capture_bind(index, reinterpret_cast<void*>(&original_{index}), gateway, callback) == 0);"]
         if patch: runs += [f"require(commit(reinterpret_cast<void*>(&original_{index})) == 0);"]
-        runs += [f"using Call = {result}(__cdecl*)({','.join(types)});", "auto function = reinterpret_cast<Call>(capture_entry(index));",
+        if guarded: runs += [f"commit_guarded(reinterpret_cast<void*>(&original_{index}));"]
+        function = f"&original_{index}" if guarded else "capture_entry(index)"
+        runs += [f"using Call = {result}(__cdecl*)({','.join(types)});", f"auto function = reinterpret_cast<Call>({function});",
                  "auto before = calls.load(); output_memory[0] = 0xABCD; output_memory[3] = 0xDCBA; SetLastError(0x2222);",
                  ("auto result = " if result != "void" else "") + "function(" + ",".join(values) + ");",
                  "require(GetLastError() == 0x4321 && _mm_getcsr() == 0x5F80); require(calls.load() == before + 1);",
@@ -348,7 +357,7 @@ def build_native_checks(directory, compiler, environment, rows):
     common = [str(compiler), "/nologo", "/std:c++20", "/EHs", "/O2", "/W4", "/WX", "/LD", "/Fo"+str(directory)+"/", "/I"+str(directory)]
     subprocess.run(common + ["/MD", str(source / "thrower.cpp"), "/link", "/OUT:"+str(directory / "AtelierCapture.Native.Thrower.dll"), "/IMPLIB:"+str(directory / "thrower.lib")], cwd=directory, env=environment, check=True)
     subprocess.run(common + ["/MT", str(source / "checks.cpp"), "/link", "/OUT:"+str(directory / "AtelierCapture.Native.Checks.dll"), str(directory / "thrower.lib"), str(directory / "bridge.lib"), "/OPT:NOICF"], cwd=directory, env=environment, check=True)
-    subprocess.run(common + ["/MT", "/DCAPTURE_NATIVE_CHECKS", str(source / "bridge.cpp"), "/link", "/OUT:"+str(directory / "AtelierCapture.Native.Races.dll"), "/IMPLIB:"+str(directory / "races.lib"), "Synchronization.lib"], cwd=directory, env=environment, check=True)
+    subprocess.run(common + ["/MT", "/DCAPTURE_NATIVE_CHECKS", str(source / "bridge.cpp"), str(source / "patch.cpp"), "/link", "/OUT:"+str(directory / "AtelierCapture.Native.Races.dll"), "/IMPLIB:"+str(directory / "races.lib"), "Synchronization.lib"], cwd=directory, env=environment, check=True)
     subprocess.run(common + ["/MT", "/DCAPTURE_NATIVE_CHECKS", str(source / "checks.cpp"), "/link", "/OUT:"+str(directory / "AtelierCapture.Native.RaceChecks.dll"), str(directory / "thrower.lib"), str(directory / "races.lib"), "/OPT:NOICF"], cwd=directory, env=environment, check=True)
 
 

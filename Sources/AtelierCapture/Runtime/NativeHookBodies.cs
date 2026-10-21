@@ -15,6 +15,12 @@ internal static class NativeHookBodies
             throw new RuntimeCompatibilityException("shared_native_body_unqualified");
     }
 
+    internal static void RequireAliasCount(long rva, int expected)
+    {
+        if (!Inventory.Value.TryGetValue(rva, out var actual) || actual != expected)
+            throw new RuntimeCompatibilityException("native_body_alias_inventory_changed");
+    }
+
     private static IReadOnlyDictionary<long, int> ReadInventory()
     {
         using var stream =

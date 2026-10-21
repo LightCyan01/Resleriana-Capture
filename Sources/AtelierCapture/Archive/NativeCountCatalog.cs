@@ -7,6 +7,23 @@ internal sealed record NativeCountBoundary(string System, string Boundary, strin
 internal static class NativeCountCatalog
 {
     internal static readonly NativeCountBoundary[] Boundaries = Read();
+    private static readonly IReadOnlyDictionary<string, NativeCountBoundary> ObservedAliases =
+        ReadObservedAliases();
+
+    internal static bool TryObservedAlias(string key, out NativeCountBoundary value) =>
+        ObservedAliases.TryGetValue(key, out value!);
+
+    private static IReadOnlyDictionary<string, NativeCountBoundary> ReadObservedAliases()
+    {
+        var result = new Dictionary<string, NativeCountBoundary>(StringComparer.Ordinal);
+        foreach (var hook in Plugin.ReadResource<Battle.HookSpec[]>("BattleHooks.json"))
+            if (hook.ObservedBoundary is { Length: > 0 } boundary)
+                result.Add(
+                    Key(hook.System, boundary, hook.Variant),
+                    new(hook.System, boundary, hook.Variant)
+                );
+        return result;
+    }
 
     internal static string Key(string system, string boundary, string variant) =>
         system + "\n" + boundary + "\n" + variant;

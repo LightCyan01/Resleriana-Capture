@@ -6,7 +6,7 @@
 #include <type_traits>
 #include "bridge.h"
 
-enum class Mode : std::uint32_t { Unbound, Live, Closing, Restored };
+enum class Mode : std::uint32_t { Unbound, Live, Closing, Restored, ForwardOnly };
 
 struct Binding {
     std::atomic<Mode> mode{Mode::Unbound};
@@ -53,11 +53,13 @@ struct Invocation {
     CaptureFrame& frame;
     bool observing{};
     bool counted{};
+    bool forwarding{};
 
     Invocation(Binding& value, CaptureFrame& call) noexcept : binding(value), frame(call) {
         for (;;) {
             const auto mode = bridge_mode.load(std::memory_order_seq_cst);
             if (mode == Mode::Restored) return;
+            if (mode == Mode::ForwardOnly) { forwarding = true; return; }
             if (mode == Mode::Live || native_depth) {
                 pause_at(1);
                 bridge_active.fetch_add(1, std::memory_order_seq_cst);
@@ -89,7 +91,7 @@ struct Invocation {
         WakeByAddressAll(&bridge_active);
     }
 
-    void* original() const noexcept { return observing ? binding.original : binding.source; }
+    void* original() const noexcept { return observing || forwarding ? binding.original : binding.source; }
 };
 
 template <typename Result, typename Call>
@@ -157,7 +159,8 @@ extern "C" int __cdecl capture_close(int index) noexcept {
     if (!capture_entry(index) || native_depth) return -1;
     {
         SetupLock lock;
-        if (bridge_mode.load(std::memory_order_seq_cst) == Mode::Restored) return -2;
+        const auto mode = bridge_mode.load(std::memory_order_seq_cst);
+        if (mode == Mode::Restored || mode == Mode::ForwardOnly) return -2;
         bridge_mode.store(Mode::Closing, std::memory_order_seq_cst);
     }
     for (;;) {
@@ -174,6 +177,16 @@ extern "C" int __cdecl capture_restored(int index) noexcept {
     // increment before its Closing recheck. It cannot touch the old gateway.
     if (bridge_mode.load(std::memory_order_seq_cst) != Mode::Closing || !drain_complete.load(std::memory_order_seq_cst)) return -2;
     bridge_mode.store(Mode::Restored, std::memory_order_seq_cst);
+    WakeByAddressAll(&bridge_mode);
+    return 0;
+}
+
+extern "C" int __cdecl capture_forward_only(int index) noexcept {
+    SetupLock lock;
+    if (!capture_entry(index)) return -1;
+    if (bridge_mode.load(std::memory_order_seq_cst) != Mode::Closing || !drain_complete.load(std::memory_order_seq_cst)) return -2;
+    // No gateway may be destroyed after this terminal fallback.
+    bridge_mode.store(Mode::ForwardOnly, std::memory_order_seq_cst);
     WakeByAddressAll(&bridge_mode);
     return 0;
 }

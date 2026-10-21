@@ -195,6 +195,10 @@ internal sealed class NativeObserverHandlers
                         nameof(NativeObservationSnapshot.Result)
                     ),
                     "__originalMethod" => Expression.Constant(target, typeof(MethodBase)),
+                    "__nativeAlias" => Expression.Property(
+                        snapshot,
+                        nameof(NativeObservationSnapshot.NativeAlias)
+                    ),
                     "__state" => ownerState,
                     "__nativeFault" => Expression.Field(invocation, nameof(Invocation.NativeFault)),
                     "__snapshotAvailable" => Expression.NotEqual(
