@@ -17,7 +17,8 @@ internal enum NativeObservationPhase : uint
 internal sealed record NativeObservationSnapshot(
     object? Instance,
     object?[] Arguments,
-    object? Result
+    object? Result,
+    string? NativeAlias = null
 );
 
 internal sealed class NativeObservation

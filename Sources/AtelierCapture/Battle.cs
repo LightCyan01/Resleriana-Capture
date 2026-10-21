@@ -94,7 +94,13 @@ internal static class Battle
                             hook.Parameters,
                             hook.IsStatic
                         );
-                if (!Hooks.TryAdd(target, hook))
+                var observed = hook.ObservedBoundary is { Length: > 0 } boundary
+                    ? hook with
+                    {
+                        Boundary = boundary,
+                    }
+                    : hook;
+                if (!Hooks.TryAdd(target, observed))
                     continue;
                 try
                 {
@@ -189,14 +195,16 @@ internal static class Battle
         object __instance,
         object[] __args,
         MethodBase __originalMethod,
-        out State? __state
-    ) => EnterCore(__instance, __args, __originalMethod, out __state);
+        out State? __state,
+        string? __nativeAlias
+    ) => EnterCore(__instance, __args, __originalMethod, out __state, __nativeAlias);
 
     private static void EnterCore(
         object? instance,
         object[] args,
         MethodBase method,
-        out State? state
+        out State? state,
+        string? nativeAlias = null
     )
     {
         state = null;
@@ -254,6 +262,7 @@ internal static class Battle
                     : null
             );
             state.CallbackLease = lifetime;
+            state.NativeAlias = nativeAlias;
             state.LineageFailures = lineageFailures;
             state.ContextScope = Network.PushContext(context);
             calls.Push(state);
@@ -462,8 +471,14 @@ internal static class Battle
                         snapshot_contracts = snapshot.Contracts,
                         referenced_owner_state_contract = "identity_only_no_implicit_state_or_definition_reuse",
                         instance_contract = !phaseSnapshotAvailable ? "phase_snapshot_unavailable"
+                        : state.Hook.Rva == 0x3754610 ? "unused_native_receiver_not_observed"
                         : state.Hook.Method == ".ctor" && phase != "exit"
                             ? "uninitialized_constructor_receiver"
+                        : state.Hook.Method == ".ctor"
+                        && args.Length == 1
+                        && args[0] is null
+                        && state.Hook.Rva is 0x2CF1FF0 or 0x2CEFBA0
+                            ? "null_input_constructor_receiver_not_observed"
                         : clientStatus ? "initialized_owner_native_client_status_read_set"
                         : resourceReceiver ? ResourceReceiverProjection.StateContract
                         : "initialized_owner_gameplay_projection",
@@ -472,6 +487,13 @@ internal static class Battle
                         nodes = snapshot.Nodes,
                         error,
                         native_original_threw = phase == "exception",
+                        native_body_aliases = state.Hook.NativeBodyAliases,
+                        identified_alias = state.NativeAlias,
+                        native_identity_contract = state.Hook.ObservedBoundary is not null
+                            ? state.NativeAlias is not null
+                                ? "shared_native_body_named_alias_method_info"
+                                : "shared_native_body_named_alias_not_identified"
+                            : null,
                     };
                     Incomplete.AddOrUpdate(state.Hook.Boundary, 1, static (_, count) => count + 1);
                     var kind = (state.Hook.System == "Battle" ? "combat_" : "native_") + phase;
@@ -520,6 +542,7 @@ internal static class Battle
         internal IDisposable? ContextScope;
         internal IDisposable? CallbackLease;
         internal string[] LineageFailures = [];
+        internal string? NativeAlias;
     }
 
     internal sealed record HookSpec(
@@ -535,6 +558,8 @@ internal static class Battle
         string Boundary = "",
         string Variant = "entry_exit",
         string? Route = null,
-        [property: JsonPropertyName("activation_gap")] string? ActivationGap = null
+        [property: JsonPropertyName("activation_gap")] string? ActivationGap = null,
+        [property: JsonPropertyName("observed_boundary")] string? ObservedBoundary = null,
+        [property: JsonPropertyName("native_body_aliases")] string[]? NativeBodyAliases = null
     );
 }

@@ -1874,8 +1874,7 @@
       "route": "",
       "variant": "Blend.ApiSchema.Model.Ship",
       "boundary": "PLCHDHONCDJ..ctor(Blend.ApiSchema.Model.Ship)",
-      "async_return": false,
-      "activation_gap": "shared_native_body_unqualified"
+      "async_return": false
     },
     {
       "type": "AGMNKCPPPCO",
@@ -1987,8 +1986,7 @@
       "route": "",
       "variant": "Blend.ApiSchema.Model.SynthesisCombinationRank",
       "boundary": "JJPPPEBLGOK..ctor(Blend.ApiSchema.Model.SynthesisCombinationRank)",
-      "async_return": false,
-      "activation_gap": "shared_native_body_unqualified"
+      "async_return": false
     },
     {
       "type": "OLJAEFPIMBE",

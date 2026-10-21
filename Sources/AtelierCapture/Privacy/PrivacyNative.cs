@@ -22,6 +22,11 @@ internal static class PrivacyNative
         Plugin
             .ReadResource<Signature[]>("BattleHooks.json")
             .Concat(Plugin.ReadResource<AtelierSignatures>("Gameplay.AtelierHooks.json").Hooks)
+            .SelectMany(value =>
+                value.ObservedBoundary is { Length: > 0 } boundary
+                    ? new[] { value, value with { Boundary = boundary } }
+                    : [value]
+            )
             .ToDictionary(
                 value => Key(value.System, value.Boundary, value.Variant),
                 StringComparer.Ordinal
@@ -334,6 +339,31 @@ internal static class PrivacyNative
                 error = "native_read_failed",
             })
             .ToArray();
+        var identifiedAlias =
+            Read(value, "identified_alias") is string alias
+            && hook.NativeBodyAliases?.Contains(alias, StringComparer.Ordinal) == true
+                ? alias
+                : null;
+        var nullInputConstructor =
+            Phase(Read(value, "phase")) == "exit"
+            && Read(value, "phase_snapshot_available") is true
+            && inputs.Length == 1
+            && inputs[0] is null
+            && Read(value, "instance_contract") is "null_input_constructor_receiver_not_observed"
+            && hook.Returns == "System.Void"
+            && (
+                hook.Rva == 0x2CF1FF0
+                    && hook.Type == "PLCHDHONCDJ"
+                    && boundary == "PLCHDHONCDJ..ctor(Blend.ApiSchema.Model.Ship)"
+                    && hook.Parameters.SequenceEqual(new[] { "Blend.ApiSchema.Model.Ship" })
+                || hook.Rva == 0x2CEFBA0
+                    && hook.Type == "JJPPPEBLGOK"
+                    && boundary
+                        == "JJPPPEBLGOK..ctor(Blend.ApiSchema.Model.SynthesisCombinationRank)"
+                    && hook.Parameters.SequenceEqual(
+                        new[] { "Blend.ApiSchema.Model.SynthesisCombinationRank" }
+                    )
+            );
         return new
         {
             invocation_id = Id(Read(value, "invocation_id")),
@@ -376,6 +406,17 @@ internal static class PrivacyNative
                 && failures.Length == 0
                 && !protobufFieldsOmitted,
             phase_snapshot_available = Read(value, "phase_snapshot_available") is true,
+            instance_contract = boundary == "BattleDamageControl.OnFlag"
+                ? "unused_native_receiver_not_observed"
+            : nullInputConstructor ? "null_input_constructor_receiver_not_observed"
+            : null,
+            native_body_aliases = hook.NativeBodyAliases,
+            identified_alias = identifiedAlias,
+            native_identity_contract = hook.ObservedBoundary is not null
+                ? identifiedAlias is not null
+                    ? "shared_native_body_named_alias_method_info"
+                    : "shared_native_body_named_alias_not_identified"
+                : null,
             native_original_threw = Read(value, "native_original_threw") is true,
             observation_consistency = "owner_thread_sequential_reads_stability_unqualified",
             consistency_gap = "native_owner_stability_unqualified",
@@ -669,11 +710,14 @@ internal static class PrivacyNative
         string Type,
         string[] Parameters,
         string Returns,
+        long Rva,
         string System = "Battle",
         string Boundary = "",
         string Variant = "entry_exit",
         string? Role = null,
-        string? Route = null
+        string? Route = null,
+        [property: JsonPropertyName("observed_boundary")] string? ObservedBoundary = null,
+        [property: JsonPropertyName("native_body_aliases")] string[]? NativeBodyAliases = null
     );
 
     private sealed record AtelierSignatures(Signature[] Hooks);

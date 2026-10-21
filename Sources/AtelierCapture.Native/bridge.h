@@ -26,6 +26,7 @@ __declspec(dllexport) void* __cdecl capture_entry(int index) noexcept;
 __declspec(dllexport) int __cdecl capture_bind(int index, void* source, void* original, CaptureCallback callback) noexcept;
 __declspec(dllexport) int __cdecl capture_close(int index) noexcept;
 __declspec(dllexport) int __cdecl capture_restored(int index) noexcept;
+__declspec(dllexport) int __cdecl capture_forward_only(int index) noexcept;
 __declspec(dllexport) std::uint64_t __cdecl capture_active(int index) noexcept;
 __declspec(dllexport) const char* __cdecl capture_catalog() noexcept;
 #ifdef CAPTURE_NATIVE_CHECKS

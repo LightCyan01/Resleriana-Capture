@@ -46,7 +46,7 @@ internal sealed class RuntimeCompatibility
                 safe_api_runtime_verified = ApiVerified,
                 native_gameplay_runtime_verified = NativeGameplayVerified,
                 native_hook_abi_qualification = "per_contract_required",
-                native_detour_body_policy = "fingerprint_pinned_globally_unique_rva_only",
+                native_detour_body_policy = "fingerprint_pinned_unique_or_finite_alias_contract",
                 failures = failures.ToArray(),
                 configuration = configurationIdentity,
                 loaded_interop = interopIdentities
@@ -487,7 +487,8 @@ internal sealed class RuntimeCompatibility
         lock (gate)
             if (!validated.TryGetValue(method, out rva))
                 throw new RuntimeCompatibilityException("uncertified_hook");
-        RequireUniqueNativeBody(rva);
+        if (!NativeBodyPolicy.IsPinnedTarget(method, rva))
+            RequireUniqueNativeBody(rva);
     }
 
     internal static void RequireUniqueNativeBody(long rva) => NativeHookBodies.RequireUnique(rva);

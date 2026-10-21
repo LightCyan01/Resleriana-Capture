@@ -544,6 +544,11 @@ internal sealed class ArchiveCounts : IDisposable
             return;
         }
         var signature = system + "\n" + boundary + "\n" + record.Get("variant_id");
+        if (
+            !boundaries.ContainsKey(signature)
+            && NativeCountCatalog.TryObservedAlias(signature, out var observed)
+        )
+            boundaries.Add(signature, new BoundaryCount(observed));
         if (boundaries.TryGetValue(signature, out var counter))
             counter.Records = checked(counter.Records + 1);
         else

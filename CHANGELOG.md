@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.4
+
+- Observe the shared battle action-merge body under both possible method names.
+- Capture damage-flag merges without reading the unused native receiver.
+- Observe Ship and synthesis-ranking row constructors with checks that distinguish their shared native code from other constructors.
+- Guard native hook activation against concurrent execution and preserve original calls after capture stops.
+
 ## 1.4.3
 
 - Narrow privacy filtering to identified personal and credential fields, retaining public text, profile preferences and the existing typed gameplay observations.
